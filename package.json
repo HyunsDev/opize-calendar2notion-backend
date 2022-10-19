@@ -1,0 +1,14 @@
+{
+  "name": "opize-calendar2notion-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/HyunsDev/opize-calendar2notion-backend.git",
+  "author": "혀느현스 <hyuns@hyuns.dev>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/**"
+    ]
+  }
+}

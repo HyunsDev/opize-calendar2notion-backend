@@ -1,0 +1,12 @@
+{
+  "name": "@opize/calendar2notion-syncbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@opize/calendar2notion-model": "1.0.0"
+  },
+  "scripts": {
+    "dev": "ts-node index.ts"
+  }
+}
