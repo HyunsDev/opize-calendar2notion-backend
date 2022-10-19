@@ -19,49 +19,49 @@ export class UserEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'string', length: 128 })
+    @Column({ length: 128 })
     name: string;
 
-    @Column({ type: 'string', length: 320, unique: true })
+    @Column({ length: 320, unique: true })
     email: string;
 
-    @Column({ type: 'string', length: 2048 })
+    @Column({ length: 2048 })
     imageUrl: string;
 
-    @Column({ type: 'string', length: 255, unique: true })
+    @Column({ length: 255, unique: true, nullable: true })
     googleId: string;
 
-    @Column({ type: 'string', length: 300, nullable: true })
+    @Column({ length: 300, nullable: true })
     googleAccessToken: string;
 
-    @Column({ type: 'string', length: 300, nullable: true })
+    @Column({ length: 300, nullable: true })
     googleRefreshToken: string;
 
-    @Column({ type: 'string', length: 300, nullable: true })
+    @Column({ length: 300, nullable: true })
     notionAccessToken: string;
 
-    @Column({ type: 'string', length: 300, nullable: true })
+    @Column({ length: 300, nullable: true })
     notionBotId: string;
 
-    @Column({ type: 'string', length: 300, nullable: true })
+    @Column({ length: 300, nullable: true })
     notionDatabaseId: string;
 
-    @Column({ type: 'date' })
+    @Column({ type: 'date', nullable: true })
     lastCalendarSync: Date;
 
-    @Column({ type: 'string', length: 300, nullable: true })
+    @Column({ length: 300, nullable: true })
     lastSyncStatus: string;
 
-    @Column({ type: 'string', length: 300, default: 'GOOGLE_SET' })
+    @Column({ length: 300, default: 'GOOGLE_SET' })
     status: 'GOOGLE_SET' | 'NOTION_API_SET' | 'NOTION_SET' | 'FINISHED';
 
     @Column({ type: 'boolean', default: false })
     isConnected: boolean;
 
-    @Column({ type: 'string', default: 'free' })
+    @Column({ default: 'free' })
     userPlan: string;
 
-    @Column({ type: 'string', length: 300, default: 'Asia/Seoul' })
+    @Column({ length: 300, default: 'Asia/Seoul' })
     userTimeZone: string;
 
     @Column({ type: 'boolean', default: false })

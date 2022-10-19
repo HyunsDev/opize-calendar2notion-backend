@@ -19,19 +19,19 @@ export class CalendarEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     googleCalendarId: string;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     googleCalendarName: string;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     status: string;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     accessRole: 'none' | 'freeBusyReader' | 'reader' | 'writer' | 'owner';
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     notionPropertyId: string;
 
     @ManyToOne(() => UserEntity, (user) => user.calendars)

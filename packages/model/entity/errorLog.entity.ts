@@ -20,13 +20,13 @@ export class ErrorLogEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     code: string;
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     from: 'GOOGLE CALENDAR' | 'NOTION' | 'SYNCBOT' | 'COMPLEX' | 'UNKNOWN';
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     description: string;
 
     @Column({ type: 'mediumtext' })
@@ -35,7 +35,7 @@ export class ErrorLogEntity {
     @Column({ type: 'boolean', default: false })
     showUser: boolean;
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     guideUrl: string;
 
     @ManyToOne(() => KnownErrorEntity, (error) => error.errorLogs)
@@ -49,7 +49,7 @@ export class ErrorLogEntity {
      * CRIT: 동기화봇 자체의 심각한 오류
      * EMERGENCY: Calendar2notion 자체의 심각한 오류
      */
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     level: 'NOTICE' | 'WARN' | 'ERROR' | 'CRIT' | 'EMERGENCY';
 
     @Column({ type: 'boolean', default: false })

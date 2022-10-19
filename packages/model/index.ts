@@ -1,3 +1,1 @@
-export function ping() {
-  return "pong";
-}
+export * from './entity';

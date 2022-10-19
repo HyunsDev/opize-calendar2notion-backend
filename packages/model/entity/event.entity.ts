@@ -19,22 +19,22 @@ export class EventEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     googleCalendarEventId: string;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     notionPageId: string;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     googleCalendarId: string;
 
-    @Column({ type: 'datetime', length: '300' })
+    @Column({ type: 'datetime' })
     lastNotionUpdate: Date;
 
     @Column({ type: 'datetime' })
     lastGoogleCalendarUpdate: Date;
 
-    @Column({ type: 'string', length: '300' })
+    @Column({ length: '300' })
     status: 'READY' | 'SYNCED';
 
     @Column({ type: 'boolean' })

@@ -20,16 +20,16 @@ export class KnownErrorEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     code: string;
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     from: 'GOOGLE CALENDAR' | 'NOTION' | 'SYNCBOT' | 'COMPLEX' | 'UNKNOWN';
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     description: string;
 
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     guideUrl: string;
 
     @Column({ type: 'boolean' })
@@ -46,7 +46,7 @@ export class KnownErrorEntity {
      * CRIT: 동기화봇 자체의 심각한 오류
      * EMERGENCY: Calendar2notion 자체의 심각한 오류
      */
-    @Column({ type: 'string', length: 300 })
+    @Column({ length: 300 })
     level: 'NOTICE' | 'WARN' | 'ERROR' | 'CRIT' | 'EMERGENCY';
 
     @Column({ type: 'boolean' })

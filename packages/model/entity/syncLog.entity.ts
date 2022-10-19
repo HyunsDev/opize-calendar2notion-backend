@@ -23,10 +23,10 @@ export class SyncLogEntity {
     @Column({ type: 'mediumtext' })
     detail: string;
 
-    @Column({ type: 'string' })
+    @Column()
     status: 'SUCCESS' | 'FAIL' | 'WORKING' | 'CANCELED';
 
-    @Column({ type: 'number' })
+    @Column({ type: 'int' })
     workingTime: number;
 
     @Column({ type: 'boolean', default: false })
@@ -36,7 +36,7 @@ export class SyncLogEntity {
     @JoinColumn({ name: 'userId' })
     user: UserEntity;
 
-    @Column({ type: 'number' })
+    @Column({ type: 'int' })
     userId: number;
 
     @CreateDateColumn()
