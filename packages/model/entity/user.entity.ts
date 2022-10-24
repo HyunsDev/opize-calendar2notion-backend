@@ -59,10 +59,13 @@ export class UserEntity {
     isConnected: boolean;
 
     @Column({ default: 'free' })
-    userPlan: string;
+    userPlan: 'FREE' | 'PRO';
 
     @Column({ length: 300, default: 'Asia/Seoul' })
     userTimeZone: string;
+
+    @Column({ length: 1000 })
+    notionProps: string;
 
     @Column({ type: 'boolean', default: false })
     isWork: boolean;

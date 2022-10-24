@@ -29,17 +29,20 @@ export class ErrorLogEntity {
     @Column({ length: 300 })
     description: string;
 
-    @Column({ type: 'mediumtext' })
-    detail: string;
+    @Column({ type: 'mediumtext', nullable: true })
+    detail?: string;
+
+    @Column({ type: 'mediumtext', nullable: true })
+    stack?: string;
 
     @Column({ type: 'boolean', default: false })
     showUser: boolean;
 
-    @Column({ length: 300 })
-    guideUrl: string;
+    @Column({ length: 300, nullable: true })
+    guideUrl?: string;
 
     @ManyToOne(() => KnownErrorEntity, (error) => error.errorLogs)
-    knownError: KnownErrorEntity;
+    knownError?: KnownErrorEntity;
 
     /**
      * 오류 레벨
