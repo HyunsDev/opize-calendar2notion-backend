@@ -46,7 +46,7 @@ export class UserEntity {
     @Column({ length: 300, nullable: true })
     notionDatabaseId: string;
 
-    @Column({ type: 'date', nullable: true })
+    @Column({ type: 'datetime', nullable: true })
     lastCalendarSync: Date;
 
     @Column({ length: 300, nullable: true })
@@ -67,10 +67,22 @@ export class UserEntity {
     @Column({ length: 1000 })
     notionProps: string;
 
+    public get parsedNotionProps(): {
+        title: string;
+        calendar: string;
+        date: string;
+        delete: string;
+        link?: string;
+        description?: string;
+        location?: string;
+    } {
+        return JSON.parse(this.notionProps);
+    }
+
     @Column({ type: 'boolean', default: false })
     isWork: boolean;
 
-    @Column({ type: 'date', nullable: true })
+    @Column({ type: 'datetime', nullable: true })
     workStartedAt: Date;
 
     @Column({ type: 'boolean', default: false })

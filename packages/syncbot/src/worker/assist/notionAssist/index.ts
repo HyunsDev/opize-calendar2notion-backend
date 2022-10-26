@@ -2,15 +2,17 @@ import { APIResponseError, Client } from '@notionhq/client';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { calendar_v3 } from 'googleapis';
 
 import { retry } from '../../../utils';
 import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
 import { DatabaseAssist } from '../databaseAssist';
 import { EventLinkAssist } from '../eventLinkAssest';
 import { Assist } from '../../types/assist';
-import { DB } from 'src/database';
+import { DB } from '../../../database';
 import { SyncError } from '../../error/error';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
+import { NotionAssistApi } from './api';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -18,7 +20,7 @@ dayjs.extend(timezone);
 export class NotionAssist extends Assist {
     private user: UserEntity;
     private calendars: CalendarEntity[];
-    private client: Client;
+    private api: NotionAssistApi;
     private startedAt: Date;
     private databaseAssist: DatabaseAssist;
     private eventLinkAssist: EventLinkAssist;
@@ -44,8 +46,10 @@ export class NotionAssist extends Assist {
         this.startedAt = startedAt;
         this.assistName = 'NotionAssist';
 
-        this.client = new Client({
-            auth: this.user.notionAccessToken,
+        this.api = new NotionAssistApi({
+            user,
+            calendars,
+            startedAt,
         });
     }
 
@@ -54,9 +58,122 @@ export class NotionAssist extends Assist {
         await this.checkProps();
     }
 
-    @retry()
+    @SyncErrorBoundary('removedPage')
+    public async getDeletedPageIds() {
+        return await this.api.getDeletedPageIds();
+    }
+
+    @SyncErrorBoundary('addCalendarProp')
+    public async addCalendarProp(calendar: CalendarEntity) {
+        // 속성 추가
+        const calendars: {
+            id?: string;
+            name: string;
+        }[] = this.calendars
+            .filter((e) => e.notionPropertyId)
+            .map((e) => ({
+                id: e.notionPropertyId,
+                name: e.googleCalendarName,
+            }));
+        calendars.push({
+            name: calendar.googleCalendarName,
+            id: undefined,
+        });
+        await this.api.updateCalendarProps(calendars);
+
+        // 새로운 속성 찾기
+        const calendarProp: string = JSON.parse(this.user.notionProps).calendar;
+        const oldPropIds = this.calendars.map((e) => e.notionPropertyId);
+        const newProp: {
+            id: string;
+            name: string;
+            color: string;
+        } = Object.values(
+            (
+                Object.values((await this.api.getDatabase()).properties).find(
+                    (e) => e.id === calendarProp,
+                ) as any
+            ).select.options,
+        ).filter((e: any) => !oldPropIds.includes(e.id))[0] as any;
+
+        calendar.notionPropertyId = newProp.id;
+        await DB.calendar.save(calendar);
+    }
+
+    @SyncErrorBoundary('deletePage')
+    public async deletePage(pageId: string) {
+        return await this.api.deletePage(pageId);
+    }
+
+    @SyncErrorBoundary('addPage')
+    public async addPage(
+        event: calendar_v3.Schema$Event,
+        calendar: CalendarEntity,
+    ) {
+        const page = await this.api.addPage(event, calendar);
+        await this.eventLinkAssist.create(page, event, calendar);
+        return page;
+    }
+
+    @SyncErrorBoundary('getUpdatedPages')
+    public async getUpdatedPages() {
+        return await this.api.getUpdatedPages();
+    }
+
+    @SyncErrorBoundary('CUDPage')
+    public async CUDPage(
+        event: calendar_v3.Schema$Event,
+        calendar: CalendarEntity,
+    ) {
+        const eventLink = await this.eventLinkAssist.findByGCalEvent(
+            event.id,
+            calendar.googleCalendarId,
+        );
+
+        if (!eventLink) {
+            // SyncError 작성
+            // throw new SyncError()
+            console.log('이벤트 링크를 기대했으나, 이벤트링크가 없습니다.');
+            return;
+        }
+
+        if (eventLink.notionPageId) {
+            const gCalEventUpdated = new Date(event.updated);
+            const userUpdated = new Date(this.user.lastCalendarSync);
+            const eventLinkUpdated = new Date(
+                eventLink.lastGoogleCalendarUpdate,
+            );
+
+            // 이미 업데이트 된 이벤트
+            if (gCalEventUpdated < userUpdated) return;
+            if (gCalEventUpdated <= eventLinkUpdated) return; // TODO: 이거 좀 쎄하다
+
+            // 취소된 이벤트
+            if (event.status === 'cancelled') {
+                await this.deletePage(eventLink.notionPageId);
+                await this.eventLinkAssist.deleteEventLink(eventLink);
+                return true;
+            }
+
+            // 캘린더 이동
+            if (
+                eventLink.googleCalendarCalendarId !== calendar.googleCalendarId
+            ) {
+                // 노션 페이지 calendar 속성은 update에서 적용되므로 이곳에서는 적용하지 않음
+                await this.eventLinkAssist.updateCalendar(eventLink, calendar);
+            }
+
+            await this.api.updatePage(eventLink, event, calendar);
+            await this.eventLinkAssist.updateLastNotionUpdate(eventLink);
+            return;
+        } else {
+            if (event.status === 'cancelled') return;
+            await this.api.addPage(event, calendar);
+        }
+    }
+
     private async checkProps() {
-        const res = await this.getDatabase();
+        const res = await this.api.getDatabase();
 
         const userProps: {
             title: string;
@@ -134,38 +251,5 @@ export class NotionAssist extends Assist {
         }
 
         return true;
-    }
-
-    @retry()
-    private async getDatabase() {
-        try {
-            return await this.client.databases.retrieve({
-                database_id: this.user.notionDatabaseId,
-            });
-        } catch (err: unknown) {
-            if (err instanceof APIResponseError) {
-                if (err.status === 404) {
-                    throw new SyncError({
-                        code: 'notion_database_not_found',
-                        description: '데이터베이스를 찾을 수 없어요.',
-                        from: 'NOTION',
-                        level: 'ERROR',
-                        user: this.user,
-                        archive: false,
-                        showUser: true,
-                    });
-                } else {
-                    throw err;
-                }
-            }
-        }
-    }
-
-    @retry()
-    private async getProp(pageId: string, propertyId: string) {
-        return await this.client.pages.properties.retrieve({
-            page_id: pageId,
-            property_id: propertyId,
-        });
     }
 }

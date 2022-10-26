@@ -26,7 +26,7 @@ export class EventEntity {
     notionPageId: string;
 
     @Column({ length: '300' })
-    googleCalendarId: string;
+    googleCalendarCalendarId: string;
 
     @Column({ type: 'datetime' })
     lastNotionUpdate: Date;
