@@ -1,24 +1,14 @@
-import { APIResponseError, Client } from '@notionhq/client';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-
+import { Client } from '@notionhq/client';
 import { calendar_v3 } from 'googleapis';
-
-import { retry } from '../../../utils';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { DatabaseAssist } from '../databaseAssist';
-import { EventLinkAssist } from '../eventLinkAssest';
-import { Assist } from '../../types/assist';
-import { DB } from 'src/database';
-import { SyncError } from '../../error/error';
-import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+
 import { transDate } from '../../../worker/utils/dateUtils';
+import { notionApi } from './api.decorator';
 
 export class NotionAssistApi {
     private user: UserEntity;
@@ -44,32 +34,14 @@ export class NotionAssistApi {
         });
     }
 
-    @retry()
+    @notionApi('database')
     async getDatabase() {
-        try {
-            return await this.client.databases.retrieve({
-                database_id: this.user.notionDatabaseId,
-            });
-        } catch (err: unknown) {
-            if (err instanceof APIResponseError) {
-                if (err.status === 404) {
-                    throw new SyncError({
-                        code: 'notion_database_not_found',
-                        description: '데이터베이스를 찾을 수 없어요.',
-                        from: 'NOTION',
-                        level: 'ERROR',
-                        user: this.user,
-                        archive: false,
-                        showUser: true,
-                    });
-                } else {
-                    throw err;
-                }
-            }
-        }
+        return await this.client.databases.retrieve({
+            database_id: this.user.notionDatabaseId,
+        });
     }
 
-    @retry()
+    @notionApi('database')
     async getDeletedPageIds() {
         const props: {
             title: string;
@@ -132,7 +104,7 @@ export class NotionAssistApi {
         return pageIds;
     }
 
-    @retry()
+    @notionApi('page')
     async getProp(pageId: string, propertyId: string) {
         return await this.client.pages.properties.retrieve({
             page_id: pageId,
@@ -140,7 +112,7 @@ export class NotionAssistApi {
         });
     }
 
-    @retry()
+    @notionApi('page')
     async deletePage(pageId: string) {
         return await this.client.pages.update({
             page_id: pageId,
@@ -148,7 +120,7 @@ export class NotionAssistApi {
         });
     }
 
-    @retry()
+    @notionApi('database')
     async updateCalendarProps(
         calendars: {
             name: string;
@@ -168,7 +140,7 @@ export class NotionAssistApi {
         });
     }
 
-    @retry()
+    @notionApi('page')
     async addPage(event: calendar_v3.Schema$Event, calendar: CalendarEntity) {
         const props: {
             title: string;
@@ -238,7 +210,7 @@ export class NotionAssistApi {
         });
     }
 
-    @retry()
+    @notionApi('page')
     public async getUpdatedPages() {
         const props: {
             title: string;
@@ -310,7 +282,7 @@ export class NotionAssistApi {
         return pages;
     }
 
-    @retry()
+    @notionApi('page')
     public async updatePage(
         eventLink: EventEntity,
         event: calendar_v3.Schema$Event,

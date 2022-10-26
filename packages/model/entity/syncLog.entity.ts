@@ -26,13 +26,13 @@ export class SyncLogEntity {
     @Column()
     status: 'SUCCESS' | 'FAIL' | 'WORKING' | 'CANCELED';
 
-    @Column({ type: 'int' })
+    @Column({ type: 'int', nullable: true })
     workingTime: number;
 
     @Column({ type: 'boolean', default: false })
     archive: boolean;
 
-    @ManyToOne(() => UserEntity, (user) => user.errorLogs)
+    @ManyToOne(() => UserEntity, (user) => user.syncLogs)
     @JoinColumn({ name: 'userId' })
     user: UserEntity;
 

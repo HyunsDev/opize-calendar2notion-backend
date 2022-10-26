@@ -11,6 +11,7 @@ type ErrorSyncConstructor = {
     level: ErrorLogEntity['level'];
     archive: ErrorLogEntity['archive'];
     user: ErrorLogEntity['user'];
+    finishWork: ErrorLogEntity['finishWork'];
 };
 
 export class SyncError extends Error {
@@ -24,6 +25,7 @@ export class SyncError extends Error {
     level: ErrorLogEntity['level'];
     archive: ErrorLogEntity['archive'];
     user: ErrorLogEntity['user'];
+    finishWork: ErrorLogEntity['finishWork'];
 
     isReported: boolean;
 
@@ -37,6 +39,7 @@ export class SyncError extends Error {
         knownError,
         level,
         archive,
+        finishWork,
     }: ErrorSyncConstructor) {
         super(description);
         this.code = code;
@@ -48,10 +51,7 @@ export class SyncError extends Error {
         this.knownError = knownError;
         this.level = level;
         this.archive = archive;
+        this.finishWork = finishWork;
         this.isReported = false;
-
-        console.log(
-            `새로운 에러\ncode: ${code} (${level})\n${description}\n${detail}`,
-        );
     }
 }

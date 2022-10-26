@@ -133,20 +133,19 @@ export class NotionAssist extends Assist {
         if (!eventLink) {
             // SyncError 작성
             // throw new SyncError()
-            console.log('이벤트 링크를 기대했으나, 이벤트링크가 없습니다.');
             return;
         }
 
         if (eventLink.notionPageId) {
             const gCalEventUpdated = new Date(event.updated);
             const userUpdated = new Date(this.user.lastCalendarSync);
-            const eventLinkUpdated = new Date(
-                eventLink.lastGoogleCalendarUpdate,
-            );
+            // const eventLinkUpdated = new Date(
+            //     eventLink.lastGoogleCalendarUpdate,
+            // );
 
             // 이미 업데이트 된 이벤트
             if (gCalEventUpdated < userUpdated) return;
-            if (gCalEventUpdated <= eventLinkUpdated) return; // TODO: 이거 좀 쎄하다
+            // if (gCalEventUpdated <= eventLinkUpdated) return; // TODO: 이거 좀 쎄하다
 
             // 취소된 이벤트
             if (event.status === 'cancelled') {
@@ -244,6 +243,7 @@ export class NotionAssist extends Assist {
                 level: 'ERROR',
                 user: this.user,
                 showUser: true,
+                finishWork: 'STOP',
                 detail:
                     `function: checkProps\n` +
                     errors.map((e) => `${e.error} (${e.message})`).join('\n'),

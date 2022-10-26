@@ -15,6 +15,8 @@ import { SyncError } from '../../error/error';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { NotionDateTime, transDate } from '../../utils/dateUtils';
+import { gCalApi } from './api.decorator';
+import { syncLogger } from '../../../worker/logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -52,7 +54,7 @@ export class GoogleCalendarAssistApi {
         });
     }
 
-    @retry()
+    @gCalApi()
     public async deleteEvent(eventId: string, calendarId: string) {
         await this.client.events.delete({
             eventId,
@@ -60,7 +62,7 @@ export class GoogleCalendarAssistApi {
         });
     }
 
-    @retry()
+    @gCalApi()
     public async getEventByCalendar(calendarId: string) {
         let nextPageToken: string = undefined;
         const events: calendar_v3.Schema$Event[] = [];
@@ -84,7 +86,7 @@ export class GoogleCalendarAssistApi {
         return events;
     }
 
-    @retry()
+    @gCalApi()
     public async getUpdatedEventsByCalendar(calendar: CalendarEntity) {
         let nextPageToken: string = undefined;
         const events: calendar_v3.Schema$Event[] = [];
@@ -110,7 +112,7 @@ export class GoogleCalendarAssistApi {
         return events;
     }
 
-    @retry()
+    @gCalApi()
     public async moveCalendar(
         eventId: string,
         calendarId: string,
@@ -123,7 +125,7 @@ export class GoogleCalendarAssistApi {
         });
     }
 
-    @retry()
+    @gCalApi()
     public async updateEvent(eventLink: EventEntity, page: PageObjectResponse) {
         const props: {
             title: string;
@@ -167,6 +169,7 @@ export class GoogleCalendarAssistApi {
             locationProp.rich_text.map((e: any) => e?.plain_text).join() ||
             undefined;
 
+        syncLogger.write('NOTION', `이벤트 업데이트 ${page.id}`, 'debug');
         return await this.client.events.patch({
             eventId: eventLink.googleCalendarEventId,
             calendarId: eventLink.googleCalendarCalendarId,
@@ -180,7 +183,7 @@ export class GoogleCalendarAssistApi {
         });
     }
 
-    @retry()
+    @gCalApi()
     public async createEvent(
         calendar: CalendarEntity,
         page: PageObjectResponse,

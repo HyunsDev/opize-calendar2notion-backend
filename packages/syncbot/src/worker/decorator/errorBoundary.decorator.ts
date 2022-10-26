@@ -1,6 +1,7 @@
 import { ErrorLogEntity } from '@opize/calendar2notion-model';
 import { DB } from '../../database';
 import { SyncError } from '../error/error';
+import { syncLogger } from '../logger';
 
 export function SyncErrorBoundary(boundaryName: string) {
     return function (target: any, key: string, desc: PropertyDescriptor) {
@@ -11,6 +12,12 @@ export function SyncErrorBoundary(boundaryName: string) {
             } catch (err: unknown) {
                 if (err instanceof SyncError) {
                     if (err.isReported) throw err;
+
+                    syncLogger.write(
+                        err.from,
+                        `[${err.code}] ${err.description}`,
+                        'error',
+                    );
 
                     // SyncError 처리
                     const errorLog = new ErrorLogEntity();
@@ -23,8 +30,9 @@ export function SyncErrorBoundary(boundaryName: string) {
                     errorLog.knownError = err.knownError;
                     errorLog.level = err.level;
                     errorLog.archive = err.archive;
-                    errorLog.user = err.user;
+                    errorLog.user = this.user;
                     errorLog.stack = err.stack;
+                    errorLog.finishWork = err.finishWork;
                     await DB.errorLog.save(errorLog);
 
                     err.isReported = true;

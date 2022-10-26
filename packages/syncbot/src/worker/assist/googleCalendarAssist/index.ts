@@ -13,6 +13,7 @@ import { SyncError } from '../../error/error';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { GoogleCalendarAssistApi } from './api';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { syncLogger } from '../../../worker/logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -100,9 +101,6 @@ export class GoogleCalendarAssist extends Assist {
         );
 
         if (!eventLink) {
-            console.log(
-                '이벤트 링크를 기대 했으나 이벤트 링크가 없음 (노션 -> 구글)',
-            );
             return;
         }
 
@@ -118,9 +116,10 @@ export class GoogleCalendarAssist extends Assist {
         if (eventLink.googleCalendarEventId) {
             const notionEventUpdated = new Date(page.last_edited_time);
             const userUpdated = new Date(this.user.lastCalendarSync);
-            const eventLinkUpdated = new Date(eventLink.lastNotionUpdate);
+            // const eventLinkUpdated = new Date(eventLink.lastNotionUpdate);
+            syncLogger.write('NOTION', `이벤트 동기화 ${page.id}`, 'debug');
             if (notionEventUpdated < userUpdated) return;
-            if (notionEventUpdated <= eventLinkUpdated) return;
+            // if (notionEventUpdated <= eventLinkUpdated) return;
 
             // 캘린더 이동
             if (
