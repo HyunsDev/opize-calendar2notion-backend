@@ -128,8 +128,6 @@ export class NotionAssist extends Assist {
             calendar.googleCalendarId,
         );
 
-        console.log('CUDPage');
-        console.log(eventLink);
         if (eventLink && eventLink.notionPageId) {
             const gCalEventUpdated = new Date(event.updated);
             const userUpdated = new Date(this.user.lastCalendarSync);
