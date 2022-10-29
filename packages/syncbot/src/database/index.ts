@@ -8,7 +8,6 @@ import {
 } from '@opize/calendar2notion-model';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import 'dotenv/config';
 
 export const AppDataSource = new DataSource({
     type: 'mariadb',
@@ -17,7 +16,7 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    synchronize: false,
+    synchronize: process.env.DB_SYNCHRONIZE === 'true',
     logging: false,
     entities: [
         UserEntity,

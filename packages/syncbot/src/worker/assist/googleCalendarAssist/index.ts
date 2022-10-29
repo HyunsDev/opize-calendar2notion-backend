@@ -100,10 +100,6 @@ export class GoogleCalendarAssist extends Assist {
             page.id,
         );
 
-        if (!eventLink) {
-            return;
-        }
-
         const notionCalendarId = (
             Object.values(page.properties).find(
                 (e) => e.id === props.calendar,
@@ -113,7 +109,7 @@ export class GoogleCalendarAssist extends Assist {
             (e) => e.notionPropertyId === notionCalendarId,
         );
 
-        if (eventLink.googleCalendarEventId) {
+        if (eventLink && eventLink.googleCalendarEventId) {
             const notionEventUpdated = new Date(page.last_edited_time);
             const userUpdated = new Date(this.user.lastCalendarSync);
             // const eventLinkUpdated = new Date(eventLink.lastNotionUpdate);

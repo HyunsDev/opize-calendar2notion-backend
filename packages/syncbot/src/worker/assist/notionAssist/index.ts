@@ -13,6 +13,7 @@ import { DB } from '../../../database';
 import { SyncError } from '../../error/error';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { NotionAssistApi } from './api';
+import { syncLogger } from '../../logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -110,8 +111,7 @@ export class NotionAssist extends Assist {
         event: calendar_v3.Schema$Event,
         calendar: CalendarEntity,
     ) {
-        const page = await this.api.addPage(event, calendar);
-        await this.eventLinkAssist.create(page, event, calendar);
+        const page = await this.api.createPage(event, calendar);
         return page;
     }
 
@@ -130,13 +130,9 @@ export class NotionAssist extends Assist {
             calendar.googleCalendarId,
         );
 
-        if (!eventLink) {
-            // SyncError 작성
-            // throw new SyncError()
-            return;
-        }
-
-        if (eventLink.notionPageId) {
+        console.log('CUDPage');
+        console.log(eventLink);
+        if (eventLink && eventLink.notionPageId) {
             const gCalEventUpdated = new Date(event.updated);
             const userUpdated = new Date(this.user.lastCalendarSync);
             // const eventLinkUpdated = new Date(
@@ -144,8 +140,14 @@ export class NotionAssist extends Assist {
             // );
 
             // 이미 업데이트 된 이벤트
-            if (gCalEventUpdated < userUpdated) return;
-            // if (gCalEventUpdated <= eventLinkUpdated) return; // TODO: 이거 좀 쎄하다
+            if (gCalEventUpdated < userUpdated) {
+                syncLogger.write(
+                    'NOTION',
+                    `${eventLink.id} 기준 시점 이전에 업데이트 된 이벤트입니다.`,
+                    'debug',
+                );
+                return;
+            }
 
             // 취소된 이벤트
             if (event.status === 'cancelled') {
@@ -167,7 +169,8 @@ export class NotionAssist extends Assist {
             return;
         } else {
             if (event.status === 'cancelled') return;
-            await this.api.addPage(event, calendar);
+            const page = await this.api.createPage(event, calendar);
+            await this.eventLinkAssist.create(page, event, calendar);
         }
     }
 

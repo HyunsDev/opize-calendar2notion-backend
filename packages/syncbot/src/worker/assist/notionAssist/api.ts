@@ -141,7 +141,10 @@ export class NotionAssistApi {
     }
 
     @notionApi('page')
-    async addPage(event: calendar_v3.Schema$Event, calendar: CalendarEntity) {
+    async createPage(
+        event: calendar_v3.Schema$Event,
+        calendar: CalendarEntity,
+    ) {
         const props: {
             title: string;
             calendar: string;

@@ -14,6 +14,7 @@ import { EventLinkAssist } from './assist/eventLinkAssest';
 import { WorkerAssist } from './assist/workerAssist';
 import { syncLogger, SyncLogger } from './logger';
 import { SyncError } from './error/error';
+import { calendar_v3 } from 'googleapis';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -47,6 +48,10 @@ export class Worker {
             await this.endSync();
             return true;
         } catch (err) {
+            this.user.lastCalendarSync = new Date();
+            this.user.isWork = false;
+            await DB.user.save(this.user);
+
             if (err instanceof SyncError) {
                 if (err.isReported) {
                     syncLogger.write(
@@ -146,6 +151,7 @@ export class Worker {
     // 작업 시작
     private async startSync() {
         this.user.workStartedAt = new Date();
+        this.user.isWork = true;
         await DB.user.save(this.user);
     }
 
@@ -197,19 +203,44 @@ export class Worker {
         const updatedGCalEvents =
             await this.googleCalendarAssist.getUpdatedEvents();
 
+        const updatedGCalEventsLength = updatedGCalEvents.reduce(
+            (pre, cur) => pre + cur.events.length,
+            0,
+        );
         syncLogger.write(
             'SYNCBOT',
-            `${
-                updatedGCalEvents.length
-            }개의 구글 캘린더, ${updatedGCalEvents.reduce(
-                (pre, cur) => pre + cur.events.length,
-                0,
-            )}개의 업데이트 된 이벤트를 찾았습니다.`,
+            `${updatedGCalEvents.length}개의 구글 캘린더, ${updatedGCalEventsLength}개의 업데이트 된 이벤트를 찾았습니다.`,
         );
+        updatedGCalEventsLength !== 0 &&
+            syncLogger.write(
+                'SYNCBOT',
+                updatedGCalEvents
+                    .reduce((pre, cur) => [...pre, ...cur.events], [])
+                    .map(
+                        (e: calendar_v3.Schema$Event) =>
+                            `Updated GCal Event: ${e.summary} (${e.id})`,
+                    )
+                    .join('\n'),
+                'debug',
+            );
         syncLogger.write(
             'SYNCBOT',
             `${updatedPages.length}개의 업데이트된 노션 페이지를 찾았습니다.`,
         );
+        updatedPages.length !== 0 &&
+            syncLogger.write(
+                'SYNCBOT',
+                updatedPages
+                    .map(
+                        (e) =>
+                            `Updated Notion Page: ${
+                                (e.properties.title as any)?.title?.[0]
+                                    ?.plain_text || ''
+                            } (${e.id})`,
+                    )
+                    .join('\n'),
+                'debug',
+            );
 
         for (const { calendar, events } of updatedGCalEvents) {
             for (const event of events) {
@@ -263,13 +294,14 @@ export class Worker {
     // 작업 종료
     private async endSync() {
         this.user.lastCalendarSync = new Date();
+        this.user.isWork = false;
         await DB.user.save(this.user);
         syncLogger.write(
             'SYNCBOT',
             `모든 작업을 완료했습니다. ${
                 (new Date().getTime() - this.startedAt.getTime()) / 1000
             }s`,
-            'notice',
+            'info',
         );
         await syncLogger.push();
     }

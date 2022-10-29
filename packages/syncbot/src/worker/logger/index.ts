@@ -88,7 +88,19 @@ export class SyncLogger {
     }
 }
 
+let nowLogLevel: LogLevel;
+switch (process.env.NODE_ENV) {
+    case 'development':
+        nowLogLevel = 'debug';
+        break;
+    case 'test':
+        nowLogLevel = 'notice';
+        break;
+    default:
+        nowLogLevel = 'info';
+}
+
 export const syncLogger = new SyncLogger({
     showConsole: true,
-    level: 'debug',
+    level: nowLogLevel,
 });

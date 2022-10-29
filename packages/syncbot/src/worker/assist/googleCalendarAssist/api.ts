@@ -198,6 +198,10 @@ export class GoogleCalendarAssistApi {
             location?: string;
         } = JSON.parse(this.user.notionProps);
 
+        const titleProp =
+            page.properties.title.type === 'title' && page.properties.title;
+        const title = titleProp.title.map((e) => e.plain_text).join('') || '';
+
         const dateProp = Object.values(page.properties).find(
             (e) => e.id === props.date,
         ) as {
@@ -214,14 +218,14 @@ export class GoogleCalendarAssistApi {
             (e) => e.id === props.description,
         ) as any;
         const description: string =
-            descriptionProp.rich_text.map((e: any) => e?.plain?.text).join() ||
+            descriptionProp.rich_text.map((e: any) => e?.plain_text).join('') ||
             undefined;
 
         const locationProp = Object.values(page.properties).find(
             (e) => e.id === props.location,
         ) as any;
         const location: string =
-            locationProp.rich_text.map((e: any) => e?.plain?.text).join() ||
+            locationProp.rich_text.map((e: any) => e?.plain_text).join('') ||
             undefined;
 
         const res = await this.client.events.insert({
@@ -229,10 +233,7 @@ export class GoogleCalendarAssistApi {
             requestBody: {
                 start: date.start,
                 end: date.end,
-                summary:
-                    (page.properties.title as any).title
-                        .map((e: any) => e?.plain?.text)
-                        .join('') || '',
+                summary: title,
                 [description && 'description']: description,
                 [location && 'location']: location,
             },
