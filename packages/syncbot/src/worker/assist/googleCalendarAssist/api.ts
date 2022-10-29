@@ -3,16 +3,11 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { google, calendar_v3 } from 'googleapis';
 
-import { retry } from '../../../utils';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { Assist } from '../../types/assist';
-import { DB } from '../../../database';
-import { SyncError } from '../../error/error';
-import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { NotionDateTime, transDate } from '../../utils/dateUtils';
 import { gCalApi } from './api.decorator';

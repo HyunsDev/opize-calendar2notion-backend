@@ -10,9 +10,9 @@ import { DB } from '../database';
 import { NotionAssist } from './assist/notionAssist';
 import { DatabaseAssist } from './assist/databaseAssist';
 import { GoogleCalendarAssist } from './assist/googleCalendarAssist';
-import { EventLinkAssist } from './assist/eventLinkAssest';
+import { EventLinkAssist } from './assist/eventLinkAssist';
 import { WorkerAssist } from './assist/workerAssist';
-import { syncLogger, SyncLogger } from './logger';
+import { syncLogger } from './logger';
 import { SyncError } from './error/error';
 import { calendar_v3 } from 'googleapis';
 

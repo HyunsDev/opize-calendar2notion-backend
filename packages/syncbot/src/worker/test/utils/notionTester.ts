@@ -1,7 +1,6 @@
 import { Client } from '@notionhq/client';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
-import { calendar_v3 } from 'googleapis';
 import { transDate } from '../../utils/dateUtils';
 import { TestEventObject, TestPageObject } from '../type/testObject';
 

@@ -5,11 +5,7 @@ import {
 } from '@opize/calendar2notion-model';
 import { DB } from '../../../database';
 import { calendar_v3 } from 'googleapis';
-import {
-    CreatePageResponse,
-    PageObjectResponse,
-    PartialPageObjectResponse,
-} from '@notionhq/client/build/src/api-endpoints';
+import { PartialPageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 export class EventLinkAssist {
     user: UserEntity;

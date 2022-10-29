@@ -1,13 +1,11 @@
-import { APIResponseError, Client } from '@notionhq/client';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { calendar_v3 } from 'googleapis';
 
-import { retry } from '../../../utils';
 import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
 import { DatabaseAssist } from '../databaseAssist';
-import { EventLinkAssist } from '../eventLinkAssest';
+import { EventLinkAssist } from '../eventLinkAssist';
 import { Assist } from '../../types/assist';
 import { DB } from '../../../database';
 import { SyncError } from '../../error/error';

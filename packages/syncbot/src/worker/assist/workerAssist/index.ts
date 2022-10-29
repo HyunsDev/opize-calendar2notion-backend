@@ -5,10 +5,9 @@ import {
 } from '@opize/calendar2notion-model';
 import { calendar_v3 } from 'googleapis';
 
-import { DB } from '../../../database';
 import { Assist } from '../../types/assist';
 import { DatabaseAssist } from '../databaseAssist';
-import { EventLinkAssist } from '../eventLinkAssest';
+import { EventLinkAssist } from '../eventLinkAssist';
 import { GoogleCalendarAssist } from '../googleCalendarAssist';
 import { NotionAssist } from '../notionAssist';
 

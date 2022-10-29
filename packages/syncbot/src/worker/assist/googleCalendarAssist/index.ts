@@ -1,15 +1,12 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { google, calendar_v3 } from 'googleapis';
+import { calendar_v3 } from 'googleapis';
 
-import { retry } from '../../../utils';
 import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
 import { DatabaseAssist } from '../databaseAssist';
-import { EventLinkAssist } from '../eventLinkAssest';
+import { EventLinkAssist } from '../eventLinkAssist';
 import { Assist } from '../../types/assist';
-import { DB } from 'src/database';
-import { SyncError } from '../../error/error';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { GoogleCalendarAssistApi } from './api';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
