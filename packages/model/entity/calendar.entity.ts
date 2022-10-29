@@ -26,12 +26,12 @@ export class CalendarEntity {
     googleCalendarName: string;
 
     @Column({ length: '300' })
-    status: string;
+    status: 'DISCONNECTED' | 'CONNECTED';
 
     @Column({ length: '300' })
     accessRole: 'none' | 'freeBusyReader' | 'reader' | 'writer' | 'owner';
 
-    @Column({ length: '300' })
+    @Column({ length: '300', nullable: true })
     notionPropertyId: string;
 
     @ManyToOne(() => UserEntity, (user) => user.calendars)

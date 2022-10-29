@@ -8,7 +8,6 @@ import {
 } from '@opize/calendar2notion-model';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import 'dotenv/config';
 
 export const AppDataSource = new DataSource({
     type: 'mariadb',
@@ -31,11 +30,15 @@ export const AppDataSource = new DataSource({
     migrations: [],
 });
 
-(async () => {
-    await AppDataSource.initialize();
-    const userRepo = AppDataSource.getRepository(UserEntity);
-
-    const res = await userRepo.find();
-
-    console.log(res);
-})();
+export const DB = {
+    user: AppDataSource.getRepository(UserEntity),
+    calendar: AppDataSource.getRepository(CalendarEntity),
+    errorLog: AppDataSource.getRepository(ErrorLogEntity),
+    event: AppDataSource.getRepository(EventEntity),
+    knownError: AppDataSource.getRepository(KnownErrorEntity),
+    syncLog: AppDataSource.getRepository(SyncLogEntity),
+};
+// (async () => {
+//     await AppDataSource.initialize();
+//     const userRepo = AppDataSource.getRepository(UserEntity);
+// })();

@@ -125,3 +125,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+packages/syncbot/src/worker/test1.ts
+packages/syncbot/src/worker/test2.ts
+packages/syncbot/.env.test

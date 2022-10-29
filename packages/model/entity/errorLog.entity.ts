@@ -29,17 +29,20 @@ export class ErrorLogEntity {
     @Column({ length: 300 })
     description: string;
 
-    @Column({ type: 'mediumtext' })
-    detail: string;
+    @Column({ type: 'mediumtext', nullable: true })
+    detail?: string;
+
+    @Column({ type: 'mediumtext', nullable: true })
+    stack?: string;
 
     @Column({ type: 'boolean', default: false })
     showUser: boolean;
 
-    @Column({ length: 300 })
-    guideUrl: string;
+    @Column({ length: 300, nullable: true })
+    guideUrl?: string;
 
     @ManyToOne(() => KnownErrorEntity, (error) => error.errorLogs)
-    knownError: KnownErrorEntity;
+    knownError?: KnownErrorEntity;
 
     /**
      * 오류 레벨
@@ -55,8 +58,20 @@ export class ErrorLogEntity {
     @Column({ type: 'boolean', default: false })
     archive: boolean;
 
+    /**
+     * 오류 발생 후 처리작업
+     * STOP: 동기화 중지
+     * RETRY: 이전 시점으로 돌아가서 다시 시도
+     */
+    @Column({ length: 300 })
+    finishWork: 'STOP' | 'RETRY';
+
     @ManyToOne(() => UserEntity, (user) => user.errorLogs)
+    @JoinColumn({ name: 'userId' })
     user: UserEntity;
+
+    @Column({ type: 'int' })
+    userId: number;
 
     @CreateDateColumn()
     createdAt: Date;
