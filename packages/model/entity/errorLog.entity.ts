@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { EventEntity } from './event.entity';
 import { KnownErrorEntity } from './knownError.entity';
+import { SyncLogEntity } from './syncLog.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('error_log')
@@ -78,4 +79,11 @@ export class ErrorLogEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToOne(() => SyncLogEntity, (syncLog) => syncLog.errorLogs)
+    @JoinColumn({ name: 'syncLogId' })
+    syncLog: SyncLogEntity;
+
+    @Column({ type: 'int' })
+    syncLogId: number;
 }

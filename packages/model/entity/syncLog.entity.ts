@@ -11,6 +11,7 @@ import {
     ManyToOne,
     JoinColumn,
 } from 'typeorm';
+import { ErrorLogEntity } from './errorLog.entity';
 import { EventEntity } from './event.entity';
 import { KnownErrorEntity } from './knownError.entity';
 import { UserEntity } from './user.entity';
@@ -44,4 +45,7 @@ export class SyncLogEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @OneToMany(() => ErrorLogEntity, (error) => error.syncLog)
+    errorLogs: ErrorLogEntity[];
 }

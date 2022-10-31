@@ -4,14 +4,12 @@ import timezone from 'dayjs/plugin/timezone';
 import { calendar_v3 } from 'googleapis';
 
 import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
-import { DatabaseAssist } from '../databaseAssist';
 import { EventLinkAssist } from '../eventLinkAssist';
 import { Assist } from '../../types/assist';
 import { DB } from '../../../database';
 import { SyncError } from '../../error/error';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { NotionAssistApi } from './api';
-import { syncLogger } from '../../logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -20,20 +18,16 @@ export class NotionAssist extends Assist {
     private user: UserEntity;
     private calendars: CalendarEntity[];
     private api: NotionAssistApi;
-    private startedAt: Date;
-    private databaseAssist: DatabaseAssist;
     private eventLinkAssist: EventLinkAssist;
 
     constructor({
         user,
         calendars,
-        databaseAssist,
         eventLinkAssist,
         startedAt,
     }: {
         user: UserEntity;
         calendars: CalendarEntity[];
-        databaseAssist: DatabaseAssist;
         eventLinkAssist: EventLinkAssist;
         startedAt: Date;
     }) {
@@ -41,8 +35,6 @@ export class NotionAssist extends Assist {
         this.user = user;
         this.calendars = calendars;
         this.eventLinkAssist = eventLinkAssist;
-        this.databaseAssist = databaseAssist;
-        this.startedAt = startedAt;
         this.assistName = 'NotionAssist';
 
         this.api = new NotionAssistApi({
@@ -137,11 +129,6 @@ export class NotionAssist extends Assist {
 
             // 이미 업데이트 된 이벤트
             if (gCalEventUpdated < userUpdated) {
-                syncLogger.write(
-                    'NOTION',
-                    `${eventLink.id} 기준 시점 이전에 업데이트 된 이벤트입니다.`,
-                    'debug',
-                );
                 return;
             }
 

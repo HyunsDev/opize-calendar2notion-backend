@@ -3,7 +3,6 @@ import { ErrorLogEntity } from '@opize/calendar2notion-model';
 import { sleep } from '../../../utils';
 import { DB } from '../../../database';
 import { SyncError } from '../../error/error';
-import { syncLogger } from '../../logger';
 
 export function notionApi(targetObject: 'database' | 'page') {
     return function (target: any, key: string, desc: PropertyDescriptor) {
