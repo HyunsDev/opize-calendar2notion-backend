@@ -4,34 +4,28 @@ import timezone from 'dayjs/plugin/timezone';
 import { calendar_v3 } from 'googleapis';
 
 import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
-import { DatabaseAssist } from '../databaseAssist';
 import { EventLinkAssist } from '../eventLinkAssist';
 import { Assist } from '../../types/assist';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { GoogleCalendarAssistApi } from './api';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { syncLogger } from '../../../worker/logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 export class GoogleCalendarAssist extends Assist {
     private user: UserEntity;
     private calendars: CalendarEntity[];
-    private startedAt: Date;
-    private databaseAssist: DatabaseAssist;
     private eventLinkAssist: EventLinkAssist;
     private api: GoogleCalendarAssistApi;
 
     constructor({
         user,
         calendars,
-        databaseAssist,
         eventLinkAssist,
         startedAt,
     }: {
         user: UserEntity;
         calendars: CalendarEntity[];
-        databaseAssist: DatabaseAssist;
         eventLinkAssist: EventLinkAssist;
         startedAt: Date;
     }) {
@@ -39,8 +33,6 @@ export class GoogleCalendarAssist extends Assist {
         this.user = user;
         this.calendars = calendars;
         this.eventLinkAssist = eventLinkAssist;
-        this.databaseAssist = databaseAssist;
-        this.startedAt = startedAt;
         this.assistName = 'GoogleAssist';
         this.api = new GoogleCalendarAssistApi({
             calendars,
@@ -110,7 +102,6 @@ export class GoogleCalendarAssist extends Assist {
             const notionEventUpdated = new Date(page.last_edited_time);
             const userUpdated = new Date(this.user.lastCalendarSync);
             // const eventLinkUpdated = new Date(eventLink.lastNotionUpdate);
-            syncLogger.write('NOTION', `이벤트 동기화 ${page.id}`, 'debug');
             if (notionEventUpdated < userUpdated) return;
             // if (notionEventUpdated <= eventLinkUpdated) return;
 

@@ -11,7 +11,6 @@ import {
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { NotionDateTime, transDate } from '../../utils/dateUtils';
 import { gCalApi } from './api.decorator';
-import { syncLogger } from '../../../worker/logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -133,7 +132,7 @@ export class GoogleCalendarAssistApi {
         } = JSON.parse(this.user.notionProps);
 
         const titleProp = Object.values(page.properties).find(
-            (e) => e.id === props.title,
+            (e) => e.type === 'title',
         ) as any;
         const title =
             titleProp.title.map((e: any) => e?.plain_text).join('') || '';
@@ -164,7 +163,6 @@ export class GoogleCalendarAssistApi {
             locationProp.rich_text.map((e: any) => e?.plain_text).join() ||
             undefined;
 
-        syncLogger.write('NOTION', `이벤트 업데이트 ${page.id}`, 'debug');
         return await this.client.events.patch({
             eventId: eventLink.googleCalendarEventId,
             calendarId: eventLink.googleCalendarCalendarId,
@@ -193,9 +191,11 @@ export class GoogleCalendarAssistApi {
             location?: string;
         } = JSON.parse(this.user.notionProps);
 
-        const titleProp =
-            page.properties.title.type === 'title' && page.properties.title;
-        const title = titleProp.title.map((e) => e.plain_text).join('') || '';
+        const titleProp = Object.values(page.properties).find(
+            (e) => e.type === 'title',
+        ) as any;
+        const title =
+            titleProp.title.map((e: any) => e.plain_text).join('') || '';
 
         const dateProp = Object.values(page.properties).find(
             (e) => e.id === props.date,

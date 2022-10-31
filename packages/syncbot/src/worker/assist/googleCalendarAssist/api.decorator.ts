@@ -31,7 +31,7 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: err.response.data,
+                            detail: JSON.stringify(err.response.data),
                         });
                     }
 
@@ -46,7 +46,7 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: err.response.data,
+                            detail: JSON.stringify(err.response.data),
                         });
                     }
 
@@ -65,7 +65,7 @@ export function gCalApi() {
                                 user: this.user,
                                 guideUrl: '',
                                 finishWork: 'RETRY',
-                                detail: err.response.data,
+                                detail: JSON.stringify(err.response.data),
                             });
                         }
                         if (
@@ -81,7 +81,7 @@ export function gCalApi() {
                                 user: this.user,
                                 guideUrl: '',
                                 finishWork: 'RETRY',
-                                detail: err.response.data,
+                                detail: JSON.stringify(err.response.data),
                             });
                         }
                         if (
@@ -101,7 +101,7 @@ export function gCalApi() {
                                 user: this.user,
                                 guideUrl: '',
                                 finishWork: 'RETRY',
-                                detail: err.response.data,
+                                detail: JSON.stringify(err.response.data),
                             });
                         }
 
@@ -115,7 +115,7 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: err.response.data,
+                            detail: JSON.stringify(err.response.data),
                         });
                     }
 
@@ -131,7 +131,7 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: err.response.data,
+                            detail: JSON.stringify(err.response.data),
                         });
                     }
 
@@ -147,7 +147,7 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: err.response.data,
+                            detail: JSON.stringify(err.response.data),
                         });
                     }
 
@@ -162,7 +162,7 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'RETRY',
-                            detail: err.response.data,
+                            detail: JSON.stringify(err.response.data),
                         });
                     }
 
@@ -177,7 +177,7 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'RETRY',
-                            detail: err.response.data,
+                            detail: JSON.stringify(err.response.data),
                         });
                     }
 

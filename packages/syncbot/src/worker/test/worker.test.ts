@@ -136,9 +136,9 @@ describe('Worker Test', () => {
         await sleep(1000 * 60);
 
         // 워커 작동
-        const worker = new Worker(user.id);
+        const worker = new Worker(user.id, 'test: init');
         const res = await worker.run();
-        expect(res).toBe(true);
+        expect(res.fail).toBe(false);
 
         await sleep(1000 * 10);
 
@@ -169,9 +169,9 @@ describe('Worker Test', () => {
         testEventObjects.push(testEventObject);
 
         // 워커 작동
-        const worker = new Worker(user.id);
+        const worker = new Worker(user.id, 'test: g2n addPage');
         const res = await worker.run();
-        expect(res).toBe(true);
+        expect(res.fail).toBe(false);
 
         await sleep(1000 * 10);
 
@@ -202,9 +202,9 @@ describe('Worker Test', () => {
         await sleep(1000 * 60);
 
         // 워커 작동
-        const worker = new Worker(user.id);
+        const worker = new Worker(user.id, 'test: n2g addEvent');
         const res = await worker.run();
-        expect(res).toBe(true);
+        expect(res.fail).toBe(false);
 
         await sleep(1000 * 10);
 
@@ -229,7 +229,7 @@ describe('Worker Test', () => {
         expect(gCalCheckErrors.calendar).toBe(false);
     });
 
-    test('[노션 -> 구글 캘린더] 페이지 업데이트', async () => {
+    test('[노션 -> 구글 캘린더] event 업데이트', async () => {
         await sleep(1000 * 60);
         const oldTestPageObject = testPageObjects.at(-1);
 
@@ -238,20 +238,18 @@ describe('Worker Test', () => {
         await sleep(1000 * 60);
 
         // 워커 작동
-        const worker = new Worker(user.id);
+        const worker = new Worker(user.id, 'test: n2g eventUpdate');
         const res = await worker.run();
-        expect(res).toBe(true);
+        expect(res.fail).toBe(false);
 
         await sleep(1000 * 10);
 
         // 검증
-        console.log(testPageObject);
         const eventLink = await DB.event.findOne({
             where: {
                 notionPageId: testPageObject.page.id,
             },
         });
-        console.log(eventLink);
         expect(eventLink).toBeTruthy();
         const event = await gCalTester.getEvent(
             eventLink.googleCalendarEventId,
@@ -276,9 +274,9 @@ describe('Worker Test', () => {
         await sleep(1000 * 60);
 
         // 워커 작동
-        const worker = new Worker(user.id);
+        const worker = new Worker(user.id, 'test: g2n pageUpdate');
         const res = await worker.run();
-        expect(res).toBe(true);
+        expect(res.fail).toBe(false);
 
         await sleep(1000 * 10);
 
@@ -299,7 +297,7 @@ describe('Worker Test', () => {
         expect(notionCheckErrors.calendar).toBe(false);
     });
 
-    test('[노션 -> 구글 캘린더] 페이지 삭제', async () => {
+    test('[노션 -> 구글 캘린더] 이벤트 삭제', async () => {
         const testPageObject = testPageObjects[testPageObjects.length - 1];
 
         // 페이지 삭제
@@ -313,9 +311,9 @@ describe('Worker Test', () => {
         });
 
         // 워커 작동
-        const worker = new Worker(user.id);
+        const worker = new Worker(user.id, 'test: n2g deleteEvent');
         const res = await worker.run();
-        expect(res).toBe(true);
+        expect(res.fail).toBe(false);
 
         await sleep(1000 * 10);
 
@@ -338,19 +336,14 @@ describe('Worker Test', () => {
         // 이벤트 추가
         const testEventObject = testEventObjects[testEventObjects.length - 1];
 
-        const oldEventLink = await DB.event.findOne({
-            where: {
-                googleCalendarEventId: testEventObject.event.id,
-            },
-        });
         await gCalTester.deleteEvent(testEventObject);
 
         await sleep(1000 * 60);
 
         // 워커 작동
-        const worker = new Worker(user.id);
+        const worker = new Worker(user.id, 'test: g2n delete page');
         const res = await worker.run();
-        expect(res).toBe(true);
+        expect(res.fail).toBe(false);
 
         await sleep(1000 * 10);
 

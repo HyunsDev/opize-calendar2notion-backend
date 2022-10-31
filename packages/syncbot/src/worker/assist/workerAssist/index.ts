@@ -6,7 +6,6 @@ import {
 import { calendar_v3 } from 'googleapis';
 
 import { Assist } from '../../types/assist';
-import { DatabaseAssist } from '../databaseAssist';
 import { EventLinkAssist } from '../eventLinkAssist';
 import { GoogleCalendarAssist } from '../googleCalendarAssist';
 import { NotionAssist } from '../notionAssist';
@@ -14,7 +13,6 @@ import { NotionAssist } from '../notionAssist';
 export class WorkerAssist extends Assist {
     private user: UserEntity;
 
-    private databaseAssist: DatabaseAssist;
     private eventLinkAssist: EventLinkAssist;
     private googleCalendarAssist: GoogleCalendarAssist;
     private notionAssist: NotionAssist;
@@ -24,7 +22,6 @@ export class WorkerAssist extends Assist {
     constructor({
         user,
         calendars,
-        databaseAssist,
         eventLinkAssist,
         googleCalendarAssist,
         notionAssist,
@@ -32,7 +29,6 @@ export class WorkerAssist extends Assist {
     }: {
         user: UserEntity;
         calendars: CalendarEntity[];
-        databaseAssist: DatabaseAssist;
         eventLinkAssist: EventLinkAssist;
         googleCalendarAssist: GoogleCalendarAssist;
         notionAssist: NotionAssist;
@@ -41,7 +37,6 @@ export class WorkerAssist extends Assist {
         super();
         this.user = user;
         this.calendars = calendars;
-        this.databaseAssist = databaseAssist;
         this.eventLinkAssist = eventLinkAssist;
         this.googleCalendarAssist = googleCalendarAssist;
         this.notionAssist = notionAssist;
