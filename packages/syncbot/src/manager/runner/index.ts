@@ -27,12 +27,14 @@ export class Runner {
 
     private async loop(plan: UserEntity['userPlan'], loopId: string) {
         managerStorage.data.work[loopId] = {
+            loopId: loopId,
             nowWorkUserId: undefined,
             completedSyncCount: 0,
         };
         while (true) {
             if (managerStorage.getItem('stop')) {
                 runnerLogger.info(`[${loopId}] 루프를 종료합니다.`);
+                break;
             }
             const user = await this.getTargetUser(plan);
             if (!user) {

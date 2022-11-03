@@ -23,7 +23,9 @@
   },
   "scripts": {
     "dev": "ts-node index.ts",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "build": "tsc",
+    "start": "ts-node index.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",

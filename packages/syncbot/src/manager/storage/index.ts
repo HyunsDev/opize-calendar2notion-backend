@@ -1,7 +1,10 @@
+import packageJson from '../../../package.json';
+
 type ManagerStorageMap = {
-    startedAt: Date;
+    readonly startedAt: Date;
     timeout: number;
     stop: boolean;
+    readonly verizon: string;
 
     readonly workerAmount: {
         pro: number;
@@ -10,6 +13,7 @@ type ManagerStorageMap = {
 
     work: {
         [id: string]: {
+            loopId: string;
             nowWorkUserId: number | undefined;
             completedSyncCount: number;
         };
@@ -17,6 +21,7 @@ type ManagerStorageMap = {
 };
 
 const initValues: ManagerStorageMap = {
+    verizon: packageJson.version,
     startedAt: new Date(),
     timeout: 1000 * 60 * 60,
     stop: false,

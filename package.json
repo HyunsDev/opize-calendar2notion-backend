@@ -8,7 +8,11 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/**"
+      "packages/backend",
+      "packages/model",
+      "packages/syncbot",
+      "packages/syncbot-backend",
+      "packages/types"
     ]
   }
 }
