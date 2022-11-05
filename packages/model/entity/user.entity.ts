@@ -28,6 +28,12 @@ export class UserEntity {
     @Column({ length: 2048 })
     imageUrl: string;
 
+    @Column({ type: 'int', unique: true })
+    opizeId: number;
+
+    @Column({ length: 255, unique: true })
+    opizeAccessToken: string;
+
     @Column({ length: 255, unique: true, nullable: true })
     googleId: string;
 
@@ -52,8 +58,13 @@ export class UserEntity {
     @Column({ length: 300, nullable: true })
     lastSyncStatus: string;
 
-    @Column({ length: 300, default: 'GOOGLE_SET' })
-    status: 'GOOGLE_SET' | 'NOTION_API_SET' | 'NOTION_SET' | 'FINISHED';
+    @Column({ length: 300, default: 'FIRST' })
+    status:
+        | 'FIRST'
+        | 'GOOGLE_SET'
+        | 'NOTION_API_SET'
+        | 'NOTION_SET'
+        | 'FINISHED';
 
     @Column({ type: 'boolean', default: false })
     isConnected: boolean;
@@ -64,7 +75,7 @@ export class UserEntity {
     @Column({ length: 300, default: 'Asia/Seoul' })
     userTimeZone: string;
 
-    @Column({ length: 1000 })
+    @Column({ length: 1000, nullable: true })
     notionProps: string;
 
     public get parsedNotionProps(): {

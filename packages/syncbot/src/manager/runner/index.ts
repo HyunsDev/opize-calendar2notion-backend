@@ -1,6 +1,6 @@
 import { UserEntity } from '@opize/calendar2notion-model';
 import { Worker } from '../../worker';
-import { DB } from '../../database';
+import { DB, AppDataSource } from '../../database';
 import { timeout } from '../../utils/timeout';
 import { managerStorage } from '../storage';
 import { sleep } from '../../utils';
@@ -11,6 +11,11 @@ import { runnerLogger } from '../../logger';
 export class Runner {
     public async run() {
         const promises: Promise<any>[] = [];
+        runnerLogger.info(
+            `[Runner] 루프를 시작합니다. ${JSON.stringify(
+                managerStorage.getItem('workerAmount'),
+            )}`,
+        );
 
         for (const plan in managerStorage.getItem('workerAmount')) {
             const amount = managerStorage.getItem('workerAmount')[plan];
@@ -18,11 +23,29 @@ export class Runner {
                 ...Array(amount)
                     .fill(0)
                     .map((_, i) =>
-                        this.loop(plan as any, `worker_${plan}_${i}`),
+                        this.loop(
+                            plan as any,
+                            `${process.env.SYNCBOT_PREFIX}_worker_${plan}_${i}`,
+                        ),
                     ),
             );
         }
         await Promise.allSettled(promises);
+        if (managerStorage.data.work) {
+            runnerLogger.info(
+                `[Runner] 모든 루프가 정상적으로 종료되었습니다.`,
+            );
+        } else {
+            runnerLogger.error(
+                `[Runner] 모든 루프가 종료 신호 없이 종료되었습니다.`,
+            );
+        }
+
+        await AppDataSource.destroy();
+        runnerLogger.info(
+            `[Runner] DB 커넥션을 해제했습니다. 서버를 종료합니다.`,
+        );
+        process.exit(0);
     }
 
     private async loop(plan: UserEntity['userPlan'], loopId: string) {
@@ -31,6 +54,7 @@ export class Runner {
             nowWorkUserId: undefined,
             completedSyncCount: 0,
         };
+        runnerLogger.info(`[${loopId}] 루프를 시작합니다.`);
         while (true) {
             if (managerStorage.getItem('stop')) {
                 runnerLogger.info(`[${loopId}] 루프를 종료합니다.`);
