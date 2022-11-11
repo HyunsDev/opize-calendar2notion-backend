@@ -13,9 +13,7 @@
     "packages": [
       "packages/backend",
       "packages/model",
-      "packages/syncbot",
-      "packages/syncbot-backend",
-      "packages/types"
+      "packages/syncbot"
     ]
   }
 }
