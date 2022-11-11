@@ -1,4 +1,4 @@
 {
-    "files.eol": "auto",
+    "files.eol": "\n",
     "prettier.endOfLine": "auto"
 }

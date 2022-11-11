@@ -12,6 +12,7 @@ import {
 import { CalendarEntity } from './calendar.entity';
 import { ErrorLogEntity } from './errorLog.entity';
 import { EventEntity } from './event.entity';
+import { PaymentLogEntity } from './paymentLog.entity';
 import { SyncLogEntity } from './syncLog.entity';
 
 @Entity('user')
@@ -39,6 +40,9 @@ export class UserEntity {
 
     @Column({ length: 300, nullable: true })
     googleAccessToken: string;
+
+    @Column({ length: 255, nullable: true })
+    googleEmail: string;
 
     @Column({ length: 300, nullable: true })
     googleRefreshToken: string;
@@ -69,7 +73,7 @@ export class UserEntity {
     @Column({ type: 'boolean', default: false })
     isConnected: boolean;
 
-    @Column({ default: 'free' })
+    @Column({ default: 'FREE' })
     userPlan: 'FREE' | 'PRO';
 
     @Column({ length: 300, default: 'Asia/Seoul' })
@@ -99,6 +103,15 @@ export class UserEntity {
     @Column({ type: 'boolean', default: false })
     isAdmin: boolean;
 
+    @Column({ type: 'boolean', default: false })
+    isPlanUnlimited: boolean;
+
+    @Column({ type: 'datetime', nullable: true })
+    lastPaymentTime: Date;
+
+    @Column({ type: 'datetime', nullable: true })
+    nextPaymentTime: Date;
+
     @CreateDateColumn()
     createdAt: Date;
 
@@ -116,4 +129,7 @@ export class UserEntity {
 
     @OneToMany(() => SyncLogEntity, (log) => log.user)
     syncLogs: SyncLogEntity[];
+
+    @OneToMany(() => PaymentLogEntity, (e) => e.user)
+    paymentLogs: PaymentLogEntity[];
 }
