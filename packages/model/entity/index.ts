@@ -4,3 +4,5 @@ export * from './calendar.entity';
 export * from './knownError.entity';
 export * from './errorLog.entity';
 export * from './syncLog.entity';
+export * from './paymentLog.entity';
+export * from './syncbot.entity';

@@ -11,7 +11,6 @@ import {
     ManyToOne,
     JoinColumn,
 } from 'typeorm';
-import { EventEntity } from './event.entity';
 import { KnownErrorEntity } from './knownError.entity';
 import { SyncLogEntity } from './syncLog.entity';
 import { UserEntity } from './user.entity';
@@ -80,7 +79,9 @@ export class ErrorLogEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @ManyToOne(() => SyncLogEntity, (syncLog) => syncLog.errorLogs)
+    @ManyToOne(() => SyncLogEntity, (syncLog) => syncLog.errorLogs, {
+        cascade: true,
+    })
     @JoinColumn({ name: 'syncLogId' })
     syncLog: SyncLogEntity;
 

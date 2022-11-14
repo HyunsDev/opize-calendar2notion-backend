@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 @Entity('syncbot')
-export class KnownErrorEntity {
+export class SyncBotEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -16,6 +16,12 @@ export class KnownErrorEntity {
 
     @Column()
     url: string;
+
+    @Column({ unique: true })
+    prefix: string;
+
+    @Column()
+    controlSecret: string;
 
     @CreateDateColumn()
     createdAt: Date;

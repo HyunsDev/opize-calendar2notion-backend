@@ -1,6 +1,7 @@
 import packageJson from '../../../package.json';
 
 type ManagerStorageMap = {
+    readonly prefix: string;
     readonly startedAt: Date;
     timeout: number;
     stop: boolean;
@@ -9,6 +10,7 @@ type ManagerStorageMap = {
     readonly workerAmount: {
         pro: number;
         free: number;
+        sponsor: number;
     };
 
     work: {
@@ -21,13 +23,15 @@ type ManagerStorageMap = {
 };
 
 const initValues: ManagerStorageMap = {
+    prefix: process.env.SYNCBOT_PREFIX,
     verizon: packageJson.version,
     startedAt: new Date(),
     timeout: 1000 * 60 * 60,
     stop: false,
     workerAmount: {
         pro: 2,
-        free: 0,
+        free: 2,
+        sponsor: 2,
     },
     work: {},
 };

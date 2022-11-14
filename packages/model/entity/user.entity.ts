@@ -73,8 +73,11 @@ export class UserEntity {
     @Column({ type: 'boolean', default: false })
     isConnected: boolean;
 
+    @Column({ nullable: true })
+    syncbotId: string;
+
     @Column({ default: 'FREE' })
-    userPlan: 'FREE' | 'PRO';
+    userPlan: 'FREE' | 'PRO' | 'SPONSOR';
 
     @Column({ length: 300, default: 'Asia/Seoul' })
     userTimeZone: string;

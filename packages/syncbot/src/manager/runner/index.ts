@@ -7,9 +7,31 @@ import { sleep } from '../../utils';
 import dayjs from 'dayjs';
 import { LessThan } from 'typeorm';
 import { runnerLogger } from '../../logger';
+import axios from 'axios';
 
 export class Runner {
+    public async restoreWrongSync() {
+        const res = await DB.user.update(
+            {
+                isWork: true,
+                syncbotId: process.env.SYNCBOT_PREFIX,
+            },
+            {
+                isWork: false,
+            },
+        );
+        runnerLogger.info(
+            `[Runner] 비정상적인 작업 ${res.affected}개를 초기화했습니다.`,
+        );
+    }
+
     public async run() {
+        runnerLogger.info(
+            `[Runner] ${process.env.SYNCBOT_PREFIX} Runner을 시작합니다`,
+        );
+
+        await this.restoreWrongSync();
+
         const promises: Promise<any>[] = [];
         runnerLogger.info(
             `[Runner] 루프를 시작합니다. ${JSON.stringify(
@@ -78,7 +100,7 @@ export class Runner {
                 isWork: false,
                 isConnected: true,
                 userPlan: plan,
-                lastCalendarSync: LessThan(dayjs().add(-1, 'm').toDate()),
+                lastCalendarSync: LessThan(dayjs().add(-1, 'minute').toDate()),
             },
             order: {
                 lastCalendarSync: {
@@ -113,6 +135,38 @@ export class Runner {
                     `[${loopId}:${user.id}] 동기화 완료 <${res.simpleResponse}>`,
                 );
             }
+
+            try {
+                await axios.post(
+                    `${process.env.SYNCBOT_BACKEND}/syncbot/stream/message`,
+                    {
+                        prefix: process.env.SYNCBOT_PREFIX,
+                        data: {
+                            prefix: process.env.SYNCBOT_PREFIX,
+                            workerId: loopId,
+                            userId: user.id,
+                            result: res,
+                            finishedAt: new Date().toISOString(),
+                        },
+                    },
+                    {
+                        headers: {
+                            authorization: `Bearer ${process.env.SYNCBOT_CONTROL_SECRET}`,
+                        },
+                    },
+                );
+            } catch (err) {
+                if (err.response) {
+                    runnerLogger.warn(
+                        `[${loopId}:${user.id}] API 서버가 오류를 반환함 ${err.response?.status}`,
+                    );
+                } else {
+                    runnerLogger.warn(
+                        `[${loopId}:${user.id}] API 서버에 연결할 수 없음`,
+                    );
+                }
+            }
+
             return res;
         };
 

@@ -62,6 +62,30 @@ export class UserService {
   }
 
   async findOne(user: UserEntity) {
+    if (user.status !== 'FINISHED') {
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        imageUrl: user.imageUrl,
+        opizeId: user.opizeId,
+        googleEmail: user.googleEmail,
+        notionDatabaseId: user.notionDatabaseId,
+        lastCalendarSync: user.lastCalendarSync,
+        lastSyncStatus: user.lastSyncStatus,
+        status: user.status,
+        isConnected: user.isConnected,
+        userPlan: user.userPlan,
+        userTimeZone: user.userTimeZone,
+        notionProps: JSON.parse(user.notionProps || '{}'),
+        isWork: user.isWork,
+        isAdmin: user.isAdmin,
+        createdAt: user.createdAt,
+        calendars: [],
+        allCalendars: [],
+      };
+    }
+
     const calendars = await this.calendarsRepository.find({
       where: {
         userId: user.id,
@@ -172,7 +196,7 @@ export class UserService {
       | 'owner';
     calendar.googleCalendarId = googleCalendar.id;
     calendar.googleCalendarName = googleCalendar.summary;
-    calendar.status = 'CONNECTED';
+    calendar.status = 'DISCONNECTED';
     calendar.user = user;
     await this.calendarsRepository.save(calendar);
 

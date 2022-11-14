@@ -258,7 +258,7 @@ export class UserConnectService {
       calendar.accessRole = 'owner';
       calendar.googleCalendarId = newCalendar.id;
       calendar.googleCalendarName = newCalendar.summary;
-      calendar.status = 'CONNECTED';
+      calendar.status = 'DISCONNECTED';
       calendar.user = user;
       await this.calendarsRepository.save(calendar);
     }

@@ -44,7 +44,7 @@ export class AdminController {
 
   @Delete('user/:id')
   async deleteUser(@Param('id') id: string) {
-    return '';
+    return await this.adminService.forceDeleteUser(+id);
   }
 
   @Patch('user/:id')

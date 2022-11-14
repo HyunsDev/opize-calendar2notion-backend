@@ -15,6 +15,7 @@ import { WorkerAssist } from './assist/workerAssist';
 import { SyncError } from './error/error';
 import { calendar_v3 } from 'googleapis';
 import { workerLogger } from '../logger';
+import { LessThan } from 'typeorm';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -97,8 +98,10 @@ export class Worker {
 
                     if (err.finishWork === 'STOP') {
                         this.user.isConnected = false;
-                        await DB.user.save(this.user);
                     }
+
+                    this.user.lastSyncStatus === err.code || 'unknown_error';
+                    await DB.user.save(this.user);
 
                     const errorLog = new ErrorLogEntity();
                     errorLog.code = err.code;
@@ -116,6 +119,9 @@ export class Worker {
                     errorLog.syncLog = this.syncLog;
                     await DB.errorLog.save(errorLog);
                 } else {
+                    this.user.lastSyncStatus === err.code || 'unknown_error';
+                    await DB.user.save(this.user);
+
                     workerLogger.error(
                         `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
                     );
@@ -204,6 +210,7 @@ export class Worker {
         this.result.step = 'startSync';
         this.user.workStartedAt = this.user.lastCalendarSync;
         this.user.isWork = true;
+        this.user.syncbotId = process.env.SYNCBOT_PREFIX;
         await DB.user.save(this.user);
     }
 
@@ -339,6 +346,19 @@ export class Worker {
         this.user.lastCalendarSync = new Date();
         this.user.isWork = false;
         await DB.user.save(this.user);
+
+        // 오래된 기록 삭제
+        await DB.errorLog.delete({
+            userId: this.user.id,
+            createdAt: LessThan(dayjs().add(-3, 'days').toDate()),
+            archive: false,
+        });
+        await DB.syncLog.delete({
+            userId: this.user.id,
+            createdAt: LessThan(dayjs().add(-3, 'days').toDate()),
+            archive: false,
+        });
+
         workerLogger.debug(
             `[${this.workerId}, ${this.user.id}] 작업을 완료했습니다. ${
                 (new Date().getTime() - this.startedAt.getTime()) / 1000

@@ -4,7 +4,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CalendarEntity,
+  ErrorLogEntity,
   EventEntity,
+  SyncLogEntity,
   UserEntity,
 } from '@opize/calendar2notion-model';
 import { Not, Repository } from 'typeorm';
@@ -26,6 +28,10 @@ export class AdminService {
     private eventsRepository: Repository<EventEntity>,
     @InjectRepository(PaymentLogEntity)
     private paymentLogsRepository: Repository<PaymentLogEntity>,
+    @InjectRepository(SyncLogEntity)
+    private syncLogsRepository: Repository<SyncLogEntity>,
+    @InjectRepository(ErrorLogEntity)
+    private errorLogsRepository: Repository<ErrorLogEntity>,
     private readonly httpService: HttpService,
   ) {}
 
@@ -81,6 +87,10 @@ export class AdminService {
       },
     });
 
+    if (!user) {
+      throw new NotFoundException({ message: '유저를 찾을 수 없습니다.' });
+    }
+
     if (dto.name) user.name = dto.name;
     if (dto.email) user.email = dto.email;
     if (dto.imageUrl) user.imageUrl = dto.imageUrl;
@@ -104,6 +114,40 @@ export class AdminService {
     if (dto.isWork !== undefined) user.isWork = dto.isWork;
 
     await this.usersRepository.save(user);
+  }
+
+  async forceDeleteUser(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException({ message: '유저를 찾을 수 없습니다.' });
+    }
+
+    await this.eventsRepository.delete({
+      userId: user.id,
+    });
+    await this.errorLogsRepository.delete({
+      userId: user.id,
+    });
+
+    await this.syncLogsRepository.delete({
+      userId: user.id,
+    });
+    await this.calendarsRepository.delete({
+      userId: user.id,
+    });
+    await this.paymentLogsRepository.delete({
+      userId: user.id,
+    });
+    await this.usersRepository.delete({
+      id: user.id,
+    });
+
+    return;
   }
 
   async planUpgrade(userId: number, dto: UserPlanUpgradeDto) {

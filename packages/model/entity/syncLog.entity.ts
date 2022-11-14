@@ -46,6 +46,8 @@ export class SyncLogEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @OneToMany(() => ErrorLogEntity, (error) => error.syncLog)
+    @OneToMany(() => ErrorLogEntity, (error) => error.syncLog, {
+        onDelete: 'CASCADE',
+    })
     errorLogs: ErrorLogEntity[];
 }

@@ -1,6 +1,9 @@
 import { sleep } from '../../../utils';
 import { SyncError } from '../../error/error';
 import { GaxiosError } from 'googleapis-common';
+import { DB } from '../../../database';
+import { UserEntity } from '@opize/calendar2notion-model';
+import dayjs from 'dayjs';
 
 export function gCalApi() {
     return function (target: any, key: string, desc: PropertyDescriptor) {
@@ -136,17 +139,23 @@ export function gCalApi() {
                     }
 
                     if (err.response.status === 410) {
+                        console.log(this.user);
+                        (this.user as UserEntity).lastCalendarSync = dayjs()
+                            .add(-20, 'days')
+                            .toDate();
+                        await DB.user.save(this.user);
+
                         throw new SyncError({
                             code: 'gcal_api_gone',
                             from: 'GOOGLE CALENDAR',
                             archive: false,
                             description:
-                                'updatedMin을 사용할 수 없음 (너무 오랬동안 동기화 되지 않음)',
+                                'updatedMin을 사용할 수 없음 (너무 오랬동안 동기화 되지 않음) - 동기화 시간 초기화 함',
                             level: 'ERROR',
                             showUser: true,
                             user: this.user,
                             guideUrl: '',
-                            finishWork: 'STOP',
+                            finishWork: 'RETRY',
                             detail: JSON.stringify(err.response.data),
                         });
                     }
