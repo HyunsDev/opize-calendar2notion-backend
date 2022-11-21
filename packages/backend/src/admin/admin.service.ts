@@ -227,4 +227,24 @@ export class AdminService {
     };
     return res;
   }
+
+  async getErrorList(page: number, pageSize: number) {
+    const list = await this.errorLogsRepository.find({
+      take: pageSize,
+      skip: page * pageSize,
+      order: {
+        createdAt: {
+          direction: 'DESC',
+        },
+      },
+      relations: ['user'],
+    });
+    return list;
+  }
+
+  async deleteError(id: number) {
+    await this.errorLogsRepository.delete({
+      id: id,
+    });
+  }
 }

@@ -8,9 +8,11 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
+import { query } from 'express';
 import { Auth } from 'src/user/decorator/auth.decorator';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
+import { ErrorListRequestDto } from './dto/error-list.request.dto';
 import { FindUserDto } from './dto/find-user.dto';
 import { UserPlanUpgradeDto } from './dto/plan-upgrade.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -60,5 +62,15 @@ export class AdminController {
   @Get('statistics')
   async statistics() {
     return await this.adminService.statistics();
+  }
+
+  @Get('errors')
+  async errors(@Query() query: ErrorListRequestDto) {
+    return await this.adminService.getErrorList(+query.page, +query.pageSize);
+  }
+
+  @Delete('error/:id')
+  async deleteError(@Param('id') id: string) {
+    return await this.adminService.deleteError(+id);
   }
 }

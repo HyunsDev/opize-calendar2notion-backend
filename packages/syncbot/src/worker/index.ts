@@ -350,12 +350,12 @@ export class Worker {
         // 오래된 기록 삭제
         await DB.errorLog.delete({
             userId: this.user.id,
-            createdAt: LessThan(dayjs().add(-3, 'days').toDate()),
+            createdAt: LessThan(dayjs().add(-1, 'hours').toDate()),
             archive: false,
         });
         await DB.syncLog.delete({
             userId: this.user.id,
-            createdAt: LessThan(dayjs().add(-3, 'days').toDate()),
+            createdAt: LessThan(dayjs().add(-1, 'hours').toDate()),
             archive: false,
         });
 
