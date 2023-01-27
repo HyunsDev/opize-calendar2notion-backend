@@ -33,9 +33,9 @@ export class SyncLogEntity {
     @Column({ type: 'boolean', default: false })
     archive: boolean;
 
-    @ManyToOne(() => UserEntity, (user) => user.syncLogs)
-    @JoinColumn({ name: 'userId' })
-    user: UserEntity;
+    // @ManyToOne(() => UserEntity, (user) => user.syncLogs)
+    // @JoinColumn({ name: 'userId' })
+    // user: UserEntity;
 
     @Column({ type: 'int' })
     userId: number;
@@ -46,8 +46,8 @@ export class SyncLogEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @OneToMany(() => ErrorLogEntity, (error) => error.syncLog, {
-        onDelete: 'CASCADE',
-    })
-    errorLogs: ErrorLogEntity[];
+    // @OneToMany(() => ErrorLogEntity, (error) => error.syncLog, {
+    //     onDelete: 'CASCADE',
+    // })
+    // errorLogs: ErrorLogEntity[];
 }

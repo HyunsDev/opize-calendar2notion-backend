@@ -1,4 +1,4 @@
-import './testenv';
+import '../testenv';
 import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
 import { NotionTester } from './utils/notionTester';
 import { DB, AppDataSource } from '../../database';
@@ -40,9 +40,6 @@ describe('Worker Test', () => {
                 userId: oldUser.id,
             });
             await DB.calendar.delete({
-                userId: oldUser.id,
-            });
-            await DB.syncLog.delete({
                 userId: oldUser.id,
             });
             await DB.errorLog.delete({

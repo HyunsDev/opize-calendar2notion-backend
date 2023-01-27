@@ -1,7 +1,7 @@
 import { Runner } from './runner';
 import app from './server';
 
-const PORT = +process.env.PORT || 3001;
+const PORT = +process.env.PORT || 3004;
 
 export const manager = async () => {
     const runner = new Runner();

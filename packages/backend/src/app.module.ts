@@ -8,7 +8,6 @@ import {
   EventEntity,
   KnownErrorEntity,
   SyncBotEntity,
-  SyncLogEntity,
   UserEntity,
 } from '@opize/calendar2notion-model';
 import { UserModule } from './user/user.module';
@@ -37,7 +36,6 @@ dotenv.config({
         ErrorLogEntity,
         EventEntity,
         KnownErrorEntity,
-        SyncLogEntity,
         UserEntity,
         PaymentLogEntity,
         SyncBotEntity,
@@ -49,7 +47,6 @@ dotenv.config({
     ErrorLogEntity,
     EventEntity,
     KnownErrorEntity,
-    SyncLogEntity,
     PaymentLogEntity,
     UserEntity,
     UserModule,

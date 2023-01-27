@@ -6,7 +6,6 @@ import {
   CalendarEntity,
   ErrorLogEntity,
   EventEntity,
-  SyncLogEntity,
   UserEntity,
 } from '@opize/calendar2notion-model';
 import { Not, Repository } from 'typeorm';
@@ -28,8 +27,6 @@ export class AdminService {
     private eventsRepository: Repository<EventEntity>,
     @InjectRepository(PaymentLogEntity)
     private paymentLogsRepository: Repository<PaymentLogEntity>,
-    @InjectRepository(SyncLogEntity)
-    private syncLogsRepository: Repository<SyncLogEntity>,
     @InjectRepository(ErrorLogEntity)
     private errorLogsRepository: Repository<ErrorLogEntity>,
     private readonly httpService: HttpService,
@@ -134,9 +131,6 @@ export class AdminService {
       userId: user.id,
     });
 
-    await this.syncLogsRepository.delete({
-      userId: user.id,
-    });
     await this.calendarsRepository.delete({
       userId: user.id,
     });

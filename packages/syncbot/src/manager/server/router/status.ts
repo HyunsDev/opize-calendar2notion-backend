@@ -18,32 +18,74 @@ router.use(
     express.static(path.join(__dirname, '../../../../logs')),
 );
 
-router.use('/logs/today', async (req, res) => {
-    const today = dayjs().format('YYYY-MM-DD');
+router.get('/logs', async (req, res) => {
+    try {
+        const runnerLogs = await fs.readdir(
+            path.join(__dirname, '../../../../logs/runner'),
+        );
+        const serverLogs = await fs.readdir(
+            path.join(__dirname, '../../../../logs/server'),
+        );
+        const workerLogs = await fs.readdir(
+            path.join(__dirname, '../../../../logs/worker'),
+        );
+        const runnerErrorLogs = await fs.readdir(
+            path.join(__dirname, '../../../../logs/runner/error'),
+        );
+        const serverErrorLogs = await fs.readdir(
+            path.join(__dirname, '../../../../logs/server/error'),
+        );
+        const workerErrorLogs = await fs.readdir(
+            path.join(__dirname, '../../../../logs/worker/error'),
+        );
+        res.send({
+            runnerLogs,
+            serverLogs,
+            workerLogs,
+            runnerErrorLogs,
+            serverErrorLogs,
+            workerErrorLogs,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(404).send({});
+    }
+});
 
-    const runnerLog = (
-        await fs.readFile(
-            path.join(__dirname, `../../../../logs/runner/${today}.log`),
-        )
-    ).toString();
+router.get('/logs/:date', async (req, res) => {
+    try {
+        const date =
+            req.params['date'] === 'today'
+                ? dayjs().format('YYYY-MM-DD')
+                : req.params['date'];
 
-    const serverLog = (
-        await fs.readFile(
-            path.join(__dirname, `../../../../logs/server/${today}.log`),
-        )
-    ).toString();
+        const runnerLog = (
+            await fs.readFile(
+                path.join(__dirname, `../../../../logs/runner/${date}.log`),
+            )
+        ).toString();
 
-    const workerLog = (
-        await fs.readFile(
-            path.join(__dirname, `../../../../logs/worker/${today}.log`),
-        )
-    ).toString();
+        const serverLog = (
+            await fs.readFile(
+                path.join(__dirname, `../../../../logs/server/${date}.log`),
+            )
+        ).toString();
 
-    res.send({
-        runner: runnerLog,
-        serverLog: serverLog,
-        workerLog: workerLog,
-    });
+        const workerLog = (
+            await fs.readFile(
+                path.join(__dirname, `../../../../logs/worker/${date}.log`),
+            )
+        ).toString();
+
+        res.send({
+            runnerLog: runnerLog,
+            serverLog: serverLog,
+            workerLog: workerLog,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(404).send({});
+    }
 });
 
 export default router;

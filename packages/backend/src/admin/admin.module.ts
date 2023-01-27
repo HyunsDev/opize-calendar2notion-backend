@@ -7,7 +7,6 @@ import {
   CalendarEntity,
   ErrorLogEntity,
   EventEntity,
-  SyncLogEntity,
   UserEntity,
 } from '@opize/calendar2notion-model';
 import { PaymentLogEntity } from '@opize/calendar2notion-model/dist/entity/paymentLog.entity';
@@ -23,7 +22,6 @@ import { UserService } from 'src/user/user.service';
       EventEntity,
       PaymentLogEntity,
       ErrorLogEntity,
-      SyncLogEntity,
     ]),
     HttpModule,
   ],

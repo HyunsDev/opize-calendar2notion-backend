@@ -33,7 +33,6 @@ export class LiveCheckDto {
         };
       };
       simpleResponse?: string;
-      syncLogId?: number;
     };
   };
 }

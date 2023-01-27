@@ -13,7 +13,6 @@ import { CalendarEntity } from './calendar.entity';
 import { ErrorLogEntity } from './errorLog.entity';
 import { EventEntity } from './event.entity';
 import { PaymentLogEntity } from './paymentLog.entity';
-import { SyncLogEntity } from './syncLog.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -129,9 +128,6 @@ export class UserEntity {
 
     @OneToMany(() => ErrorLogEntity, (errorlog) => errorlog.user)
     errorLogs: ErrorLogEntity[];
-
-    @OneToMany(() => SyncLogEntity, (log) => log.user)
-    syncLogs: SyncLogEntity[];
 
     @OneToMany(() => PaymentLogEntity, (e) => e.user)
     paymentLogs: PaymentLogEntity[];

@@ -8,6 +8,7 @@ type ManagerStorageMap = {
     readonly verizon: string;
 
     readonly workerAmount: {
+        init: number;
         pro: number;
         free: number;
         sponsor: number;
@@ -16,7 +17,7 @@ type ManagerStorageMap = {
     work: {
         [id: string]: {
             loopId: string;
-            nowWorkUserId: number | undefined;
+            nowWorkUserId: number | null;
             completedSyncCount: number;
         };
     };
@@ -29,6 +30,7 @@ const initValues: ManagerStorageMap = {
     timeout: 1000 * 60 * 60,
     stop: false,
     workerAmount: {
+        init: 2,
         pro: 2,
         free: 2,
         sponsor: 2,
