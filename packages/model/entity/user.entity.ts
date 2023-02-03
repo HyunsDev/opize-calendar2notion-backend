@@ -8,6 +8,7 @@ import {
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
+    DeleteDateColumn,
 } from 'typeorm';
 import { CalendarEntity } from './calendar.entity';
 import { ErrorLogEntity } from './errorLog.entity';
@@ -28,10 +29,10 @@ export class UserEntity {
     @Column({ length: 2048 })
     imageUrl: string;
 
-    @Column({ type: 'int', unique: true })
+    @Column({ type: 'int' })
     opizeId: number;
 
-    @Column({ length: 255, unique: true })
+    @Column({ length: 255, unique: true, nullable: true })
     opizeAccessToken: string;
 
     @Column({ length: 255, unique: true, nullable: true })
@@ -119,6 +120,9 @@ export class UserEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt!: Date | null;
 
     @OneToMany(() => CalendarEntity, (calendar) => calendar.user)
     calendars: CalendarEntity[];

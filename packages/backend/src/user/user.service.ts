@@ -20,6 +20,7 @@ import { firstValueFrom } from 'rxjs';
 import { stringify } from 'querystring';
 import { calendar_v3, google } from 'googleapis';
 import { AddCalendarDto } from './dto/add-calendar.dto';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
@@ -236,8 +237,87 @@ export class UserService {
     return;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(user: UserEntity) {
+    try {
+      if (user.isWork) {
+        return {
+          success: false,
+          message: '아직 동기화가 진행중입니다. 잠시 뒤에 다시 시도해주세요.',
+        };
+      }
+
+      const deletePrefix = `deleted_${new Date().getTime()}_`;
+
+      await this.usersRepository.update(
+        {
+          id: user.id,
+        },
+        {
+          isConnected: false,
+          email: deletePrefix + user.email,
+          googleEmail: deletePrefix + user.googleEmail,
+          notionDatabaseId: deletePrefix + user.notionDatabaseId,
+          googleAccessToken: null,
+          googleRefreshToken: null,
+          googleId: null,
+          notionAccessToken: null,
+          opizeAccessToken: null,
+        },
+      );
+
+      await this.eventsRepository.delete({
+        userId: user.id,
+      });
+      await this.calendarsRepository.delete({
+        userId: user.id,
+      });
+
+      await this.usersRepository.softRemove(user);
+    } catch (err) {
+      console.error(err);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async reset(user: UserEntity) {
+    try {
+      if (user.isWork) {
+        return {
+          success: false,
+          message: '아직 동기화가 진행중입니다. 잠시 뒤에 다시 시도해주세요.',
+        };
+      }
+
+      await this.usersRepository.update(
+        {
+          id: user.id,
+        },
+        {
+          isConnected: false,
+          notionDatabaseId: null,
+          googleAccessToken: null,
+          googleRefreshToken: null,
+          googleId: null,
+          notionAccessToken: null,
+          lastCalendarSync: null,
+          notionBotId: null,
+          notionProps: null,
+          workStartedAt: null,
+
+          status: 'FIRST',
+        },
+      );
+
+      await this.eventsRepository.delete({
+        userId: user.id,
+      });
+      await this.calendarsRepository.delete({
+        userId: user.id,
+      });
+    } catch (err) {
+      console.error(err);
+      throw new InternalServerErrorException();
+    }
   }
 
   private async getUserToken(token: string) {

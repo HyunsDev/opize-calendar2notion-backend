@@ -38,8 +38,14 @@ export class UserController {
 
   @Delete(':id')
   @Auth()
-  async remove(@Param('id') id: string) {
-    return await this.userService.remove(+id);
+  async remove(@User() user: UserEntity) {
+    return await this.userService.remove(user);
+  }
+
+  @Post(':id/reset')
+  @Auth()
+  async reset(@User() user: UserEntity) {
+    return await this.userService.reset(user);
   }
 
   @Post(':id/calendar')

@@ -107,6 +107,7 @@ export class UserConnectService {
       user.notionBotId = res.data.bot_id;
       user.notionAccessToken = res.data.access_token;
       user.notionDatabaseId = null;
+      user.status = 'NOTION_API_SET';
       await this.usersRepository.save(user);
       return;
     } catch (err) {
@@ -154,7 +155,10 @@ export class UserConnectService {
     }
   }
 
-  async notionDatabase(notionDatabaseDto: NotionDatabaseDTO, user: UserEntity) {
+  async setNotionDatabase(
+    notionDatabaseDto: NotionDatabaseDTO,
+    user: UserEntity,
+  ) {
     if (!user.notionAccessToken) {
       throw new BadRequestException({
         code: 'need_notion_oauth',

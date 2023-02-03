@@ -46,7 +46,7 @@ export class UserConnectController {
     @Body() notionDatabaseDTO: NotionDatabaseDTO,
     @User() user: UserEntity,
   ) {
-    return await this.userConnectService.notionDatabase(
+    return await this.userConnectService.setNotionDatabase(
       notionDatabaseDTO,
       user,
     );

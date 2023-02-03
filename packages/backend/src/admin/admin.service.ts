@@ -161,8 +161,7 @@ export class AdminService {
     let nextPaymentTime: Date;
     if (user.nextPaymentTime) {
       const months = +dto.months.replace('+', '');
-      user.userPlan === dto.plan;
-      user.lastCalendarSync = user.nextPaymentTime;
+      user.userPlan = dto.plan;
       nextPaymentTime = dto.months.includes('+')
         ? dayjs(user.nextPaymentTime).add(months, 'months').toDate()
         : now.add(months, 'months').toDate();
@@ -170,8 +169,7 @@ export class AdminService {
       await this.usersRepository.save(user);
     } else {
       const months = +dto.months.replace('+', '');
-      user.userPlan === dto.plan;
-      user.lastCalendarSync = user.nextPaymentTime || now.toDate();
+      user.userPlan = dto.plan;
       nextPaymentTime = now.add(months, 'months').toDate();
       user.nextPaymentTime = nextPaymentTime;
       await this.usersRepository.save(user);
