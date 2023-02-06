@@ -17,7 +17,7 @@ const logFormat = printf(
 );
 
 export const loggerGenerator = (name: string) => {
-    const logDir = `/logs/${name}`;
+    const logDir = `logs/${name}`;
     const logger = winston.createLogger({
         format: combine(
             timestamp({

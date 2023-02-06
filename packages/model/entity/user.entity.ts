@@ -8,11 +8,12 @@ import {
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
+    DeleteDateColumn,
 } from 'typeorm';
 import { CalendarEntity } from './calendar.entity';
 import { ErrorLogEntity } from './errorLog.entity';
 import { EventEntity } from './event.entity';
-import { SyncLogEntity } from './syncLog.entity';
+import { PaymentLogEntity } from './paymentLog.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -28,11 +29,20 @@ export class UserEntity {
     @Column({ length: 2048 })
     imageUrl: string;
 
+    @Column({ type: 'int' })
+    opizeId: number;
+
+    @Column({ length: 255, unique: true, nullable: true })
+    opizeAccessToken: string;
+
     @Column({ length: 255, unique: true, nullable: true })
     googleId: string;
 
     @Column({ length: 300, nullable: true })
     googleAccessToken: string;
+
+    @Column({ length: 255, nullable: true })
+    googleEmail: string;
 
     @Column({ length: 300, nullable: true })
     googleRefreshToken: string;
@@ -52,19 +62,27 @@ export class UserEntity {
     @Column({ length: 300, nullable: true })
     lastSyncStatus: string;
 
-    @Column({ length: 300, default: 'GOOGLE_SET' })
-    status: 'GOOGLE_SET' | 'NOTION_API_SET' | 'NOTION_SET' | 'FINISHED';
+    @Column({ length: 300, default: 'FIRST' })
+    status:
+        | 'FIRST'
+        | 'GOOGLE_SET'
+        | 'NOTION_API_SET'
+        | 'NOTION_SET'
+        | 'FINISHED';
 
     @Column({ type: 'boolean', default: false })
     isConnected: boolean;
 
-    @Column({ default: 'free' })
-    userPlan: 'FREE' | 'PRO';
+    @Column({ nullable: true })
+    syncbotId: string;
+
+    @Column({ default: 'FREE' })
+    userPlan: 'FREE' | 'PRO' | 'SPONSOR';
 
     @Column({ length: 300, default: 'Asia/Seoul' })
     userTimeZone: string;
 
-    @Column({ length: 1000 })
+    @Column({ length: 1000, nullable: true })
     notionProps: string;
 
     public get parsedNotionProps(): {
@@ -88,11 +106,23 @@ export class UserEntity {
     @Column({ type: 'boolean', default: false })
     isAdmin: boolean;
 
+    @Column({ type: 'boolean', default: false })
+    isPlanUnlimited: boolean;
+
+    @Column({ type: 'datetime', nullable: true })
+    lastPaymentTime: Date;
+
+    @Column({ type: 'datetime', nullable: true })
+    nextPaymentTime: Date;
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt!: Date | null;
 
     @OneToMany(() => CalendarEntity, (calendar) => calendar.user)
     calendars: CalendarEntity[];
@@ -103,6 +133,6 @@ export class UserEntity {
     @OneToMany(() => ErrorLogEntity, (errorlog) => errorlog.user)
     errorLogs: ErrorLogEntity[];
 
-    @OneToMany(() => SyncLogEntity, (log) => log.user)
-    syncLogs: SyncLogEntity[];
+    @OneToMany(() => PaymentLogEntity, (e) => e.user)
+    paymentLogs: PaymentLogEntity[];
 }

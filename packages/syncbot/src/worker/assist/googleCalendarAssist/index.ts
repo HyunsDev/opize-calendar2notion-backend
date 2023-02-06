@@ -100,8 +100,12 @@ export class GoogleCalendarAssist extends Assist {
 
         if (eventLink && eventLink.googleCalendarEventId) {
             const notionEventUpdated = new Date(page.last_edited_time);
-            const userUpdated = new Date(this.user.lastCalendarSync);
+            const userUpdated = dayjs(this.user.lastCalendarSync)
+                .add(-1, 'minute')
+                .toDate();
             // const eventLinkUpdated = new Date(eventLink.lastNotionUpdate);
+
+            // 이미 업데이트 된 일정
             if (notionEventUpdated < userUpdated) return;
             // if (notionEventUpdated <= eventLinkUpdated) return;
 

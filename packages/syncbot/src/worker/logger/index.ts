@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { SyncLogEntity, UserEntity } from '@opize/calendar2notion-model';
+import { UserEntity } from '@opize/calendar2notion-model';
 import { DB } from '../../database';
 
 type LogFrom = 'GOOGLE CALENDAR' | 'NOTION' | 'SYNCBOT' | 'COMPLEX' | 'UNKNOWN';
@@ -24,7 +24,6 @@ const logColorMap: Record<LogLevel, string> = {
 };
 
 export class SyncLogger {
-    private syncLog: SyncLogEntity;
     private user: UserEntity;
     private showConsole: boolean;
     level: LogLevel;
@@ -52,7 +51,7 @@ export class SyncLogger {
     public async init(user: UserEntity) {
         this.user = user;
         this.log = [];
-        const syncLog = new SyncLogEntity();
+        const syncLog: any = {};
         syncLog.detail = '';
         syncLog.status = 'WORKING';
         syncLog.user = this.user;
