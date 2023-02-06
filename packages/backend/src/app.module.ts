@@ -1,17 +1,26 @@
 import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from 'src/app.controller';
-import { AppService } from 'src/app.service';
 import {
   CalendarEntity,
   ErrorLogEntity,
   EventEntity,
   KnownErrorEntity,
-  SyncLogEntity,
+  SyncBotEntity,
   UserEntity,
 } from '@opize/calendar2notion-model';
+import { UserModule } from './user/user.module';
+import { AdminModule } from './admin/admin.module';
 
-import 'dotenv/config';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+import { PaymentLogEntity } from '@opize/calendar2notion-model/dist/entity/paymentLog.entity';
+import { SyncbotModule } from './syncbot/syncbot.module';
+
+dotenv.config({
+  path: path.resolve(process.env.NODE_ENV === 'production' ? '.env' : '.env'),
+});
 
 @Module({
   imports: [
@@ -27,19 +36,22 @@ import 'dotenv/config';
         ErrorLogEntity,
         EventEntity,
         KnownErrorEntity,
-        SyncLogEntity,
         UserEntity,
+        PaymentLogEntity,
+        SyncBotEntity,
       ],
       charset: 'utf8mb4',
-      synchronize: false,
+      synchronize: process.env.DB_SYNCHRONIZE === 'true',
     }),
-    TypeOrmModule.forFeature([UserEntity]),
     CalendarEntity,
     ErrorLogEntity,
     EventEntity,
     KnownErrorEntity,
-    SyncLogEntity,
+    PaymentLogEntity,
     UserEntity,
+    UserModule,
+    AdminModule,
+    SyncbotModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,7 @@
 {
+  "dependencies": {
+    "@nestjs/mapped-types": "*"
+  },
   "name": "opize-calendar2notion-backend",
   "version": "1.0.0",
   "main": "index.js",
@@ -8,7 +11,9 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/**"
+      "packages/backend",
+      "packages/model",
+      "packages/syncbot"
     ]
   }
 }

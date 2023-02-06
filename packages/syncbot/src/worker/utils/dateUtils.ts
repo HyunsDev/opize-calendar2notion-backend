@@ -39,7 +39,7 @@ export const transDate = {
             start: {},
         };
 
-        if (start.length === 0) {
+        if (start.length === 10) {
             eventDate.start.date = start;
         } else {
             eventDate.start.dateTime = start;
@@ -47,7 +47,7 @@ export const transDate = {
 
         if (end) {
             eventDate.end = {};
-            if (end.length === 0) {
+            if (end.length === 10) {
                 eventDate.end.date = end;
             } else {
                 eventDate.end.dateTime = end;

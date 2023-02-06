@@ -4,7 +4,6 @@ import timezone from 'dayjs/plugin/timezone';
 import {
     CalendarEntity,
     ErrorLogEntity,
-    SyncLogEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { DB } from '../database';
@@ -15,13 +14,14 @@ import { WorkerAssist } from './assist/workerAssist';
 import { SyncError } from './error/error';
 import { calendar_v3 } from 'googleapis';
 import { workerLogger } from '../logger';
+import { LessThan } from 'typeorm';
+import { timeout } from '../../src/utils/timeout';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export class Worker {
     workerId: string;
-    syncLog: SyncLogEntity;
 
     startedAt: Date;
     userId: number;
@@ -62,7 +62,6 @@ export class Worker {
             };
         };
         simpleResponse?: string;
-        syncLogId?: number;
     };
 
     constructor(userId: number, workerId: string) {
@@ -73,13 +72,52 @@ export class Worker {
 
     async run() {
         try {
-            await this.init();
-            await this.startSync();
-            await this.validation();
-            await this.eraseDeletedEvent();
-            await this.syncEvents();
-            await this.syncNewCalendar();
-            await this.endSync();
+            try {
+                this.result = {
+                    step: 'init',
+                    fail: false,
+                };
+
+                this.user = await DB.user.findOne({
+                    where: {
+                        id: this.userId,
+                    },
+                });
+
+                this.startedAt = new Date();
+
+                await timeout(
+                    (async () => {
+                        await this.init();
+                        await this.startSync();
+                        await this.validation();
+                        await this.eraseDeletedEvent();
+                        await this.syncEvents();
+                        await this.syncNewCalendar();
+                        await this.endSync();
+                    })(),
+                    1000 * 60 * 120,
+                );
+            } catch (timeoutErr) {
+                if (
+                    timeoutErr instanceof Error &&
+                    timeoutErr.message === 'timeout'
+                ) {
+                    throw new SyncError({
+                        code: 'timeout',
+                        from: 'UNKNOWN',
+                        archive: true,
+                        description: '타임아웃',
+                        level: 'ERROR',
+                        finishWork: 'RETRY',
+                        showUser: true,
+                        user: this.user,
+                        detail: JSON.stringify(this.result),
+                    });
+                } else {
+                    throw timeoutErr;
+                }
+            }
         } catch (err) {
             try {
                 console.error(err);
@@ -97,8 +135,10 @@ export class Worker {
 
                     if (err.finishWork === 'STOP') {
                         this.user.isConnected = false;
-                        await DB.user.save(this.user);
                     }
+
+                    this.user.lastSyncStatus === err.code || 'unknown_error';
+                    await DB.user.save(this.user);
 
                     const errorLog = new ErrorLogEntity();
                     errorLog.code = err.code;
@@ -113,9 +153,11 @@ export class Worker {
                     errorLog.user = this.user;
                     errorLog.stack = err.stack;
                     errorLog.finishWork = err.finishWork;
-                    errorLog.syncLog = this.syncLog;
                     await DB.errorLog.save(errorLog);
                 } else {
+                    this.user.lastSyncStatus === err.code || 'unknown_error';
+                    await DB.user.save(this.user);
+
                     workerLogger.error(
                         `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
                     );
@@ -130,7 +172,6 @@ export class Worker {
                     error.stack = err.stack;
                     error.user = this.user;
                     error.finishWork = 'STOP';
-                    error.syncLog = this.syncLog;
                     await DB.errorLog.save(error);
                 }
             } catch (err) {
@@ -144,27 +185,6 @@ export class Worker {
 
     // 어시스트 초기화
     private async init() {
-        this.result = {
-            step: 'init',
-            fail: false,
-        };
-
-        this.user = await DB.user.findOne({
-            where: {
-                id: this.userId,
-            },
-        });
-
-        this.startedAt = new Date();
-
-        this.syncLog = new SyncLogEntity();
-        this.syncLog.archive = false;
-        this.syncLog.status = 'WORKING';
-        this.syncLog.user = this.user;
-        this.syncLog.detail = '';
-        this.syncLog = await DB.syncLog.save(this.syncLog);
-        this.result.syncLogId = this.syncLog.id;
-
         this.calendars = await DB.calendar.find({
             where: {
                 userId: this.userId,
@@ -204,6 +224,7 @@ export class Worker {
         this.result.step = 'startSync';
         this.user.workStartedAt = this.user.lastCalendarSync;
         this.user.isWork = true;
+        this.user.syncbotId = process.env.SYNCBOT_PREFIX;
         await DB.user.save(this.user);
     }
 
@@ -339,6 +360,14 @@ export class Worker {
         this.user.lastCalendarSync = new Date();
         this.user.isWork = false;
         await DB.user.save(this.user);
+
+        // 오래된 기록 삭제
+        await DB.errorLog.delete({
+            userId: this.user.id,
+            createdAt: LessThan(dayjs().add(-21, 'days').toDate()),
+            archive: false,
+        });
+
         workerLogger.debug(
             `[${this.workerId}, ${this.user.id}] 작업을 완료했습니다. ${
                 (new Date().getTime() - this.startedAt.getTime()) / 1000
@@ -349,7 +378,6 @@ export class Worker {
     // 결과 전송
     private async resultPush() {
         this.result.simpleResponse = [
-            this.syncLog.id,
             this.user.id,
             this.result?.fail ? 'FAIL' : 'SUCCESS',
             this.result?.step,
@@ -366,10 +394,10 @@ export class Worker {
             Math.round(new Date().getTime() - this.startedAt.getTime()) / 1000,
         ].join(' ');
 
-        this.syncLog.status = this.result.fail ? 'FAIL' : 'SUCCESS';
-        this.syncLog.workingTime =
-            new Date().getTime() - this.startedAt.getTime();
-        this.syncLog.detail = JSON.stringify(this.result);
-        this.syncLog = await DB.syncLog.save(this.syncLog);
+        // this.syncLog.status = this.result.fail ? 'FAIL' : 'SUCCESS';
+        // this.syncLog.workingTime =
+        //     new Date().getTime() - this.startedAt.getTime();
+        // this.syncLog.detail = JSON.stringify(this.result);
+        // this.syncLog = await DB.syncLog.save(this.syncLog);
     }
 }
