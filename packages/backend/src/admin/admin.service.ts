@@ -1,4 +1,3 @@
-import * as dayjs from 'dayjs';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,6 +14,12 @@ import { CreateAdminDto } from './dto/create-admin.dto';
 import { UserPlanUpgradeDto } from './dto/plan-upgrade.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaymentLogEntity } from '@opize/calendar2notion-model/dist/entity/paymentLog.entity';
+
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 @Injectable()
 export class AdminService {
@@ -145,7 +150,7 @@ export class AdminService {
   }
 
   async planUpgrade(userId: number, dto: UserPlanUpgradeDto) {
-    const now = dayjs();
+    const now = dayjs().tz('Asia/Seoul');
     const user = await this.usersRepository.findOne({
       where: {
         id: userId,
@@ -163,7 +168,10 @@ export class AdminService {
       const months = +dto.months.replace('+', '');
       user.userPlan = dto.plan;
       nextPaymentTime = dto.months.includes('+')
-        ? dayjs(user.nextPaymentTime).add(months, 'months').toDate()
+        ? dayjs(user.nextPaymentTime)
+            .tz('Asia/Seoul')
+            .add(months, 'months')
+            .toDate()
         : now.add(months, 'months').toDate();
       user.nextPaymentTime = nextPaymentTime;
       await this.usersRepository.save(user);

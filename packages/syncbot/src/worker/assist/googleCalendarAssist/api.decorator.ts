@@ -3,7 +3,12 @@ import { SyncError } from '../../error/error';
 import { GaxiosError } from 'googleapis-common';
 import { DB } from '../../../database';
 import { UserEntity } from '@opize/calendar2notion-model';
+
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export function gCalApi() {
     return function (target: any, key: string, desc: PropertyDescriptor) {
@@ -141,6 +146,7 @@ export function gCalApi() {
                     if (err.response.status === 410) {
                         console.log(this.user);
                         (this.user as UserEntity).lastCalendarSync = dayjs()
+                            .tz('Asia/Seoul')
                             .add(-20, 'days')
                             .toDate();
                         await DB.user.save(this.user);
