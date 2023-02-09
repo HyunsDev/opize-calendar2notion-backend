@@ -4,10 +4,15 @@ import { DB, AppDataSource } from '../../database';
 import { timeout } from '../../utils/timeout';
 import { managerStorage } from '../storage';
 import { sleep } from '../../utils';
-import dayjs from 'dayjs';
 import { IsNull, LessThan } from 'typeorm';
 import { runnerLogger } from '../../logger';
 import axios from 'axios';
+
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export class Runner {
     public async restoreWrongSync() {
@@ -128,7 +133,9 @@ export class Runner {
                 isWork: false,
                 isConnected: true,
                 userPlan: plan,
-                lastCalendarSync: LessThan(dayjs().add(-1, 'minute').toDate()),
+                lastCalendarSync: LessThan(
+                    dayjs().tz('Asia/Seoul').add(-1, 'minute').toDate(),
+                ),
             },
             order: {
                 lastCalendarSync: {

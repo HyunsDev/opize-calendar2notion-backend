@@ -4,6 +4,10 @@ import { managerStorage } from '../../../manager/storage';
 import { authGuard } from '../middleware/auth';
 import fs from 'fs/promises';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const router = express.Router();
 
@@ -56,7 +60,7 @@ router.get('/logs/:date', async (req, res) => {
     try {
         const date =
             req.params['date'] === 'today'
-                ? dayjs().format('YYYY-MM-DD')
+                ? dayjs().tz('Asia/Seoul').format('YYYY-MM-DD')
                 : req.params['date'];
 
         const runnerLog = (

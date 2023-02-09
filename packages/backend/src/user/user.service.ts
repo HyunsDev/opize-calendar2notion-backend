@@ -20,7 +20,6 @@ import { firstValueFrom } from 'rxjs';
 import { stringify } from 'querystring';
 import { calendar_v3, google } from 'googleapis';
 import { AddCalendarDto } from './dto/add-calendar.dto';
-import dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {

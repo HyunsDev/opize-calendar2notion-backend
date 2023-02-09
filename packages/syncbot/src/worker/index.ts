@@ -1,6 +1,3 @@
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 import {
     CalendarEntity,
     ErrorLogEntity,
@@ -17,6 +14,9 @@ import { workerLogger } from '../logger';
 import { LessThan } from 'typeorm';
 import { timeout } from '../../src/utils/timeout';
 
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -185,6 +185,8 @@ export class Worker {
 
     // 어시스트 초기화
     private async init() {
+        dayjs.tz.setDefault(this.user.userTimeZone);
+
         this.calendars = await DB.calendar.find({
             where: {
                 userId: this.userId,
@@ -364,7 +366,9 @@ export class Worker {
         // 오래된 기록 삭제
         await DB.errorLog.delete({
             userId: this.user.id,
-            createdAt: LessThan(dayjs().add(-21, 'days').toDate()),
+            createdAt: LessThan(
+                dayjs().tz('Asia/Seoul').add(-21, 'days').toDate(),
+            ),
             archive: false,
         });
 
