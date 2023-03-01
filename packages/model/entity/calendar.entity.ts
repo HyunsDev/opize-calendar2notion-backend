@@ -26,7 +26,7 @@ export class CalendarEntity {
     googleCalendarName: string;
 
     @Column({ length: '300' })
-    status: 'DISCONNECTED' | 'CONNECTED';
+    status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED';
 
     @Column({ length: '300' })
     accessRole: 'none' | 'freeBusyReader' | 'reader' | 'writer' | 'owner';
