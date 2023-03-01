@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import {
   CalendarEntity,
   EventEntity,
@@ -89,6 +89,7 @@ export class UserService {
     const calendars = await this.calendarsRepository.find({
       where: {
         userId: user.id,
+        status: Not('DISCONNECTED'),
       },
     });
 
@@ -181,24 +182,42 @@ export class UserService {
       },
     });
 
-    if (oldCalendar) {
+    if (
+      oldCalendar &&
+      (oldCalendar.status === 'CONNECTED' || oldCalendar.status === 'PENDING')
+    ) {
       throw new BadRequestException({
         code: 'calendar_already_exist',
       });
     }
 
-    const calendar = new CalendarEntity();
-    calendar.accessRole = googleCalendar.accessRole as
-      | 'none'
-      | 'freeBusyReader'
-      | 'reader'
-      | 'writer'
-      | 'owner';
-    calendar.googleCalendarId = googleCalendar.id;
-    calendar.googleCalendarName = googleCalendar.summary;
-    calendar.status = 'DISCONNECTED';
-    calendar.user = user;
-    await this.calendarsRepository.save(calendar);
+    if (oldCalendar.status === 'DISCONNECTED') {
+      const calendar = new CalendarEntity();
+      calendar.accessRole = googleCalendar.accessRole as
+        | 'none'
+        | 'freeBusyReader'
+        | 'reader'
+        | 'writer'
+        | 'owner';
+      calendar.googleCalendarId = googleCalendar.id;
+      calendar.googleCalendarName = googleCalendar.summary;
+      calendar.status = 'PENDING';
+      calendar.user = user;
+      await this.calendarsRepository.save(calendar);
+    } else {
+      const calendar = oldCalendar;
+      calendar.accessRole = googleCalendar.accessRole as
+        | 'none'
+        | 'freeBusyReader'
+        | 'reader'
+        | 'writer'
+        | 'owner';
+      calendar.googleCalendarId = googleCalendar.id;
+      calendar.googleCalendarName = googleCalendar.summary;
+      calendar.status = 'PENDING';
+      calendar.user = user;
+      await this.calendarsRepository.save(calendar);
+    }
 
     return;
   }
@@ -208,6 +227,7 @@ export class UserService {
       where: {
         id: calendarId,
         userId: user.id,
+        status: Not('DISCONNECTED'),
       },
     });
 
@@ -224,15 +244,17 @@ export class UserService {
 
     await this.eventsRepository.update(
       {
-        willRemove: true,
+        calendar: calendar,
+        userId: user.id,
       },
       {
-        calendarId: calendar.id,
-        userId: user.id,
+        willRemove: true,
       },
     );
 
-    await this.calendarsRepository.remove(calendar);
+    calendar.status = 'DISCONNECTED';
+    await this.calendarsRepository.save(calendar);
+
     return;
   }
 

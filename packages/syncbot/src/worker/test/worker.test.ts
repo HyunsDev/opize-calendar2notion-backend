@@ -81,7 +81,7 @@ describe('Worker Test', () => {
             process.env.TEST_USER_GOOGLE_CALENDAR_CALENDAR_ID;
         calendar.googleCalendarName =
             process.env.TEST_USER_GOOGLE_CALENDAR_CALENDAR_NAME;
-        calendar.status = 'DISCONNECTED';
+        calendar.status = 'PENDING';
         calendar.user = user;
         calendar = await DB.calendar.save(calendar);
 

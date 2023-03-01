@@ -11,7 +11,7 @@ import { WorkerAssist } from './assist/workerAssist';
 import { SyncError } from './error/error';
 import { calendar_v3 } from 'googleapis';
 import { workerLogger } from '../logger';
-import { LessThan } from 'typeorm';
+import { LessThan, Not } from 'typeorm';
 import { timeout } from '../../src/utils/timeout';
 
 import dayjs from 'dayjs';
@@ -190,6 +190,7 @@ export class Worker {
         this.calendars = await DB.calendar.find({
             where: {
                 userId: this.userId,
+                status: Not('DISCONNECTED'),
             },
         });
 
