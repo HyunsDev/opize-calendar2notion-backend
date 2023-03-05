@@ -17,7 +17,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { HttpService } from '@nestjs/axios';
 import * as jwt from 'jsonwebtoken';
 import { firstValueFrom } from 'rxjs';
-import { stringify } from 'querystring';
 import { calendar_v3, google } from 'googleapis';
 import { AddCalendarDto } from './dto/add-calendar.dto';
 
