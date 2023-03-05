@@ -55,10 +55,12 @@ export class WorkerAssist extends Assist {
 
     public async eraseEvent(eventLink: EventEntity) {
         await this.notionAssist.deletePage(eventLink.notionPageId);
-        await this.googleCalendarAssist.deleteEvent(
-            eventLink.googleCalendarEventId,
-            eventLink.googleCalendarCalendarId,
-        );
+        if (eventLink.calendar.accessRole !== 'reader') {
+            await this.googleCalendarAssist.deleteEvent(
+                eventLink.googleCalendarEventId,
+                eventLink.googleCalendarCalendarId,
+            );
+        }
         await this.eventLinkAssist.deleteEventLink(eventLink);
     }
 
