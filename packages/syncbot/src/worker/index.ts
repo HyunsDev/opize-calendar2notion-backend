@@ -326,9 +326,7 @@ export class Worker {
         this.result.step = 'syncNewCalendar';
         this.result.syncNewCalendar = {};
 
-        const calendars = this.calendars.filter(
-            (e) => e.status === 'DISCONNECTED',
-        );
+        const calendars = this.calendars.filter((e) => e.status === 'PENDING');
 
         for (const calendar of calendars) {
             this.result.syncNewCalendar[`${calendar.id}`] = {
