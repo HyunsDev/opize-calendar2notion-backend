@@ -39,6 +39,7 @@ export class EventLinkAssist {
                 userId: this.user.id,
                 willRemove: true,
             },
+            relations: ['calendar'],
         });
     }
 

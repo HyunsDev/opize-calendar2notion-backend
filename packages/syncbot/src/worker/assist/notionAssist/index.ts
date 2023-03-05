@@ -93,7 +93,7 @@ export class NotionAssist extends Assist {
 
     @SyncErrorBoundary('deletePage')
     public async deletePage(pageId: string) {
-        return await this.api.deletePage(pageId);
+        await this.api.deletePage(pageId);
     }
 
     @SyncErrorBoundary('addPage')

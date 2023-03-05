@@ -52,13 +52,12 @@ export class NotionAssistApi {
             description?: string;
             location?: string;
         } = JSON.parse(this.user.notionProps);
-        const calendarNames = this.calendars.map((e) => e.googleCalendarName);
         const calendarOptions = this.calendars
             .filter((e) => e.accessRole !== 'reader')
             .map((e) => ({
                 property: props.calendar,
                 select: {
-                    does_not_equal: `${calendarNames[e.googleCalendarId]}`,
+                    equals: `${e.googleCalendarName}`,
                 },
             }));
 
@@ -114,10 +113,20 @@ export class NotionAssistApi {
 
     @notionApi('page')
     async deletePage(pageId: string) {
-        return await this.client.pages.update({
-            page_id: pageId,
-            archived: true,
-        });
+        try {
+            await this.client.pages.update({
+                page_id: pageId,
+                archived: true,
+            });
+        } catch (err) {
+            if (
+                err.message ===
+                `Can't update a page that is archived. You must unarchive the page before updating.`
+            ) {
+                return true;
+            }
+            throw err;
+        }
     }
 
     @notionApi('database')
@@ -224,13 +233,13 @@ export class NotionAssistApi {
             description?: string;
             location?: string;
         } = JSON.parse(this.user.notionProps);
-        const calendarNames = this.calendars.map((e) => e.googleCalendarName);
+
         const calendarOptions = this.calendars
             .filter((e) => e.accessRole !== 'reader')
             .map((e) => ({
                 property: props.calendar,
                 select: {
-                    does_not_equal: `${calendarNames[e.googleCalendarId]}`,
+                    equals: `${e.googleCalendarName}`,
                 },
             }));
 
