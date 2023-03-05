@@ -33,6 +33,7 @@ export class UserService {
     private readonly httpService: HttpService,
   ) {}
 
+  // 유저 정보를 생성합니다.
   async post(createUserDto: CreateUserDto) {
     const token = await this.getUserToken(createUserDto.token);
     const opizeUser = await this.getUserByOpize(token);
@@ -55,10 +56,6 @@ export class UserService {
     return {
       token: userJWT,
     };
-  }
-
-  findAll() {
-    return `This action returns all user`;
   }
 
   async findOne(user: UserEntity) {
@@ -191,7 +188,10 @@ export class UserService {
       });
     }
 
-    if (oldCalendar.status === 'DISCONNECTED') {
+    if (
+      !oldCalendar ||
+      (oldCalendar && oldCalendar.status === 'DISCONNECTED')
+    ) {
       const calendar = new CalendarEntity();
       calendar.accessRole = googleCalendar.accessRole as
         | 'none'
