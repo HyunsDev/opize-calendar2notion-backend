@@ -20,6 +20,7 @@ export class EventLinkAssist {
                 notionPageId: pageId,
                 userId: this.user.id,
             },
+            relations: ['calendar'],
         });
     }
 
@@ -30,6 +31,7 @@ export class EventLinkAssist {
                 googleCalendarEventId: gCalEventId,
                 userId: this.user.id,
             },
+            relations: ['calendar'],
         });
     }
 
