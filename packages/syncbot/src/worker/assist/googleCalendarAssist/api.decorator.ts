@@ -144,9 +144,11 @@ export function gCalApi() {
                     }
 
                     if (err.response.status === 410) {
-                        console.log(this.user);
                         (this.user as UserEntity).lastCalendarSync = dayjs()
-                            .tz('Asia/Seoul')
+                            .tz(
+                                (this.user as UserEntity).userTimeZone ||
+                                    'Asia/Seoul',
+                            )
                             .add(-20, 'days')
                             .toDate();
                         await DB.user.save(this.user);

@@ -102,6 +102,7 @@ export class GoogleCalendarAssist extends Assist {
         if (eventLink && eventLink.googleCalendarEventId) {
             const notionEventUpdated = new Date(page.last_edited_time);
             const userUpdated = dayjs(this.user.lastCalendarSync)
+                .tz(this.user.userTimeZone || 'Asia/Seoul')
                 .add(-1, 'minute')
                 .toDate();
             // const eventLinkUpdated = new Date(eventLink.lastNotionUpdate);
