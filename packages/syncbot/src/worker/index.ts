@@ -185,8 +185,6 @@ export class Worker {
 
     // 어시스트 초기화
     private async init() {
-        dayjs.tz.setDefault(this.user.userTimeZone);
-
         this.calendars = await DB.calendar.find({
             where: {
                 userId: this.userId,

@@ -1,6 +1,4 @@
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+
 import { google, calendar_v3 } from 'googleapis';
 
 import {
@@ -12,8 +10,7 @@ import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { NotionDateTime, transDate } from '../../utils/dateUtils';
 import { gCalApi } from './api.decorator';
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
+]
 export class GoogleCalendarAssistApi {
     private user: UserEntity;
     private calendars: CalendarEntity[];
