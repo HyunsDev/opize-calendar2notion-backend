@@ -73,7 +73,7 @@ export const transDate = {
                 end: {
                     date: end?.date
                         ? dayjs
-                              .tz(end.date, 'utc')
+                              .tz(end.date, 'Asia/Seoul')
                               .add(1, 'day')
                               .toISOString()
                               .split('T')[0]
@@ -99,7 +99,10 @@ export const transDate = {
             _end =
                 end.date === start.date
                     ? end.date
-                    : dayjs(end.date).tz('utc').toISOString().split('T')[0];
+                    : dayjs
+                          .tz(end.date, 'Asia/Seoul')
+                          .toISOString()
+                          .split('T')[0];
         } else {
             _end = end?.dateTime as string;
         }
