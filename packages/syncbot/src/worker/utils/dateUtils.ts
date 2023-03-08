@@ -99,7 +99,7 @@ export const transDate = {
             _end =
                 end.date === start.date
                     ? end.date
-                    : dayjs(end.date).tz().toISOString().split('T')[0];
+                    : dayjs(end.date).tz('utc').toISOString().split('T')[0];
         } else {
             _end = end?.dateTime as string;
         }
