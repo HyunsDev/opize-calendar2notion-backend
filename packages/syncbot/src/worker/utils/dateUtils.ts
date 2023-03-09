@@ -65,20 +65,8 @@ export const transDate = {
         return eventDate;
     },
     eventToGcal: ({ start, end }: EventDateTime): GCalDateTime => {
-        console.log(start, end);
-
         if (start.date) {
             // Date 일 경우
-            console.log({
-                start: {
-                    date: start.date,
-                },
-                end: {
-                    date: end?.date
-                        ? dayjs(end.date).add(1, 'day').format('YYYY-MM-DD')
-                        : start.date,
-                },
-            });
             return {
                 start: {
                     date: start.date,
@@ -91,20 +79,6 @@ export const transDate = {
             };
         } else {
             // DateTime 일 경우
-            console.log({
-                start: {
-                    dateTime: dayjs(start.dateTime).format(
-                        'YYYY-MM-DDTHH:mm:ssZ',
-                    ),
-                    date: null,
-                },
-                end: {
-                    dateTime: dayjs(end?.dateTime || start.dateTime).format(
-                        'YYYY-MM-DDTHH:mm:ssZ',
-                    ),
-                    date: null,
-                },
-            });
             return {
                 start: {
                     dateTime: dayjs(start.dateTime).format(
