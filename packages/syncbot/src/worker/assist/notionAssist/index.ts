@@ -8,6 +8,12 @@ import { SyncError } from '../../error/error';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { NotionAssistApi } from './api';
 
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export class NotionAssist extends Assist {
     private user: UserEntity;
     private calendars: CalendarEntity[];
@@ -115,8 +121,8 @@ export class NotionAssist extends Assist {
         );
 
         if (eventLink && eventLink.notionPageId) {
-            const gCalEventUpdated = new Date(event.updated);
-            const userUpdated = new Date(this.user.lastCalendarSync);
+            const gCalEventUpdated = dayjs(event.updated);
+            const userUpdated = dayjs(this.user.lastCalendarSync);
             // const eventLinkUpdated = new Date(
             //     eventLink.lastGoogleCalendarUpdate,
             // );

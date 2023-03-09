@@ -90,8 +90,8 @@ export class UserService {
     });
 
     const googleClient = await this.getGoogleClient(user);
-    const allCalendarList_res = await googleClient.calendarList.list();
-    const allCalendarList = allCalendarList_res.data.items.map((e) => {
+    const googleCalendarsRes = await googleClient.calendarList.list();
+    const googleCalendars = googleCalendarsRes.data.items.map((e) => {
       return {
         id: e.id,
         summary: e.summary,
@@ -134,7 +134,7 @@ export class UserService {
         notionPropertyId: calendar.notionPropertyId,
         createdAt: calendar.createdAt,
       })),
-      allCalendars: allCalendarList,
+      googleCalendars: googleCalendars,
     };
   }
 

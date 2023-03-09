@@ -66,27 +66,31 @@ export const transDate = {
     },
     eventToGcal: ({ start, end }: EventDateTime): GCalDateTime => {
         if (start.date) {
+            // Date 일 경우
             return {
                 start: {
                     date: start.date,
                 },
                 end: {
                     date: end?.date
-                        ? dayjs
-                              .tz(end.date, 'Asia/Seoul')
-                              .add(1, 'day')
-                              .toISOString()
-                              .split('T')[0]
+                        ? dayjs(end.date).add(1, 'day').format('YYYY-MM-DD')
                         : start.date,
                 },
             };
         } else {
+            // DateTime 일 경우
             return {
                 start: {
-                    dateTime: start.dateTime,
+                    dateTime: dayjs(start.dateTime).format(
+                        'YYYY-MM-DDTHH:mm:ssZ',
+                    ),
+                    date: null,
                 },
                 end: {
-                    dateTime: end?.dateTime || start.dateTime,
+                    dateTime: dayjs(end?.dateTime || start.dateTime).format(
+                        'YYYY-MM-DDTHH:mm:ssZ',
+                    ),
+                    date: null,
                 },
             };
         }
@@ -99,10 +103,7 @@ export const transDate = {
             _end =
                 end.date === start.date
                     ? end.date
-                    : dayjs
-                          .tz(end.date, 'Asia/Seoul')
-                          .toISOString()
-                          .split('T')[0];
+                    : dayjs(end.date).toISOString().split('T')[0];
         } else {
             _end = end?.dateTime as string;
         }
