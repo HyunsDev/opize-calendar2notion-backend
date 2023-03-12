@@ -22,6 +22,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Post('find-users')
+  async getUsers(@Body() dto: { where: any; page: number }) {
+    return await this.adminService.findUsers(dto.where, dto.page);
+  }
+
   @Get('find-user')
   async findUser(@Query() query: FindUserDto) {
     return await this.adminService.findUser({
@@ -66,7 +71,11 @@ export class AdminController {
 
   @Get('errors')
   async errors(@Query() query: ErrorListRequestDto) {
-    return await this.adminService.getErrorList(+query.page, +query.pageSize);
+    return await this.adminService.getErrorList(
+      +query.page,
+      +query.pageSize,
+      query.userId && +query.userId,
+    );
   }
 
   @Delete('error/:id')

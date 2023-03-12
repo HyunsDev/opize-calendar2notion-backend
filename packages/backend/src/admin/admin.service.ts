@@ -1,5 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CalendarEntity,
@@ -7,7 +11,7 @@ import {
   EventEntity,
   UserEntity,
 } from '@opize/calendar2notion-model';
-import { Not, Repository } from 'typeorm';
+import { FindManyOptions, Not, Repository } from 'typeorm';
 import { google } from 'googleapis';
 import { Client } from '@notionhq/client';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -228,10 +232,13 @@ export class AdminService {
     return res;
   }
 
-  async getErrorList(page: number, pageSize: number) {
+  async getErrorList(page: number, pageSize: number, userId?: number) {
     const list = await this.errorLogsRepository.find({
       take: pageSize,
       skip: page * pageSize,
+      where: {
+        userId: userId,
+      },
       order: {
         createdAt: {
           direction: 'DESC',
@@ -246,5 +253,27 @@ export class AdminService {
     await this.errorLogsRepository.delete({
       id: id,
     });
+  }
+
+  async findUsers(where: FindManyOptions<UserEntity>['where'], page: number) {
+    const PAGE_SIZE = 50;
+
+    try {
+      const users = await this.usersRepository.find({
+        where: where,
+        relations: [],
+        skip: page * PAGE_SIZE,
+        take: PAGE_SIZE,
+      });
+      return {
+        page: page,
+        users: users,
+      };
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException({
+        code: 'BAD_REQUEST',
+      });
+    }
   }
 }
