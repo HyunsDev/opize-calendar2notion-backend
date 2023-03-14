@@ -96,7 +96,7 @@ export class Worker {
                         await this.syncNewCalendar();
                         await this.endSync();
                     })(),
-                    1000 * 60 * 120,
+                    1000 * 60 * 60 * 12,
                 );
             } catch (timeoutErr) {
                 if (
