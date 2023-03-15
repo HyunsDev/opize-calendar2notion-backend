@@ -16,6 +16,10 @@ export class UpdateUserDto {
   isConnected?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  isWork?: boolean;
+
+  @IsOptional()
   @IsString()
   userTimeZone?: string;
 

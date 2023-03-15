@@ -142,9 +142,11 @@ export class UserService {
     if (updateUserDto.imageUrl) user.imageUrl = updateUserDto.imageUrl;
     if (updateUserDto.isConnected !== undefined)
       user.isConnected = updateUserDto.isConnected;
+    if (updateUserDto.isWork !== undefined) user.isWork = updateUserDto.isWork;
     if (updateUserDto.name) user.name = updateUserDto.name;
     if (updateUserDto.userTimeZone)
       user.userTimeZone = updateUserDto.userTimeZone;
+
     await this.usersRepository.save(user);
     return;
   }
