@@ -8,6 +8,7 @@ import {
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { NotionDateTime, transDate } from '../../utils/dateUtils';
 import { gCalApi } from './api.decorator';
+import { GaxiosError } from 'gaxios';
 
 export class GoogleCalendarAssistApi {
     private user: UserEntity;
@@ -158,17 +159,31 @@ export class GoogleCalendarAssistApi {
             locationProp.rich_text.map((e: any) => e?.plain_text).join() ||
             undefined;
 
-        return await this.client.events.patch({
-            eventId: eventLink.googleCalendarEventId,
-            calendarId: eventLink.googleCalendarCalendarId,
-            requestBody: {
-                start: date.start,
-                end: date.end,
-                summary: title,
-                [description && 'description']: description,
-                [location && 'location']: location,
-            },
-        });
+        try {
+            return await this.client.events.patch({
+                eventId: eventLink.googleCalendarEventId,
+                calendarId: eventLink.googleCalendarCalendarId,
+                requestBody: {
+                    start: date.start,
+                    end: date.end,
+                    summary: title,
+                    [description && 'description']: description,
+                    [location && 'location']: location,
+                },
+            });
+        } catch (err: unknown) {
+            if (
+                err instanceof GaxiosError &&
+                err.response.status === 403 &&
+                err.response.data.message === 'Forbidden' &&
+                err.response.data.errors[0].domain === 'global' &&
+                err.response.data.errors[0].reason === 'forbidden'
+            ) {
+                return false;
+            } else {
+                throw err;
+            }
+        }
     }
 
     @gCalApi()
