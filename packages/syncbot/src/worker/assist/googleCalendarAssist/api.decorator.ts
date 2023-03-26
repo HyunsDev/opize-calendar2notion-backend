@@ -28,6 +28,8 @@ export function gCalApi() {
                 }
             } catch (err: unknown) {
                 if (err instanceof GaxiosError) {
+                    console.log(err);
+
                     if (err.response.status === 400) {
                         throw new SyncError({
                             code: 'gcal_api_invalid_request',
@@ -39,7 +41,19 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: JSON.stringify(err.response.data),
+                            detail: JSON.stringify({
+                                response: {
+                                    body: err.response.data,
+                                    status: err.response.status,
+                                },
+                                request: {
+                                    body: err.response.config.body,
+                                    url: err.response.config.url,
+                                    method: err.response.config.method,
+                                    data: err.response.config.data,
+                                    params: err.response.config.params,
+                                },
+                            }),
                         });
                     }
 
@@ -54,7 +68,19 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: JSON.stringify(err.response.data),
+                            detail: JSON.stringify({
+                                response: {
+                                    body: err.response.data,
+                                    status: err.response.status,
+                                },
+                                request: {
+                                    body: err.response.config.body,
+                                    url: err.response.config.url,
+                                    method: err.response.config.method,
+                                    data: err.response.config.data,
+                                    params: err.response.config.params,
+                                },
+                            }),
                         });
                     }
 
@@ -73,7 +99,19 @@ export function gCalApi() {
                                 user: this.user,
                                 guideUrl: '',
                                 finishWork: 'RETRY',
-                                detail: JSON.stringify(err.response.data),
+                                detail: JSON.stringify({
+                                    response: {
+                                        body: err.response.data,
+                                        status: err.response.status,
+                                    },
+                                    request: {
+                                        body: err.response.config.body,
+                                        url: err.response.config.url,
+                                        method: err.response.config.method,
+                                        data: err.response.config.data,
+                                        params: err.response.config.params,
+                                    },
+                                }),
                             });
                         }
                         if (
@@ -89,7 +127,19 @@ export function gCalApi() {
                                 user: this.user,
                                 guideUrl: '',
                                 finishWork: 'RETRY',
-                                detail: JSON.stringify(err.response.data),
+                                detail: JSON.stringify({
+                                    response: {
+                                        body: err.response.data,
+                                        status: err.response.status,
+                                    },
+                                    request: {
+                                        body: err.response.config.body,
+                                        url: err.response.config.url,
+                                        method: err.response.config.method,
+                                        data: err.response.config.data,
+                                        params: err.response.config.params,
+                                    },
+                                }),
                             });
                         }
                         if (
@@ -109,7 +159,19 @@ export function gCalApi() {
                                 user: this.user,
                                 guideUrl: '',
                                 finishWork: 'RETRY',
-                                detail: JSON.stringify(err.response.data),
+                                detail: JSON.stringify({
+                                    response: {
+                                        body: err.response.data,
+                                        status: err.response.status,
+                                    },
+                                    request: {
+                                        body: err.response.config.body,
+                                        url: err.response.config.url,
+                                        method: err.response.config.method,
+                                        data: err.response.config.data,
+                                        params: err.response.config.params,
+                                    },
+                                }),
                             });
                         }
 
@@ -123,7 +185,19 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: JSON.stringify(err.response.data),
+                            detail: JSON.stringify({
+                                response: {
+                                    body: err.response.data,
+                                    status: err.response.status,
+                                },
+                                request: {
+                                    body: err.response.config.body,
+                                    url: err.response.config.url,
+                                    method: err.response.config.method,
+                                    data: err.response.config.data,
+                                    params: err.response.config.params,
+                                },
+                            }),
                         });
                     }
 
@@ -139,7 +213,19 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'STOP',
-                            detail: JSON.stringify(err.response.data),
+                            detail: JSON.stringify({
+                                response: {
+                                    body: err.response.data,
+                                    status: err.response.status,
+                                },
+                                request: {
+                                    body: err.response.config.body,
+                                    url: err.response.config.url,
+                                    method: err.response.config.method,
+                                    data: err.response.config.data,
+                                    params: err.response.config.params,
+                                },
+                            }),
                         });
                     }
 
@@ -164,7 +250,19 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'RETRY',
-                            detail: JSON.stringify(err.response.data),
+                            detail: JSON.stringify({
+                                response: {
+                                    body: err.response.data,
+                                    status: err.response.status,
+                                },
+                                request: {
+                                    body: err.response.config.body,
+                                    url: err.response.config.url,
+                                    method: err.response.config.method,
+                                    data: err.response.config.data,
+                                    params: err.response.config.params,
+                                },
+                            }),
                         });
                     }
 
@@ -179,7 +277,19 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'RETRY',
-                            detail: JSON.stringify(err.response.data),
+                            detail: JSON.stringify({
+                                response: {
+                                    body: err.response.data,
+                                    status: err.response.status,
+                                },
+                                request: {
+                                    body: err.response.config.body,
+                                    url: err.response.config.url,
+                                    method: err.response.config.method,
+                                    data: err.response.config.data,
+                                    params: err.response.config.params,
+                                },
+                            }),
                         });
                     }
 
@@ -194,7 +304,19 @@ export function gCalApi() {
                             user: this.user,
                             guideUrl: '',
                             finishWork: 'RETRY',
-                            detail: JSON.stringify(err.response.data),
+                            detail: JSON.stringify({
+                                response: {
+                                    body: err.response.data,
+                                    status: err.response.status,
+                                },
+                                request: {
+                                    body: err.response.config.body,
+                                    url: err.response.config.url,
+                                    method: err.response.config.method,
+                                    data: err.response.config.data,
+                                    params: err.response.config.params,
+                                },
+                            }),
                         });
                     }
 
