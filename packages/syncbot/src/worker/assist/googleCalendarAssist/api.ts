@@ -175,9 +175,9 @@ export class GoogleCalendarAssistApi {
             if (
                 err instanceof GaxiosError &&
                 err.response.status === 403 &&
-                err.response.data.message === 'Forbidden' &&
-                err.response.data.errors[0].domain === 'global' &&
-                err.response.data.errors[0].reason === 'forbidden'
+                err.response.data.error.message === 'Forbidden' &&
+                err.response.data.error.errors[0].domain === 'global' &&
+                err.response.data.error.errors[0].reason === 'forbidden'
             ) {
                 return false;
             } else {
