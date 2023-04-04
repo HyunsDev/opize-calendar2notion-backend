@@ -230,40 +230,99 @@ export function gCalApi() {
                     }
 
                     if (err.response.status === 410) {
-                        (this.user as UserEntity).lastCalendarSync = dayjs()
-                            .tz(
-                                (this.user as UserEntity).userTimeZone ||
-                                    'Asia/Seoul',
-                            )
-                            .add(-20, 'days')
-                            .toDate();
-                        await DB.user.save(this.user);
+                        if (
+                            err.response.data.error.errors[0].reason ===
+                            'deleted'
+                        ) {
+                            // TODO: #27 현재 해당 오류에 대한 원인 파악 필요함
+                            // throw new SyncError({
+                            //     code: 'gcal_api_gone_deleted',
+                            //     from: 'GOOGLE CALENDAR',
+                            //     archive: false,
+                            //     description: '구글 캘린더 이벤트가 삭제됨',
+                            //     level: 'ERROR',
+                            //     showUser: true,
+                            //     user: this.user,
+                            //     guideUrl: '',
+                            //     finishWork: 'STOP',
+                            //     detail: JSON.stringify({
+                            //         response: {
+                            //             body: err.response.data,
+                            //             status: err.response.status,
+                            //         },
+                            //         request: {
+                            //             body: err.response.config.body,
+                            //             url: err.response.config.url,
+                            //             method: err.response.config.method,
+                            //             data: err.response.config.data,
+                            //             params: err.response.config.params,
+                            //         },
+                            //     }),
+                            // });
+                        } else if (
+                            err.response.data.error.errors[0].reason ===
+                            'updatedMinTooLongAgo'
+                        ) {
+                            (this.user as UserEntity).lastCalendarSync = dayjs()
+                                .tz(
+                                    (this.user as UserEntity).userTimeZone ||
+                                        'Asia/Seoul',
+                                )
+                                .add(-20, 'days')
+                                .toDate();
+                            await DB.user.save(this.user);
 
-                        throw new SyncError({
-                            code: 'gcal_api_gone',
-                            from: 'GOOGLE CALENDAR',
-                            archive: false,
-                            description:
-                                'updatedMin을 사용할 수 없음 (너무 오랬동안 동기화 되지 않음) - 동기화 시간 초기화 함',
-                            level: 'ERROR',
-                            showUser: true,
-                            user: this.user,
-                            guideUrl: '',
-                            finishWork: 'RETRY',
-                            detail: JSON.stringify({
-                                response: {
-                                    body: err.response.data,
-                                    status: err.response.status,
-                                },
-                                request: {
-                                    body: err.response.config.body,
-                                    url: err.response.config.url,
-                                    method: err.response.config.method,
-                                    data: err.response.config.data,
-                                    params: err.response.config.params,
-                                },
-                            }),
-                        });
+                            throw new SyncError({
+                                code: 'gcal_api_gone_updated_min_too_long_ago',
+                                from: 'GOOGLE CALENDAR',
+                                archive: false,
+                                description:
+                                    'updatedMin을 사용할 수 없음 (너무 오랬동안 동기화 되지 않음) - 동기화 시간 초기화 함',
+                                level: 'ERROR',
+                                showUser: true,
+                                user: this.user,
+                                guideUrl: '',
+                                finishWork: 'RETRY',
+                                detail: JSON.stringify({
+                                    response: {
+                                        body: err.response.data,
+                                        status: err.response.status,
+                                    },
+                                    request: {
+                                        body: err.response.config.body,
+                                        url: err.response.config.url,
+                                        method: err.response.config.method,
+                                        data: err.response.config.data,
+                                        params: err.response.config.params,
+                                    },
+                                }),
+                            });
+                        } else {
+                            throw new SyncError({
+                                code: 'gcal_api_gone',
+                                from: 'GOOGLE CALENDAR',
+                                archive: false,
+                                description: '구글 캘린더 API Gone (원인 불명)',
+                                level: 'ERROR',
+                                showUser: true,
+                                user: this.user,
+                                guideUrl: '',
+                                finishWork: 'RETRY',
+                                detail: JSON.stringify({
+                                    response: {
+                                        body: err.response.data,
+                                        status: err.response.status,
+                                    },
+                                    request: {
+                                        body: err.response.config.body,
+                                        url: err.response.config.url,
+                                        method: err.response.config.method,
+                                        data: err.response.config.data,
+                                        params: err.response.config.params,
+                                    },
+                                }),
+                            });
+                        }
                     }
 
                     if (err.response.status === 429) {
