@@ -123,10 +123,10 @@ export class Worker {
                 console.error(err);
 
                 this.result.fail = true;
-
-                this.user.lastCalendarSync = this.user.workStartedAt;
-                this.user.isWork = false;
-                await DB.user.save(this.user);
+                const res = await DB.user.update(this.user.id, {
+                    lastCalendarSync: this.user.workStartedAt,
+                    isWork: false,
+                });
 
                 if (err instanceof SyncError) {
                     workerLogger.error(
@@ -137,8 +137,9 @@ export class Worker {
                         this.user.isConnected = false;
                     }
 
-                    this.user.lastSyncStatus === err.code || 'unknown_error';
-                    await DB.user.save(this.user);
+                    await DB.user.update(this.user, {
+                        lastSyncStatus: err.code || 'unknown_error',
+                    });
 
                     const errorLog = new ErrorLogEntity();
                     errorLog.code = err.code;
@@ -155,8 +156,9 @@ export class Worker {
                     errorLog.finishWork = err.finishWork;
                     await DB.errorLog.save(errorLog);
                 } else {
-                    this.user.lastSyncStatus === err.code || 'unknown_error';
-                    await DB.user.save(this.user);
+                    await DB.user.update(this.user, {
+                        lastSyncStatus: err.code || 'unknown_error',
+                    });
 
                     workerLogger.error(
                         `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
@@ -223,10 +225,11 @@ export class Worker {
     // 작업 시작
     private async startSync() {
         this.result.step = 'startSync';
-        this.user.workStartedAt = this.user.lastCalendarSync;
-        this.user.isWork = true;
-        this.user.syncbotId = process.env.SYNCBOT_PREFIX;
-        await DB.user.save(this.user);
+        await DB.user.update(this.user, {
+            workStartedAt: this.user.lastCalendarSync,
+            isWork: true,
+            syncbotId: process.env.SYNCBOT_PREFIX,
+        });
     }
 
     // 유효성 검증
@@ -356,9 +359,10 @@ export class Worker {
     // 작업 종료
     private async endSync() {
         this.result.step = 'endSync';
-        this.user.lastCalendarSync = new Date();
-        this.user.isWork = false;
-        await DB.user.save(this.user);
+        await DB.user.update(this.user, {
+            lastCalendarSync: new Date(),
+            isWork: false,
+        });
 
         // 오래된 기록 삭제
         await DB.errorLog.delete({
