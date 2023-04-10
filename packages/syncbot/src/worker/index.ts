@@ -123,7 +123,7 @@ export class Worker {
                 console.error(err);
 
                 this.result.fail = true;
-                const res = await DB.user.update(this.user.id, {
+                await DB.user.update(this.user.id, {
                     lastCalendarSync: this.user.workStartedAt,
                     isWork: false,
                 });
@@ -137,7 +137,7 @@ export class Worker {
                         this.user.isConnected = false;
                     }
 
-                    await DB.user.update(this.user, {
+                    await DB.user.update(this.user.id, {
                         lastSyncStatus: err.code || 'unknown_error',
                     });
 
@@ -156,7 +156,7 @@ export class Worker {
                     errorLog.finishWork = err.finishWork;
                     await DB.errorLog.save(errorLog);
                 } else {
-                    await DB.user.update(this.user, {
+                    await DB.user.update(this.user.id, {
                         lastSyncStatus: err.code || 'unknown_error',
                     });
 
@@ -225,7 +225,7 @@ export class Worker {
     // 작업 시작
     private async startSync() {
         this.result.step = 'startSync';
-        await DB.user.update(this.user, {
+        await DB.user.update(this.user.id, {
             workStartedAt: this.user.lastCalendarSync,
             isWork: true,
             syncbotId: process.env.SYNCBOT_PREFIX,
@@ -359,7 +359,7 @@ export class Worker {
     // 작업 종료
     private async endSync() {
         this.result.step = 'endSync';
-        await DB.user.update(this.user, {
+        await DB.user.update(this.user.id, {
             lastCalendarSync: new Date(),
             isWork: false,
         });
