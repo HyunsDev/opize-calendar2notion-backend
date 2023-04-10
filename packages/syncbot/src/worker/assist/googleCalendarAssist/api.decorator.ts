@@ -263,14 +263,15 @@ export function gCalApi() {
                             err.response.data.error.errors[0].reason ===
                             'updatedMinTooLongAgo'
                         ) {
-                            (this.user as UserEntity).lastCalendarSync = dayjs()
-                                .tz(
-                                    (this.user as UserEntity).userTimeZone ||
-                                        'Asia/Seoul',
-                                )
-                                .add(-20, 'days')
-                                .toDate();
-                            await DB.user.save(this.user);
+                            DB.user.update(this.user, {
+                                lastCalendarSync: dayjs()
+                                    .tz(
+                                        (this.user as UserEntity)
+                                            .userTimeZone || 'Asia/Seoul',
+                                    )
+                                    .add(-20, 'days')
+                                    .toDate(),
+                            });
 
                             throw new SyncError({
                                 code: 'gcal_api_gone_updated_min_too_long_ago',
