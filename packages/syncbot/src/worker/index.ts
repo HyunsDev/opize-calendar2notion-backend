@@ -134,7 +134,9 @@ export class Worker {
                     );
 
                     if (err.finishWork === 'STOP') {
-                        this.user.isConnected = false;
+                        await DB.user.update(this.user.id, {
+                            isConnected: false,
+                        });
                     }
 
                     await DB.user.update(this.user.id, {
