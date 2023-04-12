@@ -314,56 +314,72 @@ export class NotionAssistApi {
             description?: string;
             location?: string;
         } = JSON.parse(this.user.notionProps);
-        return await this.client.pages.update({
-            page_id: eventLink.notionPageId,
-            properties: {
-                title: {
-                    type: 'title',
-                    title: [
-                        {
-                            type: 'text',
-                            text: {
-                                content: event.summary || '',
+
+        try {
+            return await this.client.pages.update({
+                page_id: eventLink.notionPageId,
+                properties: {
+                    title: {
+                        type: 'title',
+                        title: [
+                            {
+                                type: 'text',
+                                text: {
+                                    content: event.summary || '',
+                                },
                             },
+                        ],
+                    },
+                    [props.date]: {
+                        date: transDate.eventToNotion(
+                            transDate.gCalToEvent({
+                                start: event.start,
+                                end: event.end,
+                            }),
+                        ),
+                    },
+                    [props.calendar]: {
+                        select: {
+                            id: calendar.notionPropertyId,
                         },
-                    ],
-                },
-                [props.date]: {
-                    date: transDate.eventToNotion(
-                        transDate.gCalToEvent({
-                            start: event.start,
-                            end: event.end,
-                        }),
-                    ),
-                },
-                [props.calendar]: {
-                    select: {
-                        id: calendar.notionPropertyId,
+                    },
+                    [props.description]: props.description && {
+                        type: 'rich_text',
+                        rich_text: [
+                            {
+                                type: 'text',
+                                text: {
+                                    content: event.description || '',
+                                },
+                            },
+                        ],
+                    },
+                    [props.location]: props.location && {
+                        type: 'rich_text',
+                        rich_text: [
+                            {
+                                type: 'text',
+                                text: {
+                                    content: event.location || '',
+                                },
+                            },
+                        ],
                     },
                 },
-                [props.description]: props.description && {
-                    type: 'rich_text',
-                    rich_text: [
-                        {
-                            type: 'text',
-                            text: {
-                                content: event.description || '',
-                            },
-                        },
-                    ],
-                },
-                [props.location]: props.location && {
-                    type: 'rich_text',
-                    rich_text: [
-                        {
-                            type: 'text',
-                            text: {
-                                content: event.location || '',
-                            },
-                        },
-                    ],
-                },
-            },
-        });
+            });
+        } catch (err) {
+            if (
+                err.message ===
+                `Can't update a page that is archived. You must unarchive the page before updating.`
+            ) {
+                return true;
+            }
+
+            if (err.status === 404) {
+                return true;
+            }
+
+            throw err;
+        }
     }
 }
