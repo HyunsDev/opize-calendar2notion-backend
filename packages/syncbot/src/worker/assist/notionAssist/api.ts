@@ -125,6 +125,11 @@ export class NotionAssistApi {
             ) {
                 return true;
             }
+
+            if (err.status === 404) {
+                return true;
+            }
+
             throw err;
         }
     }
