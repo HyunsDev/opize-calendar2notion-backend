@@ -380,7 +380,30 @@ export function gCalApi() {
                         });
                     }
 
-                    throw err;
+                    throw new SyncError({
+                        code: 'gcal_api_unknown_error',
+                        from: 'GOOGLE CALENDAR',
+                        archive: false,
+                        description: '구글 캘린더 API 알 수 없는 오류',
+                        level: 'ERROR',
+                        showUser: true,
+                        user: this.user,
+                        guideUrl: '',
+                        finishWork: 'STOP',
+                        detail: JSON.stringify({
+                            response: {
+                                body: err.response.data,
+                                status: err.response.status,
+                            },
+                            request: {
+                                body: err.response.config.body,
+                                url: err.response.config.url,
+                                method: err.response.config.method,
+                                data: err.response.config.data,
+                                params: err.response.config.params,
+                            },
+                        }),
+                    });
                 } else {
                     throw err;
                 }

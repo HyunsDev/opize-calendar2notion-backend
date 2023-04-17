@@ -46,10 +46,14 @@ export class GoogleCalendarAssistApi {
 
     @gCalApi()
     public async deleteEvent(eventId: string, calendarId: string) {
-        await this.client.events.delete({
-            eventId,
-            calendarId,
-        });
+        try {
+            await this.client.events.delete({
+                eventId,
+                calendarId,
+            });
+        } catch (err) {
+            throw err;
+        }
     }
 
     @gCalApi()
