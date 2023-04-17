@@ -173,6 +173,20 @@ export class UserService {
       });
     }
 
+    // 동일한 이름의 캘린더 거부
+    const sameNameCalendar = await this.calendarsRepository.findOne({
+      where: {
+        userId: user.id,
+        googleCalendarName: googleCalendar.summary,
+      },
+    });
+
+    if (sameNameCalendar) {
+      throw new BadRequestException({
+        code: 'same_name_calendar_exist',
+      });
+    }
+
     const oldCalendar = await this.calendarsRepository.findOne({
       where: {
         userId: user.id,
