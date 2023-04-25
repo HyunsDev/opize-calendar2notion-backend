@@ -12,7 +12,7 @@ import {
   UserEntity,
 } from '@opize/calendar2notion-model';
 import { FindManyOptions, Not, Repository } from 'typeorm';
-import { google } from 'googleapis';
+import { google, calendar_v3 } from 'googleapis';
 import { Client } from '@notionhq/client';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UserPlanUpgradeDto } from './dto/plan-upgrade.dto';
@@ -275,5 +275,47 @@ export class AdminService {
         code: 'BAD_REQUEST',
       });
     }
+  }
+
+  async fetchEventByEventId(eventId: number) {
+    const eventLink = await this.eventsRepository.findOne({
+      where: {
+        id: eventId,
+      },
+      relations: ['user'],
+    });
+
+    // Google Calendar Event
+    const oAuth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_PASSWORD,
+      process.env.GOOGLE_CALLBACK,
+    );
+    oAuth2Client.setCredentials({
+      refresh_token: eventLink.user.googleRefreshToken,
+      access_token: eventLink.user.googleAccessToken,
+    });
+    const gCalclient = google.calendar({
+      version: 'v3',
+      auth: oAuth2Client,
+    });
+    const gCalEvent = await gCalclient.events.get({
+      eventId: eventLink.googleCalendarEventId,
+      calendarId: eventLink.googleCalendarCalendarId,
+    });
+
+    // Notion Page Event
+    const notion = new Client({
+      auth: eventLink.user.notionAccessToken,
+    });
+    const page = await notion.pages.retrieve({
+      page_id: eventLink.notionPageId,
+    });
+
+    return {
+      eventLink: eventLink,
+      gCalEvent: gCalEvent.data,
+      notionPage: page,
+    };
   }
 }

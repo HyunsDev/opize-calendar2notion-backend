@@ -16,6 +16,7 @@ import { ErrorListRequestDto } from './dto/error-list.request.dto';
 import { FindUserDto } from './dto/find-user.dto';
 import { UserPlanUpgradeDto } from './dto/plan-upgrade.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FetchUserEvent } from './dto/fetchUserEvent.dto copy';
 
 @Controller('admin')
 @Auth('admin')
@@ -81,5 +82,13 @@ export class AdminController {
   @Delete('error/:id')
   async deleteError(@Param('id') id: string) {
     return await this.adminService.deleteError(+id);
+  }
+
+  @Post('/user/:id/event')
+  async fetchUserEvent(@Param('id') id: string, @Body() dto: FetchUserEvent) {
+    if (dto.id) {
+      return await this.adminService.fetchEventByEventId(dto.id);
+    }
+    return 'Developing';
   }
 }
