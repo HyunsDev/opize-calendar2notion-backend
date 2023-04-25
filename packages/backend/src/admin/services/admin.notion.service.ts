@@ -11,7 +11,7 @@ dayjs.extend(timezone);
 
 @Injectable()
 export class AdminNotionService {
-  getNotionClient(userAccessToken: string) {
-    return new Client({ auth: userAccessToken });
-  }
+    getNotionClient(userAccessToken: string) {
+        return new Client({ auth: userAccessToken });
+    }
 }

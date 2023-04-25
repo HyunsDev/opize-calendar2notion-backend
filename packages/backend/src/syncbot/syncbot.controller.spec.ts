@@ -3,18 +3,18 @@ import { SyncbotController } from './syncbot.controller';
 import { SyncbotService } from './syncbot.service';
 
 describe('SyncbotController', () => {
-  let controller: SyncbotController;
+    let controller: SyncbotController;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [SyncbotController],
-      providers: [SyncbotService],
-    }).compile();
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            controllers: [SyncbotController],
+            providers: [SyncbotService],
+        }).compile();
 
-    controller = module.get<SyncbotController>(SyncbotController);
-  });
+        controller = module.get<SyncbotController>(SyncbotController);
+    });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
+    });
 });

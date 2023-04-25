@@ -6,12 +6,12 @@ import { SyncBotEntity } from '@opize/calendar2notion-model';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  controllers: [SyncbotStreamController],
-  providers: [SyncbotStreamService],
-  imports: [
-    SyncbotStreamModule,
-    TypeOrmModule.forFeature([SyncBotEntity]),
-    HttpModule,
-  ],
+    controllers: [SyncbotStreamController],
+    providers: [SyncbotStreamService],
+    imports: [
+        SyncbotStreamModule,
+        TypeOrmModule.forFeature([SyncBotEntity]),
+        HttpModule,
+    ],
 })
 export class SyncbotStreamModule {}

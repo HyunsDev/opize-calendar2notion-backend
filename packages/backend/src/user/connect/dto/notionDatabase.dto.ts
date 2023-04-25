@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
 export class NotionDatabaseDTO {
-  @IsString()
-  id: string;
+    @IsString()
+    id: string;
 }
