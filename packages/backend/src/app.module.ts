@@ -10,13 +10,17 @@ import {
     SyncBotEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { UserModule } from './user/user.module';
-import { AdminModule } from './admin/admin.module';
+import { UserModule } from './submodules/user/user.module';
 
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { PaymentLogEntity } from '@opize/calendar2notion-model/dist/entity/paymentLog.entity';
-import { SyncbotModule } from './syncbot/syncbot.module';
+import { SyncbotModule } from './submodules/syncbot/syncbot.module';
+import { AdminUserModule } from './submodules/admin/submodules/user/admin-user.module';
+import { AdminUserEventModule } from './submodules/admin/submodules/user/submodules/event/event.module';
+import { AdminUserPlanModule } from './submodules/admin/submodules/user/submodules/plan/plan.module';
+import { AdminStatisticsModule } from './submodules/admin/submodules/statistics/statisics.module';
+import { AdminErrorModule } from './submodules/admin/submodules/error/error.module';
 
 dotenv.config({
     path: path.resolve(process.env.NODE_ENV === 'production' ? '.env' : '.env'),
@@ -43,15 +47,13 @@ dotenv.config({
             charset: 'utf8mb4',
             synchronize: process.env.DB_SYNCHRONIZE === 'true',
         }),
-        CalendarEntity,
-        ErrorLogEntity,
-        EventEntity,
-        KnownErrorEntity,
-        PaymentLogEntity,
-        UserEntity,
         UserModule,
-        AdminModule,
         SyncbotModule,
+        AdminUserModule,
+        AdminUserEventModule,
+        AdminUserPlanModule,
+        AdminStatisticsModule,
+        AdminErrorModule,
     ],
     controllers: [AppController],
     providers: [AppService],
