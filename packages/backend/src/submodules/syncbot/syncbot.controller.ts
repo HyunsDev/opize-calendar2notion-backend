@@ -43,25 +43,4 @@ export class SyncbotController {
     async exit(@Param('prefix') prefix: string) {
         return await this.syncbotService.exitSyncbot(prefix);
     }
-
-    @Get('syncbots/:prefix/logs/:date')
-    async getLogs(
-        @Param('prefix') prefix: string,
-        @Param('date') date: string | 'today',
-    ) {
-        return await this.syncbotService.syncBotLog(prefix, date);
-    }
-
-    @Get('syncbots/:prefix/logs-static')
-    async getStaticLog(
-        @Param('prefix') prefix: string,
-        @Query('fileName') fileName: string,
-    ) {
-        return await this.syncbotService.syncBotStaticLog(prefix, fileName);
-    }
-
-    @Get('syncbots/:prefix/logs')
-    async getLogList(@Param('prefix') prefix: string) {
-        return await this.syncbotService.syncBotLogList(prefix);
-    }
 }

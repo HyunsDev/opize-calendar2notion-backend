@@ -21,6 +21,7 @@ import { AdminUserEventModule } from './submodules/admin/submodules/user/submodu
 import { AdminUserPlanModule } from './submodules/admin/submodules/user/submodules/plan/plan.module';
 import { AdminStatisticsModule } from './submodules/admin/submodules/statistics/statisics.module';
 import { AdminErrorModule } from './submodules/admin/submodules/error/error.module';
+import { SyncbotLogModule } from './submodules/syncbot/submodules/log/log.module';
 
 dotenv.config({
     path: path.resolve(process.env.NODE_ENV === 'production' ? '.env' : '.env'),
@@ -54,6 +55,7 @@ dotenv.config({
         AdminUserPlanModule,
         AdminStatisticsModule,
         AdminErrorModule,
+        SyncbotLogModule,
     ],
     controllers: [AppController],
     providers: [AppService],

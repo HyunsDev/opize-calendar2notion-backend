@@ -7,32 +7,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SyncBotEntity } from '@opize/calendar2notion-model';
-import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 import { AddSyncBotDto } from './dto/add-syncbot.dto';
-
-type ManagerStorageMap = {
-    readonly prefix: string;
-    readonly startedAt: Date;
-    timeout: number;
-    stop: boolean;
-    readonly verizon: string;
-
-    readonly workerAmount: {
-        pro: number;
-        free: number;
-        sponsor: number;
-    };
-
-    work: {
-        [id: string]: {
-            loopId: string;
-            nowWorkUserId: number | undefined;
-            completedSyncCount: number;
-        };
-    };
-};
+import { ManagerStorageMap } from './types/storageMap';
 
 @Injectable()
 export class SyncbotService {
@@ -220,125 +198,6 @@ export class SyncbotService {
                 code: 'syncBot_api_error',
                 message: `${prefix} 동기화봇을 찾을 수 없습니다. (${err?.response?.status})`,
             });
-        }
-    }
-
-    async syncBotLog(prefix: string, date: 'today' | string) {
-        const syncBot = await this.syncBotsRepository.findOne({
-            where: {
-                prefix,
-            },
-        });
-
-        if (!prefix) {
-            throw new NotFoundException({
-                code: 'syncBot_not_found',
-                message: `${prefix} 동기화봇을 찾을 수 없습니다.`,
-            });
-        }
-
-        try {
-            const res = await firstValueFrom(
-                this.httpService.get(`${syncBot.url}/status/logs/${date}`, {
-                    headers: {
-                        authorization: `Bearer ${syncBot.controlSecret}`,
-                    },
-                }),
-            );
-            return res.data;
-        } catch (err) {
-            if (err instanceof AxiosError && err.response) {
-                console.log(err.response);
-                if (err.response.status === 404) {
-                }
-            } else {
-                throw new BadRequestException({
-                    code: 'syncBot_api_error',
-                    message: `${prefix} 동기화봇에 연결할 수 없습니다.(${err?.response?.status})`,
-                });
-            }
-        }
-    }
-
-    async syncBotStaticLog(prefix: string, fileName: string) {
-        const syncBot = await this.syncBotsRepository.findOne({
-            where: {
-                prefix,
-            },
-        });
-
-        if (!prefix) {
-            throw new NotFoundException({
-                code: 'syncBot_not_found',
-                message: `${prefix} 동기화봇을 찾을 수 없습니다.`,
-            });
-        }
-
-        try {
-            const res = await firstValueFrom(
-                this.httpService.get(
-                    `${syncBot.url}/status/logs-static/${fileName}`,
-                    {
-                        headers: {
-                            authorization: `Bearer ${syncBot.controlSecret}`,
-                        },
-                    },
-                ),
-            );
-            return {
-                data: res.data,
-            };
-        } catch (err) {
-            if (err instanceof AxiosError && err.response) {
-                console.log(err.response);
-                if (err.response.status === 404) {
-                    throw new BadRequestException({
-                        code: 'file_not_found',
-                        message: '파일을 찾을 수 없습니다.',
-                    });
-                }
-            } else {
-                throw new BadRequestException({
-                    code: 'syncBot_api_error',
-                    message: `${prefix} 동기화봇에 연결할 수 없습니다.(${err?.response?.status})`,
-                });
-            }
-        }
-    }
-
-    async syncBotLogList(prefix: string) {
-        const syncBot = await this.syncBotsRepository.findOne({
-            where: {
-                prefix,
-            },
-        });
-
-        if (!prefix) {
-            throw new NotFoundException({
-                code: 'syncBot_not_found',
-                message: `${prefix} 동기화봇을 찾을 수 없습니다.`,
-            });
-        }
-
-        try {
-            const res = await firstValueFrom(
-                this.httpService.get(`${syncBot.url}/status/logs`, {
-                    headers: {
-                        authorization: `Bearer ${syncBot.controlSecret}`,
-                    },
-                }),
-            );
-            return res.data;
-        } catch (err) {
-            if (err instanceof AxiosError && err.response) {
-                if (err.response.status === 404) {
-                }
-            } else {
-                throw new BadRequestException({
-                    code: 'syncBot_api_error',
-                    message: `${prefix} 동기화봇에 연결할 수 없습니다.(${err?.response?.status})`,
-                });
-            }
         }
     }
 }
