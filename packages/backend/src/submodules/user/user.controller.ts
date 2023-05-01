@@ -15,7 +15,7 @@ import { User } from './decorator/user.decorator';
 import { UserEntity } from '@opize/calendar2notion-model';
 import { AddCalendarDto } from './dto/add-calendar.dto';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
 

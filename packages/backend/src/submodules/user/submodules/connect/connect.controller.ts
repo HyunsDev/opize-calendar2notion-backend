@@ -15,7 +15,7 @@ import { GoogleAccountDTO } from './dto/googleAccount.dto';
 import { NotionAccountDTO } from './dto/notionAccount.dto';
 import { NotionDatabaseDTO } from './dto/notionDatabase.dto';
 
-@Controller('user/:id/connect')
+@Controller('users/:id/connect')
 @Auth()
 export class UserConnectController {
     constructor(private readonly userConnectService: UserConnectService) {}
