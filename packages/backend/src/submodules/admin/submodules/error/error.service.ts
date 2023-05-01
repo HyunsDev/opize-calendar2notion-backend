@@ -30,8 +30,6 @@ export class AdminErrorService {
             relations: ['user'],
         });
 
-        console.log(errors);
-
         return new GetErrorsResDto(errors);
     }
 

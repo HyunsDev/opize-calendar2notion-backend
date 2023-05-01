@@ -86,7 +86,6 @@ export class SyncbotService {
                         message: `controlSecret가 올바르지 않습니다.`,
                     });
                 }
-                console.log(err.response);
 
                 throw new BadRequestException({
                     code: 'bad_request',
