@@ -234,6 +234,7 @@ export function gCalApi() {
                             err.response.data.error.errors[0].reason ===
                             'deleted'
                         ) {
+                            return;
                             // TODO: #27 현재 해당 오류에 대한 원인 파악 필요함
                             // throw new SyncError({
                             //     code: 'gcal_api_gone_deleted',
