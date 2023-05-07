@@ -62,6 +62,7 @@ export class GoogleCalendarAssist extends Assist {
         const calendars = this.calendars.filter(
             (e) => e.status === 'CONNECTED',
         );
+
         const res: {
             calendar: CalendarEntity;
             events: calendar_v3.Schema$Event[];
