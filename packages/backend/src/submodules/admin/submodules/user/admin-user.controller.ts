@@ -3,6 +3,7 @@ import {
     Body,
     Controller,
     Get,
+    Param,
     Patch,
     Query,
 } from '@nestjs/common';
@@ -29,7 +30,7 @@ export class AdminUserController {
     }
 
     @Get(':userId')
-    async getUser(@Query('userId') userId: string) {
+    async getUser(@Param('userId') userId: string) {
         return await this.adminUserService.searchUser({
             id: +userId,
         });
@@ -37,9 +38,10 @@ export class AdminUserController {
 
     @Patch(':userId')
     async patchUser(
-        @Query('userId') userId: string,
+        @Param('userId') userId: string,
         @Body() dto: UpdateUserReqDto,
     ) {
+        console.log(userId, dto);
         return await this.adminUserService.updateUser(+userId, dto);
     }
 
