@@ -263,7 +263,7 @@ export function gCalApi() {
                             err.response.data.error.errors[0].reason ===
                             'updatedMinTooLongAgo'
                         ) {
-                            DB.user.update(this.user, {
+                            await DB.user.update(this.user, {
                                 lastCalendarSync: dayjs()
                                     .tz(
                                         (this.user as UserEntity)
@@ -272,6 +272,8 @@ export function gCalApi() {
                                     .add(-20, 'days')
                                     .toDate(),
                             });
+
+                            console.log('함수 이름', key);
 
                             throw new SyncError({
                                 code: 'gcal_api_gone_updated_min_too_long_ago',

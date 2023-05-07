@@ -3,12 +3,14 @@ import {
     Body,
     Controller,
     Get,
+    Patch,
     Query,
 } from '@nestjs/common';
 import { Auth } from 'src/submodules/user/decorator/auth.decorator';
 import { AdminUserService } from './admin-user.service';
 import { SearchUserReqDto } from './dto/searchUser.req.dto';
 import { SearchUsersReqDto } from './dto/searchUsers.req.dto';
+import { UpdateUserReqDto } from './dto/updateUser.req.dto';
 
 @Controller('admin/users')
 @Auth('admin')
@@ -31,6 +33,14 @@ export class AdminUserController {
         return await this.adminUserService.searchUser({
             id: +userId,
         });
+    }
+
+    @Patch(':userId')
+    async patchUser(
+        @Query('userId') userId: string,
+        @Body() dto: UpdateUserReqDto,
+    ) {
+        return await this.adminUserService.updateUser(+userId, dto);
     }
 
     @Get('')
