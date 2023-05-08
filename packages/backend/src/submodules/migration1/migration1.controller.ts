@@ -3,7 +3,7 @@ import { Migration1Service } from './migration1.service';
 import { Auth } from '../user/decorator/auth.decorator';
 
 @Controller('migrations/v1')
-@Auth('admin')
+@Auth()
 export class Migration1Controller {
     constructor(private readonly migration1Service: Migration1Service) {}
 

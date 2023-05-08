@@ -10,10 +10,11 @@ import {
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { HttpModule } from '@nestjs/axios';
+import { AuthService } from 'src/submodules/user/submodules/auth/auth.service';
 
 @Module({
     controllers: [SyncBotLogController],
-    providers: [SyncbotLogService, UserService],
+    providers: [SyncbotLogService, AuthService],
     imports: [
         TypeOrmModule.forFeature([
             UserEntity,

@@ -11,10 +11,11 @@ import {
 } from '@opize/calendar2notion-model';
 import { HttpModule } from '@nestjs/axios';
 import { UserService } from 'src/submodules/user/user.service';
+import { AuthService } from 'src/submodules/user/submodules/auth/auth.service';
 
 @Module({
     controllers: [AdminErrorController],
-    providers: [AdminErrorService, UserService],
+    providers: [AdminErrorService, AuthService],
     imports: [
         TypeOrmModule.forFeature([
             UserEntity,

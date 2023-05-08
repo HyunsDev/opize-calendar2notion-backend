@@ -10,10 +10,11 @@ import {
     PaymentLogEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
+import { AuthService } from 'src/submodules/user/submodules/auth/auth.service';
 
 @Module({
     controllers: [AdminUserPlanController],
-    providers: [AdminUserPlanService, UserService],
+    providers: [AdminUserPlanService, AuthService],
     imports: [
         TypeOrmModule.forFeature([
             UserEntity,

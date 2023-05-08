@@ -19,6 +19,9 @@ import * as jwt from 'jsonwebtoken';
 import { firstValueFrom } from 'rxjs';
 import { calendar_v3, google } from 'googleapis';
 import { AddCalendarDto } from './dto/add-calendar.dto';
+import { AuthService } from './submodules/auth/auth.service';
+import { OpizeAuthService } from './submodules/auth/opize.auth.service';
+import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
 
 @Injectable()
 export class UserService {
@@ -29,13 +32,16 @@ export class UserService {
         private calendarsRepository: Repository<CalendarEntity>,
         @InjectRepository(EventEntity)
         private eventsRepository: Repository<EventEntity>,
-        private readonly httpService: HttpService,
+        private authService: AuthService,
+        private opizeAuthService: OpizeAuthService,
     ) {}
 
     // 유저 정보를 생성합니다.
     async post(createUserDto: CreateUserDto) {
-        const token = await this.getUserToken(createUserDto.token);
-        const opizeUser = await this.getUserByOpize(token);
+        const token = await this.opizeAuthService.getUserToken(
+            createUserDto.token,
+        );
+        const opizeUser = await this.opizeAuthService.getUserByOpize(token);
 
         let user =
             (await this.usersRepository.findOne({
@@ -51,7 +57,7 @@ export class UserService {
         user.opizeAccessToken = token;
         user = await this.usersRepository.save(user);
 
-        const userJWT = this.getUserJWT(user.id);
+        const userJWT = this.authService.getUserJWT(user.id);
         return {
             token: userJWT,
         };
@@ -89,8 +95,11 @@ export class UserService {
             },
         });
 
-        const googleClient = await this.getGoogleClient(user);
-        const googleCalendarsRes = await googleClient.calendarList.list();
+        const googleClient = new GoogleCalendarClient(
+            user.googleAccessToken,
+            user.googleRefreshToken,
+        );
+        const googleCalendarsRes = await googleClient.getCalendars();
         const googleCalendars = googleCalendarsRes.data.items.map((e) => {
             return {
                 id: e.id,
@@ -153,14 +162,15 @@ export class UserService {
     }
 
     async addCalendar(user: UserEntity, addCalendarDto: AddCalendarDto) {
-        const googleClient = await this.getGoogleClient(user);
+        const googleClient = new GoogleCalendarClient(
+            user.googleAccessToken,
+            user.googleRefreshToken,
+        );
 
         let googleCalendar: calendar_v3.Schema$CalendarListEntry;
         try {
             googleCalendar = (
-                await googleClient.calendarList.get({
-                    calendarId: addCalendarDto.googleCalendarId,
-                })
+                await googleClient.getCalendar(addCalendarDto.googleCalendarId)
             ).data;
         } catch (err) {
             if (err.code === 404)
@@ -360,102 +370,20 @@ export class UserService {
         }
     }
 
-    private async getUserToken(token: string) {
-        try {
-            const res = await firstValueFrom(
-                this.httpService.post(
-                    `${process.env.OPIZE_API_SERVER}/oauth`,
-                    {
-                        generateToken: token,
-                        redirectUrl: process.env.OPIZE_REDIRECT_URL,
-                    },
-                    {
-                        headers: {
-                            authorization: `Bearer ${process.env.OPIZE_PROJECT_SECRET_TOKEN}`,
-                        },
-                    },
-                ),
-            );
-            return res.data.token;
-        } catch (err) {
-            console.log(err);
-            if (err?.response?.status === 400) {
-                throw new BadRequestException('opize oauth bad request');
-            } else {
-                throw new InternalServerErrorException();
-            }
-        }
-    }
-
-    private async getUserByOpize(token: string) {
-        const res = await firstValueFrom(
-            this.httpService.get(`${process.env.OPIZE_API_SERVER}/oauth/user`, {
-                headers: {
-                    authorization: `Bearer ${token}`,
-                },
-            }),
-        );
-
-        return res.data as {
-            id: number;
-            name: string;
-            email: string;
-            imageUrl: string;
-            status: string;
-            currency: string;
-        };
-    }
-
-    private getUserJWT(userId: number) {
-        const JWTToken = jwt.sign(
-            {
-                id: userId,
-                type: 'projectUser',
-            },
-            process.env.JWT_SECRET as string,
-            {
-                issuer: 'calendar2notion.opize.me',
-                subject: 'user',
-            },
-        );
-        return JWTToken;
-    }
-
-    private async getGoogleClient(user: UserEntity) {
-        const oAuth2Client = new google.auth.OAuth2(
-            process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_PASSWORD,
-            process.env.GOOGLE_CALLBACK,
-        );
-        oAuth2Client.setCredentials({
-            access_token: user.googleAccessToken,
-            refresh_token: user.googleRefreshToken,
-        });
-        const googleClient = google.calendar({
-            version: 'v3',
-            auth: oAuth2Client,
-        });
-        return googleClient;
-    }
-
-    verify(JWTString: string) {
-        try {
-            const payload = jwt.verify(JWTString, process.env.JWT_SECRET) as (
-                | jwt.JwtPayload
-                | string
-            ) & {
-                id: string;
-                type: string;
-            };
-            const { id, type } = payload;
-            return {
-                userId: id,
-                type: type,
-            };
-        } catch (e) {
-            throw new UnauthorizedException({
-                code: 'wrong_token',
-            });
-        }
-    }
+    // private async getGoogleClient(user: UserEntity) {
+    //     const oAuth2Client = new google.auth.OAuth2(
+    //         process.env.GOOGLE_CLIENT_ID,
+    //         process.env.GOOGLE_CLIENT_PASSWORD,
+    //         process.env.GOOGLE_CALLBACK,
+    //     );
+    //     oAuth2Client.setCredentials({
+    //         access_token: user.googleAccessToken,
+    //         refresh_token: user.googleRefreshToken,
+    //     });
+    //     const googleClient = google.calendar({
+    //         version: 'v3',
+    //         auth: oAuth2Client,
+    //     });
+    //     return googleClient;
+    // }
 }

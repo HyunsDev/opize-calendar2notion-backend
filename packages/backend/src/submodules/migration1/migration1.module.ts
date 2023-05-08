@@ -12,14 +12,14 @@ import { HttpModule } from '@nestjs/axios';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { Migration1Controller } from './migration1.controller';
-import { UserService } from '../user/user.service';
+import { AuthService } from '../user/submodules/auth/auth.service';
 
 dotenv.config({
     path: path.resolve(process.env.NODE_ENV === 'production' ? '.env' : '.env'),
 });
 
 @Module({
-    providers: [Migration1Service, Migration1Query, UserService],
+    providers: [Migration1Service, Migration1Query, AuthService],
     controllers: [Migration1Controller],
     imports: [
         TypeOrmModule.forFeature([UserEntity, CalendarEntity, EventEntity]),
