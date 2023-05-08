@@ -41,7 +41,6 @@ export class AdminUserController {
         @Param('userId') userId: string,
         @Body() dto: UpdateUserReqDto,
     ) {
-        console.log(userId, dto);
         return await this.adminUserService.updateUser(+userId, dto);
     }
 
