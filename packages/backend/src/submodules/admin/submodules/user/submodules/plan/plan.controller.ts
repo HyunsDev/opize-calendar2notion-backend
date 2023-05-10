@@ -3,7 +3,7 @@ import { Auth } from 'src/submodules/user/decorator/auth.decorator';
 import { AdminUserPlanService } from './plan.service';
 import { PlanUpgradeReqDto } from './dto/planUpgrade.req.dto';
 
-@Controller('admin/:userId/plans')
+@Controller('admin/users/:userId/plans')
 @Auth('admin')
 export class AdminUserPlanController {
     constructor(private readonly adminUserEventService: AdminUserPlanService) {}
