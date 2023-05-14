@@ -2,7 +2,6 @@ import {
     BadRequestException,
     Injectable,
     InternalServerErrorException,
-    UnauthorizedException,
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,10 +13,7 @@ import {
 } from '@opize/calendar2notion-model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { HttpService } from '@nestjs/axios';
-import * as jwt from 'jsonwebtoken';
-import { firstValueFrom } from 'rxjs';
-import { calendar_v3, google } from 'googleapis';
+import { calendar_v3 } from 'googleapis';
 import { AddCalendarDto } from './dto/add-calendar.dto';
 import { AuthService } from './submodules/auth/auth.service';
 import { OpizeAuthService } from './submodules/auth/opize.auth.service';
@@ -287,14 +283,6 @@ export class UserService {
 
     async remove(user: UserEntity) {
         try {
-            if (user.isWork) {
-                return {
-                    success: false,
-                    message:
-                        '아직 동기화가 진행중입니다. 잠시 뒤에 다시 시도해주세요.',
-                };
-            }
-
             const deletePrefix = `deleted_${new Date().getTime()}_`;
 
             await this.usersRepository.update(
@@ -330,14 +318,6 @@ export class UserService {
 
     async reset(user: UserEntity) {
         try {
-            if (user.isWork) {
-                return {
-                    success: false,
-                    message:
-                        '아직 동기화가 진행중입니다. 잠시 뒤에 다시 시도해주세요.',
-                };
-            }
-
             await this.usersRepository.update(
                 {
                     id: user.id,
@@ -353,7 +333,7 @@ export class UserService {
                     notionBotId: null,
                     notionProps: null,
                     workStartedAt: null,
-
+                    isWork: false,
                     status: 'FIRST',
                 },
             );
@@ -364,6 +344,10 @@ export class UserService {
             await this.calendarsRepository.delete({
                 userId: user.id,
             });
+
+            return {
+                success: true,
+            };
         } catch (err) {
             console.error(err);
             throw new InternalServerErrorException();

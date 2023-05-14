@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { Migration1Service } from './migration1.service';
-import { Migration1Query } from './migration1query.service';
+import { Migration1Query } from './migration1.query.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,
     EventEntity,
+    Migration1Entity,
+    PaymentLogEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { HttpModule } from '@nestjs/axios';
@@ -22,7 +24,13 @@ dotenv.config({
     providers: [Migration1Service, Migration1Query, AuthService],
     controllers: [Migration1Controller],
     imports: [
-        TypeOrmModule.forFeature([UserEntity, CalendarEntity, EventEntity]),
+        TypeOrmModule.forFeature([
+            UserEntity,
+            CalendarEntity,
+            EventEntity,
+            PaymentLogEntity,
+            Migration1Entity,
+        ]),
         TypeOrmModule.forRoot({
             type: 'mysql',
             host: process.env.MIGRATION_DB_HOST,
@@ -34,7 +42,6 @@ dotenv.config({
             synchronize: false,
             name: 'migration-db',
         }),
-        TypeOrmModule.forFeature(),
         HttpModule,
     ],
 })

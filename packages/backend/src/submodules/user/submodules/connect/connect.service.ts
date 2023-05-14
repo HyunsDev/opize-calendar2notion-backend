@@ -141,6 +141,10 @@ export class UserConnectService {
                     value: 'database',
                     property: 'object',
                 },
+                sort: {
+                    timestamp: 'last_edited_time',
+                    direction: 'descending',
+                },
             });
             return {
                 databases: notionDatabases.results,

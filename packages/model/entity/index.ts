@@ -5,3 +5,4 @@ export * from './knownError.entity';
 export * from './errorLog.entity';
 export * from './paymentLog.entity';
 export * from './syncbot.entity';
+export * from './migration1.entity';
