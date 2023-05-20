@@ -280,11 +280,7 @@ export class Migration1Service {
                     userId: user.id,
                 })),
             );
-
-            console.log(`페이지 ${page}/${pageNum}: 이벤트 ${events.length}개`);
         }
-
-        console.log('이벤트 마이그레이션 완료');
     }
 
     private async connectFinish(userId: number) {
