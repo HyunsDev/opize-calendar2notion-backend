@@ -1,4 +1,5 @@
 export type Migration1PaymentLogEntity = {
+    id: number;
     userPlan: string;
     paymentKind: string;
     price: number;

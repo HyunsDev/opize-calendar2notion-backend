@@ -20,9 +20,19 @@ export class GoogleCalendarClient {
     }
 
     async getEvent(calendarId: string, eventId: string) {
-        return this.client.events.get({
+        return await this.client.events.get({
             calendarId,
             eventId,
+        });
+    }
+
+    async getCalendars() {
+        return await this.client.calendarList.list();
+    }
+
+    async getCalendar(calendarId: string) {
+        return await this.client.calendarList.get({
+            calendarId,
         });
     }
 }

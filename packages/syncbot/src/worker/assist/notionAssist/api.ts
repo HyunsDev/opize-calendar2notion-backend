@@ -240,6 +240,7 @@ export class NotionAssistApi {
         } = JSON.parse(this.user.notionProps);
 
         const calendarOptions = this.calendars
+            .filter((e) => e.status === 'CONNECTED')
             .filter((e) => e.accessRole !== 'reader')
             .map((e) => ({
                 property: props.calendar,

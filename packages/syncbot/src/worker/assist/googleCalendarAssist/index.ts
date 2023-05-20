@@ -100,6 +100,11 @@ export class GoogleCalendarAssist extends Assist {
             (e) => e.notionPropertyId === notionCalendarId,
         );
 
+        if (!calendar) {
+            console.log('calendar not found');
+            return;
+        }
+
         if (eventLink && eventLink.googleCalendarEventId) {
             const notionEventUpdated = new Date(page.last_edited_time);
             const userUpdated = dayjs(this.user.lastCalendarSync)

@@ -270,7 +270,7 @@ export function gCalApi() {
                                         (this.user as UserEntity)
                                             .userTimeZone || 'Asia/Seoul',
                                     )
-                                    .add(-20, 'days')
+                                    .add(+10, 'days')
                                     .toDate(),
                             });
 

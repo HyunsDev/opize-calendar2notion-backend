@@ -13,10 +13,11 @@ import { Repository } from 'typeorm';
 import { UserService } from '../user.service';
 import { Role } from '../role/role';
 import { UserEntity } from '@opize/calendar2notion-model';
+import { AuthService } from '../submodules/auth/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(private userService: UserService) {}
+    constructor(private authService: AuthService) {}
 
     canActivate(
         context: ExecutionContext,
@@ -27,7 +28,7 @@ export class AuthGuard implements CanActivate {
 
     private validateRequest(request: Request) {
         const JWTString = request.headers?.authorization?.split('Bearer ')[1];
-        const { type, userId } = this.userService.verify(JWTString);
+        const { type, userId } = this.authService.verify(JWTString);
         request.token = {
             type: type,
             userId: userId,
@@ -39,7 +40,7 @@ export class AuthGuard implements CanActivate {
 @Injectable()
 export class RoleGuard implements CanActivate {
     constructor(
-        private userService: UserService,
+        private authService: AuthService,
         private reflector: Reflector,
         @InjectRepository(UserEntity)
         private usersRepository: Repository<UserEntity>,
@@ -57,7 +58,7 @@ export class RoleGuard implements CanActivate {
 
     private async validateRequest(roles: Role[], request: Request) {
         const JWTString = request.headers?.authorization?.split('Bearer ')[1];
-        const { userId, type } = this.userService.verify(JWTString);
+        const { userId, type } = this.authService.verify(JWTString);
         request.token = {
             type: type,
             userId: userId,
