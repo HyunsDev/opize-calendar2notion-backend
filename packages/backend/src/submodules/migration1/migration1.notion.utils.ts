@@ -1,9 +1,10 @@
-import { NotFoundException } from '@nestjs/common';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import { UserEntity } from '@opize/calendar2notion-model';
 import { NotionClient } from 'src/common/api-client/notion.client';
 import { Migration1UserEntity } from './entity/migration1.user.entity';
 import { Migration1StreamHelper } from './migration1.stream.helper';
+import { Migration1Error } from './error/migration.error';
 
 type PropName =
     | 'title'
@@ -17,6 +18,7 @@ type Prop = {
     name: PropName;
     id: string;
     type: 'title' | 'rich_text' | 'number' | 'select' | 'multi_select';
+    [key: string]: any;
 };
 type Props = Partial<Record<PropName, Prop>>;
 
@@ -47,40 +49,55 @@ export class NotionMigrate1Util {
 
         const propsValid = this.checkPropsValid();
         if (!propsValid.isValid) {
-            return {
-                success: false,
-                message: '노션 데이터베이스 속성이 올바르지 않습니다',
-                code: 'NOTION_DATABASE_INVALID_PROPERTIES',
-                details: propsValid.props,
-            };
+            throw new Migration1Error(
+                'NOTION_DATABASE_INVALID_PROPERTIES',
+                '노션 데이터베이스 속성이 올바르지 않아요.',
+                '속성을 올바르게 바꿔주세요',
+                HttpStatus.BAD_REQUEST,
+                propsValid.props,
+            );
         }
 
         const calendarPropValid = this.checkCalendarPropValid();
         if (!calendarPropValid.isValid) {
-            return {
-                success: false,
-                message:
-                    '노션 데이터베이스 캘린더 속성 올바르게 설정되지 않았습니다.',
-                code: 'NOTION_DATABASE_INVALID_CALENDAR',
-                details: calendarPropValid.incorrectOptionNames,
-            };
+            throw new Migration1Error(
+                'NOTION_DATABASE_INVALID_CALENDAR',
+                '노션 데이터베이스 캘린더 속성이 올바르지 않아요.',
+                '가이드에 따라 calendar 속성을 바꿔주세요.',
+                HttpStatus.BAD_REQUEST,
+                calendarPropValid.incorrectOptionNames,
+                'tpTpxNSAFVk',
+            );
         }
 
         const sameNameCalendarValid = this.checkSameNameCalendar();
         if (!sameNameCalendarValid.isValid) {
-            return {
-                success: false,
-                message: '캘린더 이름이 중복되었습니다.',
-                code: 'DUPLICATED_CALENDAR_NAME',
-                details: sameNameCalendarValid.duplicateNames,
-            };
+            throw new Migration1Error(
+                'DUPLICATED_CALENDAR_NAME',
+                '캘린더 이름이 중복되었어요.',
+                '동일한 이름의 캘린더가 있어요. 캘린더 이름은 중복될 수 없어요. 오른쪽 아래 버튼을 통해 개발자에게 문의해주세요.',
+                HttpStatus.BAD_REQUEST,
+                sameNameCalendarValid.duplicateNames,
+            );
         }
-
-        const props = this.getPropsIds();
         return {
             success: true,
-            props,
         };
+    }
+
+    getPropIds(): Partial<Record<PropName, string>> {
+        const propsIds: Partial<Record<PropName, string>> = {};
+        Object.values(this.getProps()).forEach(
+            (prop) => (propsIds[prop.name] = prop.id),
+        );
+        return propsIds;
+    }
+
+    getCalendarPropOptions(): { id: string; name: string; color: string }[] {
+        const calendarProp = this.getProps().calendar;
+        return calendarProp.type === 'select'
+            ? calendarProp.select.options
+            : undefined;
     }
 
     private async getDatabase() {
@@ -89,10 +106,14 @@ export class NotionMigrate1Util {
         );
 
         if (!database) {
-            throw new NotFoundException({
-                code: 'NOTION_DATABASE_NOT_FOUND',
-                message: '노션 데이터베이스를 찾을 수 없습니다.',
-            });
+            throw new Migration1Error(
+                'NOTION_DATABASE_NOT_FOUND',
+                '노션 데이터베이스를 찾을 수 없어요',
+                'Opize Calendar2notion (또는 C2N TEST v4 Public) 연결과 Calendar2notion - Opize 연결이 모두 있는지 확인해주세요!',
+                HttpStatus.NOT_FOUND,
+                '',
+                'J8bJLFu_2eQ',
+            );
         }
 
         this.database = database;
@@ -100,7 +121,7 @@ export class NotionMigrate1Util {
     }
 
     private async createMissingProps() {
-        const propsIds = this.getPropsIds();
+        const propsIds = this.getPropIds();
 
         if (!propsIds.location) {
             await this.client.addProperty(
@@ -138,14 +159,6 @@ export class NotionMigrate1Util {
             }
         });
         return props;
-    }
-
-    private getPropsIds(): Partial<Record<PropName, string>> {
-        const propsIds: Partial<Record<PropName, string>> = {};
-        Object.values(this.getProps()).forEach(
-            (prop) => (propsIds[prop.name] = prop.id),
-        );
-        return propsIds;
     }
 
     private checkPropsValid() {

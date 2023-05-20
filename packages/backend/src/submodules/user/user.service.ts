@@ -201,6 +201,8 @@ export class UserService {
             },
         });
 
+        console.log(googleCalendar);
+
         if (
             oldCalendar &&
             (oldCalendar.status === 'CONNECTED' ||

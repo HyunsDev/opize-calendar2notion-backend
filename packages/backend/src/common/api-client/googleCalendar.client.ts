@@ -31,7 +31,7 @@ export class GoogleCalendarClient {
     }
 
     async getCalendar(calendarId: string) {
-        return await this.client.calendars.get({
+        return await this.client.calendarList.get({
             calendarId,
         });
     }

@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Migration1Query } from './migration1.query.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -11,11 +11,16 @@ import {
 import { Repository } from 'typeorm';
 import { MigrationCheckResDto } from './dto/migrationCheck.res.dto';
 import { accountMigrateResDto } from './dto/accountMigration.res.dto';
-import { calendarMigrateResDto } from './dto/calendarMigration.res.dto';
 import { NotionMigrate1Util } from './migration1.notion.utils';
-import { Migration1StreamHelper } from './migration1.stream.helper';
-import { sleep } from 'src/common/utils/sleep';
 import { Migration1UserEntity } from './entity/migration1.user.entity';
+import { idToUuid } from 'src/common/api-client/utils/notion/idToUuid.utils';
+import { Migration1Error } from './error/migration.error';
+
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 @Injectable()
 export class Migration1Service {
@@ -35,7 +40,7 @@ export class Migration1Service {
     ) {}
 
     // 마이그레이션 가능 여부를 확인합니다.
-    async migrateCheck(userId: number): Promise<MigrationCheckResDto> {
+    public async migrateCheck(userId: number): Promise<MigrationCheckResDto> {
         const user = await this.getUser(userId);
         const migrateUser = await this.getMigrateUserByGoogleId(user.googleId);
 
@@ -50,6 +55,7 @@ export class Migration1Service {
                 updatedAt: migrateUser.updatedAt,
                 status: migrateUser.status,
                 userPlan: migrateUser.userPlan,
+                notionDatabaseId: migrateUser.notionDatabaseId,
                 calendars: migrateUser.calendars.map((calendar) => ({
                     id: calendar.id,
                     googleCalendarId: calendar.googleCalendarId,
@@ -64,7 +70,7 @@ export class Migration1Service {
      * 계정 정보를 마이그레이션합니다.
      * @param userId
      */
-    async accountMigrate(userId: number): Promise<accountMigrateResDto> {
+    public async accountMigrate(userId: number): Promise<accountMigrateResDto> {
         const user = await this.getUser(userId);
         const migrateUser = await this.getMigrateUserByGoogleId(user.googleId);
 
@@ -80,6 +86,9 @@ export class Migration1Service {
                 reason: 'ALREADY_MIGRATED',
             };
         }
+
+        // 동기화 과정 중 기존 버전에서 동기화가 진행될 경우 오류 발생하므로 기존 버전의 동기화를 중단합니다.
+        await this.queryManager.changeIsConnected(migrateUser.id, false);
 
         if (migrateUser.paymentLogs.length === 0) {
             return {
@@ -145,14 +154,20 @@ export class Migration1Service {
         };
     }
 
-    async calendarMigrate(userId: number) {
+    public async calendarMigrate(userId: number) {
         const user = await this.getUser(userId);
         const migrateUser = await this.getMigrateUserByGoogleId(user.googleId);
 
+        await this.queryManager.changeIsConnected(migrateUser.id, false);
         const calendarMap = await this.calendarInfoMigrate(user, migrateUser);
         await this.eventMigrate(user, migrateUser, calendarMap);
         await this.connectFinish(user.id);
         return;
+    }
+
+    public async userCount() {
+        const count = await this.queryManager.findUserCount();
+        return count;
     }
 
     private async calendarInfoMigrate(
@@ -161,16 +176,8 @@ export class Migration1Service {
     ) {
         const notionMigrateUtil = new NotionMigrate1Util(user, migrateUser);
 
-        const props = await notionMigrateUtil.propsMigrate();
-        if (!props.success) {
-            console.log('노션 마이그레이션 실패');
-            console.log('속성을 마이그레이션 하지 못했어요.');
-            // streamHelper.send({
-            //     migrationStatus: 'error',
-            //     step: 'notion_database_migrating',
-            //     message: '노션 데이터베이스 마이그레이션 실패',
-            // });
-        }
+        // 노션 필수 속성을 마이그레이션 합니다.
+        await notionMigrateUtil.propsMigrate();
 
         const calendarMap: {
             migrateCalendarId: number;
@@ -178,16 +185,39 @@ export class Migration1Service {
             migrateGoogleCalendarId: string;
         }[] = [];
 
+        // 동기화 정보를 업데이트합니다.
+        const propIds = notionMigrateUtil.getPropIds();
         await this.userRepository.update(
             {
                 id: user.id,
             },
             {
-                notionProps: JSON.stringify(props.props),
-                notionDatabaseId: migrateUser.notionDatabaseId,
-                lastCalendarSync: new Date(migrateUser.lastCalendarSync),
+                notionProps: JSON.stringify(propIds),
+                notionDatabaseId: idToUuid(migrateUser.notionDatabaseId),
+                lastCalendarSync: dayjs(migrateUser.lastCalendarSync)
+                    .add(9, 'hours')
+                    .toDate(),
             },
         );
+
+        // 캘린더 정보를 업데이트합니다.
+        const calendarOptions = notionMigrateUtil.getCalendarPropOptions();
+
+        const getCalendarOptionId = (
+            calendarOptions: {
+                id: string;
+                name: string;
+                color: string;
+            }[],
+            googleCalendarName: string,
+            userGoogleEmail: string,
+        ) => {
+            const calendarOption =
+                calendarOptions.find(
+                    (option) => option.name === googleCalendarName,
+                )?.id || userGoogleEmail;
+            return calendarOption;
+        };
 
         for (const calendarData of migrateUser.calendars) {
             let calendar = new CalendarEntity();
@@ -197,8 +227,11 @@ export class Migration1Service {
             calendar.accessRole =
                 calendarData.accessRole as CalendarEntity['accessRole'];
             calendar.status = 'CONNECTED';
-            calendar.notionPropertyId =
-                props.props[calendarData.googleCalendarId];
+            calendar.notionPropertyId = getCalendarOptionId(
+                calendarOptions,
+                calendarData.googleCalendarName,
+                user.googleEmail,
+            );
             calendar = await this.calendarRepository.save(calendar);
 
             calendarMap.push({
@@ -295,9 +328,12 @@ export class Migration1Service {
             googleId,
         );
         if (!migrateUser) {
-            throw new NotFoundException({
-                code: 'MIGRATE_USER_NOT_FOUND',
-            });
+            throw new Migration1Error(
+                'MIGRATE_USER_NOT_FOUND',
+                '유저 정보를 찾을 수 없어요.',
+                '기존에 게정이 있는지 확인해주시고, 없다면 새로운 데이터베이스를 이용하거나 오른쪽 아래 버튼을 통해 개발자에게 연락해주세요.',
+                HttpStatus.NOT_FOUND,
+            );
         }
         return migrateUser;
     }

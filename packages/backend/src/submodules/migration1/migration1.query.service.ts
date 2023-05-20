@@ -76,4 +76,19 @@ export class Migration1Query {
 
         return sum;
     }
+
+    async changeIsConnected(userId: number, isConnected: boolean) {
+        await this.entityManager.query(
+            `UPDATE users SET users.isConnected = ? WHERE users.id = ?`,
+            [isConnected ? 1 : 0, userId],
+        );
+    }
+
+    async findUserCount(): Promise<number> {
+        const sum = (
+            await this.entityManager.query(`SELECT COUNT(*) as sum FROM users`)
+        )[0].sum;
+
+        return sum;
+    }
 }

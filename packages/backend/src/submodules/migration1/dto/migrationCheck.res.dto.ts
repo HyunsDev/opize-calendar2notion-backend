@@ -13,6 +13,7 @@ export type MigrationCheckTrueResDto = {
         updatedAt: string;
         status: string;
         userPlan: string;
+        notionDatabaseId: string;
         calendars: {
             id: number;
             googleCalendarId: string;

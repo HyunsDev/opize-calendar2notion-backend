@@ -1,13 +1,10 @@
-import { Controller, Get, Post, Query, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Post, Query } from '@nestjs/common';
 import { Migration1Service } from './migration1.service';
 import { Auth } from '../user/decorator/auth.decorator';
 import { MigrationCheckResDto } from './dto/migrationCheck.res.dto';
 import { accountMigrateResDto } from './dto/accountMigration.res.dto';
 import { User } from '../user/decorator/user.decorator';
 import { UserEntity } from '@opize/calendar2notion-model';
-import { calendarMigrateResDto } from './dto/calendarMigration.res.dto';
-import { Migration1StreamHelper } from './migration1.stream.helper';
 
 @Controller('migrations/v1')
 @Auth()
@@ -36,5 +33,10 @@ export class Migration1Controller {
         @User() user: UserEntity,
     ) {
         return await this.migration1Service.calendarMigrate(user.id);
+    }
+
+    @Get('user-count')
+    async userCount() {
+        return await this.migration1Service.userCount();
     }
 }
