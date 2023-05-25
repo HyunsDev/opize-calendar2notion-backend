@@ -9,11 +9,14 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
     DeleteDateColumn,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
 import { CalendarEntity } from './calendar.entity';
 import { ErrorLogEntity } from './errorLog.entity';
 import { EventEntity } from './event.entity';
 import { PaymentLogEntity } from './paymentLog.entity';
+import { NotionWorkspaceEntity } from './notionWorkspace.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -123,6 +126,15 @@ export class UserEntity {
 
     @DeleteDateColumn()
     deletedAt!: Date | null;
+
+    @ManyToOne(() => NotionWorkspaceEntity, (workspace) => workspace.users, {
+        eager: true,
+    })
+    @JoinColumn({ name: 'notionWorkspaceId' })
+    notionWorkspace: NotionWorkspaceEntity;
+
+    @Column({ type: 'number', nullable: true })
+    notionWorkspaceId: number;
 
     @OneToMany(() => CalendarEntity, (calendar) => calendar.user)
     calendars: CalendarEntity[];

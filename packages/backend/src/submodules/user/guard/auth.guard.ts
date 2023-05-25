@@ -69,6 +69,7 @@ export class RoleGuard implements CanActivate {
             where: {
                 id: +userId,
             },
+            relations: ['notionWorkspace'],
         });
         if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
         request.user = user;

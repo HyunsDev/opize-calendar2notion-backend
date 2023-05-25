@@ -13,7 +13,6 @@ import { User } from '../../decorator/user.decorator';
 import { UserConnectService } from './connect.service';
 import { GoogleAccountDTO } from './dto/googleAccount.dto';
 import { NotionAccountDTO } from './dto/notionAccount.dto';
-import { NotionDatabaseDTO } from './dto/notionDatabase.dto';
 
 @Controller('users/:id/connect')
 @Auth()
@@ -48,13 +47,7 @@ export class UserConnectController {
     }
 
     @Post('notion-database')
-    async NotionDatabase(
-        @Body() notionDatabaseDTO: NotionDatabaseDTO,
-        @User() user: UserEntity,
-    ) {
-        return await this.userConnectService.setNotionDatabase(
-            notionDatabaseDTO,
-            user,
-        );
+    async NotionDatabase(@User() user: UserEntity) {
+        return await this.userConnectService.setNotionDatabase(user);
     }
 }

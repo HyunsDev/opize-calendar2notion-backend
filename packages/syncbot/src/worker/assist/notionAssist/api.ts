@@ -30,7 +30,9 @@ export class NotionAssistApi {
         this.startedAt = startedAt;
 
         this.client = new Client({
-            auth: this.user.notionAccessToken,
+            auth:
+                this.user.notionWorkspace?.accessToken ||
+                this.user.notionAccessToken,
         });
     }
 

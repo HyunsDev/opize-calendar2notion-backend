@@ -18,6 +18,7 @@
     },
     "scripts": {
         "backend:dev": "yarn workspace @opize/calendar2notion-backend start:dev",
-        "syncbot:dev": "yarn workspace @opize/calendar2notion-syncbot start"
+        "syncbot:dev": "yarn workspace @opize/calendar2notion-syncbot start",
+        "model:build": "yarn workspace @opize/calendar2notion-model tsc"
     }
 }

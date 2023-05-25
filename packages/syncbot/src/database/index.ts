@@ -6,6 +6,7 @@ import {
     KnownErrorEntity,
     PaymentLogEntity,
     SyncBotEntity,
+    NotionWorkspaceEntity,
 } from '@opize/calendar2notion-model';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
@@ -27,6 +28,7 @@ export const AppDataSource = new DataSource({
         KnownErrorEntity,
         PaymentLogEntity,
         SyncBotEntity,
+        NotionWorkspaceEntity,
     ],
     subscribers: [],
     migrations: [],
@@ -39,6 +41,7 @@ export const DB = {
     event: AppDataSource.getRepository(EventEntity),
     knownError: AppDataSource.getRepository(KnownErrorEntity),
     paymentLog: AppDataSource.getRepository(PaymentLogEntity),
+    notionWorkspace: AppDataSource.getRepository(NotionWorkspaceEntity),
 };
 // (async () => {
 //     await AppDataSource.initialize();

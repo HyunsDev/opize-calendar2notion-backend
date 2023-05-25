@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,
     EventEntity,
+    NotionWorkspaceEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { HttpModule } from '@nestjs/axios';
@@ -16,7 +17,12 @@ import { OpizeAuthService } from '../auth/opize.auth.service';
     controllers: [UserConnectController],
     providers: [UserConnectService, UserService, AuthService, OpizeAuthService],
     imports: [
-        TypeOrmModule.forFeature([UserEntity, CalendarEntity, EventEntity]),
+        TypeOrmModule.forFeature([
+            UserEntity,
+            CalendarEntity,
+            EventEntity,
+            NotionWorkspaceEntity,
+        ]),
         HttpModule,
     ],
 })
