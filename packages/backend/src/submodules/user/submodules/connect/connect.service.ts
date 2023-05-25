@@ -6,14 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import {
+    CalendarEntity,
+    NotionWorkspaceEntity,
+    UserEntity,
+} from '@opize/calendar2notion-model';
 import { HttpService } from '@nestjs/axios';
 import * as jwt from 'jsonwebtoken';
 import { firstValueFrom } from 'rxjs';
 import { google } from 'googleapis';
 import { GoogleAccountDTO } from './dto/googleAccount.dto';
 import { NotionAccountDTO } from './dto/notionAccount.dto';
-import { NotionDatabaseDTO } from './dto/notionDatabase.dto';
 import { Client } from '@notionhq/client';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 
@@ -24,6 +27,9 @@ export class UserConnectService {
         private usersRepository: Repository<UserEntity>,
         @InjectRepository(CalendarEntity)
         private calendarsRepository: Repository<CalendarEntity>,
+        @InjectRepository(NotionWorkspaceEntity)
+        private notionWorkspaceRepository: Repository<NotionWorkspaceEntity>,
+
         private readonly httpService: HttpService,
     ) {}
 
@@ -106,10 +112,29 @@ export class UserConnectService {
                 ),
             );
 
-            user.notionBotId = res.data.bot_id;
-            user.notionAccessToken = res.data.access_token;
-            user.notionDatabaseId = null;
+            let workspace = await this.notionWorkspaceRepository.findOne({
+                where: {
+                    workspaceId: res.data.workspace_id,
+                },
+            });
+
+            if (!workspace) {
+                workspace = new NotionWorkspaceEntity({
+                    workspaceId: res.data.workspace_id,
+                    accessToken: res.data.access_token,
+                    botId: res.data.bot_id,
+                    tokenType: res.data.token_type,
+                });
+            }
+
+            workspace.accessToken = res.data.access_token;
+            workspace.botId = res.data.bot_id;
+            workspace.tokenType = res.data.token_type;
+            await this.notionWorkspaceRepository.save(workspace);
+
+            user.notionDatabaseId = res.data.duplicated_template_id;
             user.status = 'NOTION_API_SET';
+            user.notionWorkspace = workspace;
             await this.usersRepository.save(user);
             return;
         } catch (err) {
@@ -125,14 +150,17 @@ export class UserConnectService {
     }
 
     async getNotionDatabases(user: UserEntity) {
-        if (!user.notionAccessToken) {
+        const notionAccessToken =
+            user.notionWorkspace.accessToken || user.notionAccessToken;
+
+        if (!notionAccessToken) {
             throw new BadRequestException({
                 code: 'need_notion_oauth',
             });
         }
 
         const notion = new Client({
-            auth: user.notionAccessToken,
+            auth: notionAccessToken,
         });
 
         try {
@@ -161,25 +189,25 @@ export class UserConnectService {
         }
     }
 
-    async setNotionDatabase(
-        notionDatabaseDto: NotionDatabaseDTO,
-        user: UserEntity,
-    ) {
-        if (!user.notionAccessToken) {
+    async setNotionDatabase(user: UserEntity) {
+        const notionAccessToken =
+            user.notionWorkspace.accessToken || user.notionAccessToken;
+
+        if (!notionAccessToken) {
             throw new BadRequestException({
                 code: 'need_notion_oauth',
             });
         }
 
         const notion = new Client({
-            auth: user.notionAccessToken,
+            auth: notionAccessToken,
         });
 
         let databaseResponse: GetDatabaseResponse;
 
         try {
             databaseResponse = await notion.databases.retrieve({
-                database_id: notionDatabaseDto.id,
+                database_id: user.notionDatabaseId,
             });
         } catch (err) {
             if (err.code === 'object_not_found') {
@@ -278,7 +306,6 @@ export class UserConnectService {
 
         // 유저 업데이트
         user.isConnected = true;
-        user.notionDatabaseId = notionDatabaseDto.id;
         user.notionProps = JSON.stringify(propsId);
         user.status = 'FINISHED';
         await this.usersRepository.save(user);

@@ -8,6 +8,7 @@ import {
     EventEntity,
     KnownErrorEntity,
     Migration1Entity,
+    NotionWorkspaceEntity,
     SyncBotEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
@@ -47,6 +48,7 @@ dotenv.config({
                 PaymentLogEntity,
                 SyncBotEntity,
                 Migration1Entity,
+                NotionWorkspaceEntity,
             ],
             charset: 'utf8mb4',
             synchronize: process.env.DB_SYNCHRONIZE === 'true',

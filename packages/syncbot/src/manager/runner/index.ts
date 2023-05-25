@@ -142,6 +142,7 @@ export class Runner {
                     direction: 'asc',
                 },
             },
+            relations: ['notionWorkspace'],
         });
 
         // 중복 실행 방지

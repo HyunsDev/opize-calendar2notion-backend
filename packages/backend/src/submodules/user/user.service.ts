@@ -335,6 +335,7 @@ export class UserService {
                     notionBotId: null,
                     notionProps: null,
                     workStartedAt: null,
+                    notionWorkspace: null,
                     isWork: false,
                     status: 'FIRST',
                 },
