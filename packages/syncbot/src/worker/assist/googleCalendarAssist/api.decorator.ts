@@ -264,24 +264,23 @@ export function gCalApi() {
                             err.response.data.error.errors[0].reason ===
                             'updatedMinTooLongAgo'
                         ) {
-                            await DB.user.update(this.user, {
-                                lastCalendarSync: dayjs()
-                                    .tz(
-                                        (this.user as UserEntity)
-                                            .userTimeZone || 'Asia/Seoul',
-                                    )
-                                    .add(+10, 'days')
-                                    .toDate(),
-                            });
+                            const newDate = dayjs()
+                                .tz(
+                                    (this.user as UserEntity).userTimeZone ||
+                                        'Asia/Seoul',
+                                )
+                                .add(-10, 'days')
+                                .toDate();
 
-                            console.log('함수 이름', key);
+                            await DB.user.update(this.user, {
+                                lastCalendarSync: newDate,
+                            });
 
                             throw new SyncError({
                                 code: 'gcal_api_gone_updated_min_too_long_ago',
                                 from: 'GOOGLE CALENDAR',
                                 archive: false,
-                                description:
-                                    'updatedMin을 사용할 수 없음 (너무 오랬동안 동기화 되지 않음) - 동기화 시간 초기화 함',
+                                description: `updatedMin을 사용할 수 없음 (너무 오랬동안 동기화 되지 않음) - 동기화 시간 초기화 함 ${newDate.toISOString()}`,
                                 level: 'ERROR',
                                 showUser: true,
                                 user: this.user,
