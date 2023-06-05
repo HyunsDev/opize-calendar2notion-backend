@@ -339,6 +339,7 @@ export class Migration1Service {
             where: {
                 id: userId,
             },
+            relations: ['notionWorkspace'],
         });
         return user;
     }

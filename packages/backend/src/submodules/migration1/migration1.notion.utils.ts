@@ -34,7 +34,10 @@ export class NotionMigrate1Util {
     database: GetDatabaseResponse;
 
     constructor(user: UserEntity, migrateUser: Migration1UserEntity) {
-        this.client = new NotionClient(user.notionAccessToken);
+        const notionAccessToken =
+            user.notionWorkspace.accessToken || user.notionAccessToken;
+
+        this.client = new NotionClient(notionAccessToken);
         this.user = user;
         this.migrateUser = migrateUser;
     }
