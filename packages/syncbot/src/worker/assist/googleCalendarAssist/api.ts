@@ -9,6 +9,36 @@ import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { NotionDateTime, transDate } from '../../utils/dateUtils';
 import { gCalApi } from './api.decorator';
 import { GaxiosError } from 'gaxios';
+import { SyncError } from '../../error/error';
+
+export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
+    const callbackUrls = JSON.parse(process.env.GOOGLE_CALLBACKS || '{}');
+
+    const callbackUrl = callbackUrls[String(user.googleRedirectUrlVersion)];
+
+    if (!callbackUrl) {
+        throw new SyncError({
+            code: 'GOOGLE_CALLBACK_URL_NOT_FOUND',
+            description: '콜백 URL을 찾을 수 없습니다.',
+            archive: true,
+            finishWork: 'STOP',
+            from: 'SYNCBOT',
+            level: 'ERROR',
+            showUser: true,
+            user: user,
+            detail: JSON.stringify({
+                callbackUrls,
+                googleRedirectUrlVersion: user.googleRedirectUrlVersion,
+            }),
+        });
+    }
+
+    return {
+        accessToken: user.googleAccessToken,
+        refreshToken: user.googleRefreshToken,
+        callbackUrl,
+    };
+};
 
 export class GoogleCalendarAssistApi {
     private user: UserEntity;
@@ -29,14 +59,16 @@ export class GoogleCalendarAssistApi {
         this.calendars = calendars;
         this.startedAt = startedAt;
 
+        const tokens = getGoogleCalendarTokensByUser(user);
+
         const oAuth2Client = new google.auth.OAuth2(
             process.env.GOOGLE_CLIENT_ID,
             process.env.GOOGLE_CLIENT_PASSWORD,
-            process.env.GOOGLE_CALLBACK,
+            tokens.callbackUrl,
         );
         oAuth2Client.setCredentials({
-            refresh_token: this.user.googleRefreshToken,
-            access_token: this.user.googleAccessToken,
+            refresh_token: tokens.refreshToken,
+            access_token: tokens.accessToken,
         });
         this.client = google.calendar({
             version: 'v3',
