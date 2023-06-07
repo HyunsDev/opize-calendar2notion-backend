@@ -18,6 +18,7 @@ import { AddCalendarDto } from './dto/add-calendar.dto';
 import { AuthService } from './submodules/auth/auth.service';
 import { OpizeAuthService } from './submodules/auth/opize.auth.service';
 import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
+import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
 
 @Injectable()
 export class UserService {
@@ -91,9 +92,12 @@ export class UserService {
             },
         });
 
+        const tokens = getGoogleCalendarTokensByUser(user);
+
         const googleClient = new GoogleCalendarClient(
-            user.googleAccessToken,
-            user.googleRefreshToken,
+            tokens.accessToken,
+            tokens.refreshToken,
+            tokens.callbackUrl,
         );
         const googleCalendarsRes = await googleClient.getCalendars();
         const googleCalendars = googleCalendarsRes.data.items.map((e) => {
@@ -158,9 +162,12 @@ export class UserService {
     }
 
     async addCalendar(user: UserEntity, addCalendarDto: AddCalendarDto) {
+        const tokens = getGoogleCalendarTokensByUser(user);
+
         const googleClient = new GoogleCalendarClient(
-            user.googleAccessToken,
-            user.googleRefreshToken,
+            tokens.accessToken,
+            tokens.refreshToken,
+            tokens.callbackUrl,
         );
 
         let googleCalendar: calendar_v3.Schema$CalendarListEntry;

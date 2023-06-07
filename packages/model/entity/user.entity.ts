@@ -118,6 +118,9 @@ export class UserEntity {
     @Column({ type: 'datetime', nullable: true })
     nextPaymentTime: Date;
 
+    @Column({ type: 'int', default: 1 })
+    googleRedirectUrlVersion: number;
+
     @CreateDateColumn()
     createdAt: Date;
 

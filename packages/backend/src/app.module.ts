@@ -25,6 +25,8 @@ import { AdminStatisticsModule } from './submodules/admin/submodules/statistics/
 import { AdminErrorModule } from './submodules/admin/submodules/error/error.module';
 import { SyncbotLogModule } from './submodules/syncbot/submodules/log/log.module';
 import { Migration1Module } from './submodules/migration1/migration1.module';
+import { ConfigModule } from '@nestjs/config';
+import { validate } from './common/env/env.validation';
 
 dotenv.config({
     path: path.resolve(process.env.NODE_ENV === 'production' ? '.env' : '.env'),
@@ -62,6 +64,10 @@ dotenv.config({
         AdminErrorModule,
         SyncbotLogModule,
         Migration1Module,
+        ConfigModule.forRoot({
+            isGlobal: true,
+            validate: validate,
+        }),
     ],
     controllers: [AppController],
     providers: [AppService],

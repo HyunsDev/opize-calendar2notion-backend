@@ -3,11 +3,15 @@ import { google, calendar_v3 } from 'googleapis';
 export class GoogleCalendarClient {
     private client: calendar_v3.Calendar;
 
-    constructor(accessToken: string, refreshToken: string) {
+    constructor(
+        accessToken: string,
+        refreshToken: string,
+        callbackUrl: string,
+    ) {
         const oAuth2Client = new google.auth.OAuth2(
             process.env.GOOGLE_CLIENT_ID,
             process.env.GOOGLE_CLIENT_PASSWORD,
-            process.env.GOOGLE_CALLBACK,
+            callbackUrl,
         );
         oAuth2Client.setCredentials({
             refresh_token: refreshToken,
