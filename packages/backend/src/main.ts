@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { GlobalExceptionFilter } from './app.exceptionFilter';
 
 dotenv.config({
     path: path.resolve(
@@ -18,6 +19,7 @@ async function bootstrap() {
             transform: true,
         }),
     );
+    app.useGlobalFilters(new GlobalExceptionFilter());
     await app.listen(process.env.PORT || 3003);
 }
 bootstrap();

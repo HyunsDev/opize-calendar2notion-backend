@@ -95,4 +95,8 @@ export class EnvironmentVariables {
 
     @IsString()
     MIGRATION_DB_DATABASE: string;
+
+    // Discord Webhook
+    @IsString()
+    DISCORD_WEBHOOK_BACKEND_ERROR_URL: string;
 }

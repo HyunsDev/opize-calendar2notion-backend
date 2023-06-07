@@ -4,6 +4,7 @@
     "description": "A simple discord webhook wrapper",
     "private": true,
     "license": "UNLICENSED",
+    "main": "dist/index.js",
     "dependencies": {
         "axios": "^1.4.0",
         "discord-api-types": "^0.37.43"
