@@ -78,4 +78,11 @@ export class EnvironmentVariables {
     // Backend
     @IsString()
     SYNCBOT_BACKEND: string;
+
+    // DISCORD
+    @IsString()
+    DISCORD_WEBHOOK_ICON_URL: string;
+
+    @IsString()
+    DISCORD_WEBHOOK_NOTICE_URL: string;
 }

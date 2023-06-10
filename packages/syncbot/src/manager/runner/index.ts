@@ -104,6 +104,8 @@ export class Runner {
             managerStorage.data.work[loopId].completedSyncCount += 1;
             managerStorage.data.work[loopId].nowWorkUserId = null;
             managerStorage.data.work[loopId].startedAt = null;
+
+            managerStorage.data.notice.syncCount += 1;
         }
     }
 
@@ -132,6 +134,8 @@ export class Runner {
             managerStorage.data.work[loopId].completedSyncCount += 1;
             managerStorage.data.work[loopId].nowWorkUserId = null;
             managerStorage.data.work[loopId].startedAt = null;
+
+            managerStorage.data.notice.initCount += 1;
         }
     }
 
@@ -200,10 +204,12 @@ export class Runner {
                 runnerLogger.info(
                     `[${loopId}:${user.id}] 동기화 실패 <${res.simpleResponse}>`,
                 );
+                managerStorage.data.notice.failedSyncCount += 1;
             } else {
                 runnerLogger.info(
                     `[${loopId}:${user.id}] 동기화 완료 <${res.simpleResponse}>`,
                 );
+                managerStorage.data.notice.successfulSyncCount += 1;
             }
 
             try {
