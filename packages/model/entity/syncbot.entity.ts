@@ -28,4 +28,10 @@ export class SyncBotEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    constructor(
+        partial: Omit<SyncBotEntity, 'id' | 'createdAt' | 'updatedAt'>,
+    ) {
+        Object.assign(this, partial);
+    }
 }

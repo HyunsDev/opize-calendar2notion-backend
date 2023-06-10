@@ -100,18 +100,19 @@ export class Migration1Service {
 
         const nextPaymentTimes: Date[] = [];
         for (const oldPaymentLog of migrateUser.paymentLogs) {
-            const paymentLog = new PaymentLogEntity();
-            paymentLog.userId = userId;
-            paymentLog.plan = oldPaymentLog.userPlan === 'pro' ? 'PRO' : 'FREE';
-            paymentLog.paymentKind = oldPaymentLog.paymentKind;
-            paymentLog.price = oldPaymentLog.price;
-            paymentLog.priceKind = oldPaymentLog.priceKind;
-            paymentLog.paymentTime = new Date(oldPaymentLog.paymentTime);
-            paymentLog.months = '12';
-            paymentLog.expirationTime = new Date(oldPaymentLog.expirationTime);
-            paymentLog.memo = `게정 정보 이전: ${
-                oldPaymentLog.memo
-            }\n${JSON.stringify(oldPaymentLog)}`;
+            const paymentLog = new PaymentLogEntity({
+                user,
+                plan: oldPaymentLog.userPlan === 'pro' ? 'PRO' : 'FREE',
+                paymentKind: oldPaymentLog.paymentKind,
+                price: oldPaymentLog.price,
+                priceKind: oldPaymentLog.priceKind,
+                paymentTime: new Date(oldPaymentLog.paymentTime),
+                months: '12',
+                expirationTime: new Date(oldPaymentLog.expirationTime),
+                memo: `게정 정보 이전: ${oldPaymentLog.memo}\n${JSON.stringify(
+                    oldPaymentLog,
+                )}`,
+            });
 
             nextPaymentTimes.push(new Date(oldPaymentLog.expirationTime));
             await this.paymentLogRepository.save(paymentLog);
@@ -136,15 +137,16 @@ export class Migration1Service {
             },
         );
 
-        const migration1 = new Migration1Entity();
-        migration1.step = 'ACCOUNT';
-        migration1.migrationUserId = migrateUser.id;
-        migration1.migrationUserName = migrateUser.name;
-        migration1.migrationUserEmail = migrateUser.email;
-        migration1.migrationUserGoogleId = migrateUser.googleId;
-        migration1.migrationData = JSON.stringify(migrateUser);
-        migration1.userId = userId;
-        migration1.plan = migrateUser.userPlan === 'pro' ? 'PRO' : 'FREE';
+        const migration1 = new Migration1Entity({
+            step: 'ACCOUNT',
+            migrationUserId: migrateUser.id,
+            migrationUserName: migrateUser.name,
+            migrationUserEmail: migrateUser.email,
+            migrationUserGoogleId: migrateUser.googleId,
+            migrationData: JSON.stringify(migrateUser),
+            user,
+            plan: migrateUser.userPlan === 'pro' ? 'PRO' : 'FREE',
+        });
         await this.migration1Repository.save(migration1);
 
         return {
@@ -220,12 +222,13 @@ export class Migration1Service {
         };
 
         for (const calendarData of migrateUser.calendars) {
-            let calendar = new CalendarEntity();
-            calendar.userId = user.id;
-            calendar.googleCalendarId = calendarData.googleCalendarId;
-            calendar.googleCalendarName = calendarData.googleCalendarName;
-            calendar.accessRole =
-                calendarData.accessRole as CalendarEntity['accessRole'];
+            let calendar = new CalendarEntity({
+                user,
+                accessRole:
+                    calendarData.accessRole as CalendarEntity['accessRole'],
+                googleCalendarId: calendarData.googleCalendarId,
+                googleCalendarName: calendarData.googleCalendarName,
+            });
             calendar.status = 'CONNECTED';
             calendar.notionPropertyId = getCalendarOptionId(
                 calendarOptions,

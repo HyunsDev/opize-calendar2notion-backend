@@ -100,11 +100,12 @@ export class SyncbotService {
         }
 
         try {
-            const syncBot = new SyncBotEntity();
-            syncBot.name = dto.name;
-            syncBot.url = dto.url;
-            syncBot.prefix = dto.prefix;
-            syncBot.controlSecret = dto.controlSecret;
+            const syncBot = new SyncBotEntity({
+                controlSecret: dto.controlSecret,
+                name: dto.name,
+                prefix: dto.prefix,
+                url: dto.url,
+            });
             await this.syncBotsRepository.save(syncBot);
             return;
         } catch (err: any) {

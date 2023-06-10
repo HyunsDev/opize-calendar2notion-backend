@@ -294,19 +294,29 @@ export class UserConnectService {
             });
 
         for (const newCalendar of allCalendarList) {
-            const calendar =
-                (await this.calendarsRepository.findOne({
-                    where: {
-                        userId: user.id,
-                        googleCalendarId: newCalendar.id,
-                    },
-                })) || new CalendarEntity();
-            calendar.accessRole = 'owner';
-            calendar.googleCalendarId = newCalendar.id;
-            calendar.googleCalendarName = newCalendar.summary;
-            calendar.status = 'PENDING';
-            calendar.user = user;
-            await this.calendarsRepository.save(calendar);
+            let calendar = await this.calendarsRepository.findOne({
+                where: {
+                    userId: user.id,
+                    googleCalendarId: newCalendar.id,
+                },
+            });
+
+            if (calendar) {
+                calendar.accessRole =
+                    newCalendar.accessRole as CalendarEntity['accessRole'];
+                calendar.googleCalendarName = newCalendar.summary;
+                await this.calendarsRepository.save(calendar);
+                continue;
+            } else {
+                calendar = new CalendarEntity({
+                    accessRole:
+                        newCalendar.accessRole as CalendarEntity['accessRole'],
+                    googleCalendarId: newCalendar.id,
+                    googleCalendarName: newCalendar.summary,
+                    user,
+                });
+                await this.calendarsRepository.save(calendar);
+            }
         }
 
         // 유저 업데이트

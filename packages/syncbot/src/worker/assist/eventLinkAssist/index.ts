@@ -76,16 +76,17 @@ export class EventLinkAssist {
         event: calendar_v3.Schema$Event,
         calendar: CalendarEntity,
     ) {
-        const eventLink = new EventEntity();
-        eventLink.calendar = calendar;
-        eventLink.googleCalendarCalendarId = calendar.googleCalendarId;
-        eventLink.googleCalendarEventId = event.id;
-        eventLink.lastGoogleCalendarUpdate = new Date(event.updated);
-        eventLink.lastNotionUpdate = new Date();
-        eventLink.status = 'SYNCED';
-        eventLink.user = this.user;
-        eventLink.willRemove = false;
-        eventLink.notionPageId = page.id;
+        const eventLink = new EventEntity({
+            googleCalendarEventId: event.id,
+            googleCalendarCalendarId: calendar.googleCalendarId,
+            lastGoogleCalendarUpdate: new Date(event.updated),
+            lastNotionUpdate: new Date(),
+            status: 'SYNCED',
+            willRemove: false,
+            notionPageId: page.id,
+            calendar,
+            user: this.user,
+        });
         await DB.event.save(eventLink);
     }
 }

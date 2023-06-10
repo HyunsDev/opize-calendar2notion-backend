@@ -1,10 +1,7 @@
 import {
-    AfterLoad,
     Column,
     Entity,
-    ManyToMany,
     OneToMany,
-    PrimaryColumn,
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,

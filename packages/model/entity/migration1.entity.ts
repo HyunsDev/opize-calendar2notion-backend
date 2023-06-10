@@ -51,4 +51,13 @@ export class Migration1Entity {
 
     @Column({ type: 'number' })
     userId: number;
+
+    constructor(
+        partial: Omit<
+            Migration1Entity,
+            'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'userId'
+        >,
+    ) {
+        Object.assign(this, partial);
+    }
 }

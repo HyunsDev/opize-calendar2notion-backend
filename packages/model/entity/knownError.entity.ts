@@ -1,19 +1,12 @@
 import {
-    AfterLoad,
     Column,
     Entity,
-    ManyToMany,
     OneToMany,
-    PrimaryColumn,
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
-    ManyToOne,
-    JoinColumn,
 } from 'typeorm';
 import { ErrorLogEntity } from './errorLog.entity';
-import { EventEntity } from './event.entity';
-import { UserEntity } from './user.entity';
 
 @Entity('known_error')
 export class KnownErrorEntity {
@@ -63,4 +56,10 @@ export class KnownErrorEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    constructor(
+        partial: Omit<KnownErrorEntity, 'id' | 'createdAt' | 'updatedAt'>,
+    ) {
+        Object.assign(this, partial);
+    }
 }

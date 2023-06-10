@@ -1,20 +1,10 @@
 import {
-    AfterLoad,
     Column,
     Entity,
-    ManyToMany,
-    OneToMany,
-    PrimaryColumn,
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
-    ManyToOne,
-    JoinColumn,
 } from 'typeorm';
-import { ErrorLogEntity } from './errorLog.entity';
-import { EventEntity } from './event.entity';
-import { KnownErrorEntity } from './knownError.entity';
-import { UserEntity } from './user.entity';
 
 @Entity('sync_log')
 export class SyncLogEntity {
@@ -33,10 +23,6 @@ export class SyncLogEntity {
     @Column({ type: 'boolean', default: false })
     archive: boolean;
 
-    // @ManyToOne(() => UserEntity, (user) => user.syncLogs)
-    // @JoinColumn({ name: 'userId' })
-    // user: UserEntity;
-
     @Column({ type: 'int' })
     userId: number;
 
@@ -46,8 +32,12 @@ export class SyncLogEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    // @OneToMany(() => ErrorLogEntity, (error) => error.syncLog, {
-    //     onDelete: 'CASCADE',
-    // })
-    // errorLogs: ErrorLogEntity[];
+    constructor(
+        partial: Omit<
+            SyncLogEntity,
+            'id' | 'createdAt' | 'updatedAt' | 'userId'
+        >,
+    ) {
+        Object.assign(this, partial);
+    }
 }

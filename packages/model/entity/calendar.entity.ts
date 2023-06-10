@@ -1,10 +1,7 @@
 import {
-    AfterLoad,
     Column,
     Entity,
-    ManyToMany,
     OneToMany,
-    PrimaryColumn,
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -25,14 +22,14 @@ export class CalendarEntity {
     @Column({ length: '300' })
     googleCalendarName: string;
 
-    @Column({ length: '300' })
+    @Column({ length: '300', default: 'PENDING' })
     status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED';
 
     @Column({ length: '300' })
     accessRole: 'none' | 'freeBusyReader' | 'reader' | 'writer' | 'owner';
 
     @Column({ length: '300', nullable: true })
-    notionPropertyId: string;
+    notionPropertyId?: string;
 
     @ManyToOne(() => UserEntity, (user) => user.calendars)
     @JoinColumn({ name: 'userId' })
@@ -49,4 +46,16 @@ export class CalendarEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    constructor(
+        pick: Pick<
+            CalendarEntity,
+            'googleCalendarId' | 'googleCalendarName' | 'accessRole' | 'user'
+        >,
+    ) {
+        Object.assign(this, {
+            ...pick,
+            status: 'PENDING',
+        });
+    }
 }

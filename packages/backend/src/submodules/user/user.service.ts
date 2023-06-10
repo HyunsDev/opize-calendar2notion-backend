@@ -224,17 +224,14 @@ export class UserService {
             !oldCalendar ||
             (oldCalendar && oldCalendar.status === 'DISCONNECTED')
         ) {
-            const calendar = new CalendarEntity();
-            calendar.accessRole = googleCalendar.accessRole as
-                | 'none'
-                | 'freeBusyReader'
-                | 'reader'
-                | 'writer'
-                | 'owner';
-            calendar.googleCalendarId = googleCalendar.id;
-            calendar.googleCalendarName = googleCalendar.summary;
-            calendar.status = 'PENDING';
-            calendar.user = user;
+            const calendar = new CalendarEntity({
+                accessRole:
+                    googleCalendar.accessRole as CalendarEntity['accessRole'],
+                googleCalendarId: googleCalendar.id,
+                googleCalendarName: googleCalendar.summary,
+                user: user,
+            });
+
             await this.calendarsRepository.save(calendar);
         } else {
             const calendar = oldCalendar;
