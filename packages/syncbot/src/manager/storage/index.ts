@@ -19,6 +19,7 @@ type ManagerStorageMap = {
             loopId: string;
             nowWorkUserId: number | null;
             completedSyncCount: number;
+            startedAt: string | null;
         };
     };
 };

@@ -84,6 +84,7 @@ export class Runner {
             loopId: loopId,
             nowWorkUserId: null,
             completedSyncCount: 0,
+            startedAt: null,
         };
         runnerLogger.info(`[${loopId}] 루프를 시작합니다.`);
         while (true) {
@@ -97,9 +98,12 @@ export class Runner {
                 continue;
             }
             managerStorage.data.work[loopId].nowWorkUserId = user.id;
+            managerStorage.data.work[loopId].startedAt =
+                new Date().toISOString();
             await this.runWorker(user, loopId);
             managerStorage.data.work[loopId].completedSyncCount += 1;
             managerStorage.data.work[loopId].nowWorkUserId = null;
+            managerStorage.data.work[loopId].startedAt = null;
         }
     }
 
@@ -108,6 +112,7 @@ export class Runner {
             loopId: loopId,
             nowWorkUserId: null,
             completedSyncCount: 0,
+            startedAt: null,
         };
         runnerLogger.info(`[${loopId}] 루프를 시작합니다.`);
         while (true) {
@@ -121,9 +126,12 @@ export class Runner {
                 continue;
             }
             managerStorage.data.work[loopId].nowWorkUserId = user.id;
+            managerStorage.data.work[loopId].startedAt =
+                new Date().toISOString();
             await this.runWorker(user, loopId);
             managerStorage.data.work[loopId].completedSyncCount += 1;
             managerStorage.data.work[loopId].nowWorkUserId = null;
+            managerStorage.data.work[loopId].startedAt = null;
         }
     }
 
@@ -184,6 +192,9 @@ export class Runner {
     private async runWorker(user: UserEntity, loopId: string) {
         const func = async () => {
             const worker = new Worker(user.id, loopId);
+            runnerLogger.info(
+                `[${loopId}:${user.id}] 동기화 시작 <${user.id}. ${user.email}>`,
+            );
             const res = await worker.run();
             if (res.fail) {
                 runnerLogger.info(
