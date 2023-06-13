@@ -11,6 +11,7 @@ import { NotionAssistApi } from './api';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { SyncConfig } from '../../types/syncConfig';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -19,28 +20,33 @@ export class NotionAssist extends Assist {
     private calendars: CalendarEntity[];
     private api: NotionAssistApi;
     private eventLinkAssist: EventLinkAssist;
+    private config: SyncConfig;
 
     constructor({
         user,
         calendars,
         eventLinkAssist,
         startedAt,
+        config,
     }: {
         user: UserEntity;
         calendars: CalendarEntity[];
         eventLinkAssist: EventLinkAssist;
         startedAt: Date;
+        config: SyncConfig;
     }) {
         super();
         this.user = user;
         this.calendars = calendars;
         this.eventLinkAssist = eventLinkAssist;
         this.assistName = 'NotionAssist';
+        this.config = config;
 
         this.api = new NotionAssistApi({
             user,
             calendars,
             startedAt,
+            config: this.config,
         });
     }
 

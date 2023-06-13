@@ -9,25 +9,30 @@ import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 import { transDate } from '../../../worker/utils/dateUtils';
 import { notionApi } from './api.decorator';
+import { SyncConfig } from '../../types/syncConfig';
 
 export class NotionAssistApi {
     private user: UserEntity;
     private calendars: CalendarEntity[];
     private client: Client;
     private startedAt: Date;
+    private config: SyncConfig;
 
     constructor({
         user,
         calendars,
         startedAt,
+        config,
     }: {
         user: UserEntity;
         calendars: CalendarEntity[];
         startedAt: Date;
+        config: SyncConfig;
     }) {
         this.user = user;
         this.calendars = calendars;
         this.startedAt = startedAt;
+        this.config = config;
 
         this.client = new Client({
             auth:
@@ -86,8 +91,8 @@ export class NotionAssistApi {
                         {
                             property: props.date,
                             date: {
-                                on_or_after: process.env.MIN_DATE,
-                                on_or_before: process.env.MAX_DATE,
+                                on_or_after: this.config.timeMin,
+                                on_or_before: this.config.timeMax,
                             },
                         },
                         {
@@ -275,8 +280,8 @@ export class NotionAssistApi {
                         {
                             property: props.date,
                             date: {
-                                on_or_after: process.env.MIN_DATE,
-                                on_or_before: process.env.MAX_DATE,
+                                on_or_after: this.config.timeMin,
+                                on_or_before: this.config.timeMax,
                             },
                         },
                         {

@@ -10,6 +10,7 @@ import { NotionDateTime, transDate } from '../../utils/dateUtils';
 import { gCalApi } from './api.decorator';
 import { GaxiosError } from 'gaxios';
 import { SyncError } from '../../error/error';
+import { SyncConfig } from '../../types/syncConfig';
 
 export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
     const callbackUrls = JSON.parse(process.env.GOOGLE_CALLBACKS || '{}');
@@ -45,19 +46,23 @@ export class GoogleCalendarAssistApi {
     private calendars: CalendarEntity[];
     private client: calendar_v3.Calendar;
     private startedAt: Date;
+    private config: SyncConfig;
 
     constructor({
         user,
         calendars,
         startedAt,
+        config,
     }: {
         user: UserEntity;
         calendars: CalendarEntity[];
         startedAt: Date;
+        config: SyncConfig;
     }) {
         this.user = user;
         this.calendars = calendars;
         this.startedAt = startedAt;
+        this.config = config;
 
         const tokens = getGoogleCalendarTokensByUser(user);
 
@@ -93,6 +98,8 @@ export class GoogleCalendarAssistApi {
         let nextPageToken: string = undefined;
         const events: calendar_v3.Schema$Event[] = [];
 
+        console.log(this.config);
+
         while (true) {
             const res = await this.client.events.list({
                 calendarId: calendarId,
@@ -100,8 +107,8 @@ export class GoogleCalendarAssistApi {
                 timeZone: this.user.userTimeZone,
                 pageToken: nextPageToken,
                 singleEvents: true,
-                timeMin: '2010-01-01T01:00:00+09:00',
-                timeMax: '2030-01-01T01:00:00+09:00',
+                timeMin: this.config.timeMin,
+                timeMax: this.config.timeMax,
             });
 
             events.push(...res.data.items);
@@ -126,8 +133,8 @@ export class GoogleCalendarAssistApi {
                 showDeleted: true,
                 singleEvents: true,
                 updatedMin: new Date(this.user.lastCalendarSync).toISOString(),
-                timeMin: '2010-01-01T01:00:00+09:00',
-                timeMax: '2030-01-01T01:00:00+09:00',
+                timeMin: this.config.timeMin,
+                timeMax: this.config.timeMax,
             });
 
             events.push(...res.data.items);

@@ -17,6 +17,8 @@ import { timeout } from '../../src/utils/timeout';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { SyncConfig } from './types/syncConfig';
+import { ENV } from '../env/env';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -204,11 +206,22 @@ export class Worker {
             user: this.user,
         });
 
+        const config: SyncConfig = {
+            timeMin:
+                this.user.syncYear === 0
+                    ? ENV.MIN_DATE
+                    : dayjs(
+                          `${this.user.syncYear - 1}-01-01T01:00:00+09:00`,
+                      ).toISOString(),
+            timeMax: ENV.MAX_DATE,
+        };
+
         this.notionAssist = new NotionAssist({
             user: this.user,
             startedAt: this.startedAt,
             calendars: this.calendars,
             eventLinkAssist: this.eventLinkAssist,
+            config,
         });
 
         this.googleCalendarAssist = new GoogleCalendarAssist({
@@ -216,6 +229,7 @@ export class Worker {
             startedAt: this.startedAt,
             calendars: this.calendars,
             eventLinkAssist: this.eventLinkAssist,
+            config,
         });
 
         this.workerAssist = new WorkerAssist({

@@ -65,9 +65,6 @@ export class EnvironmentVariables {
     @IsString()
     MAX_DATE: string;
 
-    @IsString()
-    SERVICE_START_DATE: string;
-
     // Control Server
     @IsString()
     SYNCBOT_CONTROL_SECRET: string;

@@ -10,6 +10,7 @@ import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { SyncConfig } from '../../types/syncConfig';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -18,27 +19,32 @@ export class GoogleCalendarAssist extends Assist {
     private calendars: CalendarEntity[];
     private eventLinkAssist: EventLinkAssist;
     private api: GoogleCalendarAssistApi;
+    private config: SyncConfig;
 
     constructor({
         user,
         calendars,
         eventLinkAssist,
         startedAt,
+        config,
     }: {
         user: UserEntity;
         calendars: CalendarEntity[];
         eventLinkAssist: EventLinkAssist;
         startedAt: Date;
+        config: SyncConfig;
     }) {
         super();
         this.user = user;
         this.calendars = calendars;
         this.eventLinkAssist = eventLinkAssist;
         this.assistName = 'GoogleAssist';
+        this.config = config;
         this.api = new GoogleCalendarAssistApi({
             calendars,
             startedAt,
             user,
+            config: this.config,
         });
     }
 

@@ -20,6 +20,7 @@ import { NotionAccountDTO } from './dto/notionAccount.dto';
 import { Client } from '@notionhq/client';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import { ConfigService } from '@nestjs/config';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class UserConnectService {
@@ -86,6 +87,7 @@ export class UserConnectService {
         user.googleRedirectUrlVersion = this.configService.get(
             'GOOGLE_CALLBACK_VERSION',
         );
+        user.syncYear = dayjs().year();
         user = await this.usersRepository.save(user);
 
         return;
@@ -137,10 +139,16 @@ export class UserConnectService {
             workspace.tokenType = res.data.token_type;
             await this.notionWorkspaceRepository.save(workspace);
 
-            user.notionDatabaseId = res.data.duplicated_template_id;
-            user.status = 'NOTION_API_SET';
-            user.notionWorkspace = workspace;
-            await this.usersRepository.save(user);
+            await this.usersRepository.update(
+                {
+                    id: user.id,
+                },
+                {
+                    notionDatabaseId: res.data.duplicated_template_id,
+                    status: 'NOTION_API_SET',
+                    notionWorkspace: workspace,
+                },
+            );
             return;
         } catch (err) {
             console.log(err);

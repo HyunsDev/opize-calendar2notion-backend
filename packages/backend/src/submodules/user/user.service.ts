@@ -19,6 +19,7 @@ import { AuthService } from './submodules/auth/auth.service';
 import { OpizeAuthService } from './submodules/auth/opize.auth.service';
 import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
 import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
@@ -40,12 +41,16 @@ export class UserService {
         );
         const opizeUser = await this.opizeAuthService.getUserByOpize(token);
 
-        let user =
-            (await this.usersRepository.findOne({
-                where: {
-                    opizeId: opizeUser.id,
-                },
-            })) || new UserEntity();
+        let user = await this.usersRepository.findOne({
+            where: {
+                opizeId: opizeUser.id,
+            },
+        });
+
+        if (!user) {
+            user = new UserEntity();
+            user.syncYear = dayjs().year();
+        }
 
         user.name = opizeUser.name;
         user.email = opizeUser.email;
