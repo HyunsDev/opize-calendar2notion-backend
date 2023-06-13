@@ -98,5 +98,8 @@ export class EnvironmentVariables {
 
     // Discord Webhook
     @IsString()
+    DISCORD_WEBHOOK_ICON_URL: string;
+
+    @IsString()
     DISCORD_WEBHOOK_BACKEND_ERROR_URL: string;
 }

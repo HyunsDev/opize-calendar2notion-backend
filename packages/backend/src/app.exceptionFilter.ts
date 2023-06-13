@@ -15,7 +15,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         this.webhook = new Webhook(
             process.env.DISCORD_WEBHOOK_BACKEND_ERROR_URL,
             'Calendar2notion Backend',
-            'https://media.discordapp.net/attachments/1115901756539420772/1115901905407844402/OpizeNewIcon.png?width=1024&height=1024',
+            process.env.DISCORD_WEBHOOK_ICON_URL,
         );
     }
 
@@ -53,8 +53,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 timestamp: new Date().toISOString(),
                 footer: {
                     text: `calendar2notion v${process.env.npm_package_version}`,
-                    icon_url:
-                        'https://media.discordapp.net/attachments/1115901756539420772/1115901905407844402/OpizeNewIcon.png?width=1024&height=1024',
+                    icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
                 },
                 color: 0xff0000,
             });
