@@ -1,6 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
-import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto {
     @IsOptional()
@@ -22,15 +20,4 @@ export class UpdateUserDto {
     @IsOptional()
     @IsString()
     userTimeZone?: string;
-
-    //   @IsOptional()
-    //   notionProps?: {
-    //     title: string;
-    //     calendar: string;
-    //     date: string;
-    //     delete: string;
-    //     link?: string;
-    //     description?: string;
-    //     location?: string;
-    //   };
 }

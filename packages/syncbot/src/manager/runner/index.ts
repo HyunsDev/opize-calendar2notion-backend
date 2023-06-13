@@ -1,7 +1,6 @@
 import { UserEntity } from '@opize/calendar2notion-model';
 import { Worker } from '../../worker';
 import { DB, AppDataSource } from '../../database';
-import { timeout } from '../../utils/timeout';
 import { managerStorage } from '../storage';
 import { sleep } from '../../utils';
 import { IsNull, LessThan } from 'typeorm';

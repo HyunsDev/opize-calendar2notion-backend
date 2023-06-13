@@ -1,9 +1,5 @@
-import axios, { AxiosError } from 'axios';
-import {
-    BadRequestException,
-    Injectable,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { AxiosError } from 'axios';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -12,7 +8,6 @@ import {
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { HttpService } from '@nestjs/axios';
-import * as jwt from 'jsonwebtoken';
 import { firstValueFrom } from 'rxjs';
 import { google } from 'googleapis';
 import { GoogleAccountDTO } from './dto/googleAccount.dto';

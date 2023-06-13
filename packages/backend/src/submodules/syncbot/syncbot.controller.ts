@@ -1,15 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    Sse,
-    Query,
-    Header,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { Auth } from 'src/submodules/user/decorator/auth.decorator';
 import { AddSyncBotDto } from './dto/add-syncbot.dto';
 import { SyncbotService } from './syncbot.service';

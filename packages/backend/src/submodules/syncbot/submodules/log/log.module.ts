@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SyncBotLogController } from './log.controller';
 import { SyncbotLogService } from './log.service';
-import { UserService } from 'src/submodules/user/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,

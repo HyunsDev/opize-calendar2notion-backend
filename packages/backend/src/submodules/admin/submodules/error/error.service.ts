@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ErrorLogEntity, UserEntity } from '@opize/calendar2notion-model';
+import { ErrorLogEntity } from '@opize/calendar2notion-model';
 import { Repository } from 'typeorm';
 import { GetErrorsResDto } from './dto/getErrors.res.dto';
 

@@ -1,9 +1,6 @@
 import express from 'express';
-import path from 'path';
 import { managerStorage } from '../../../manager/storage';
 import { authGuard } from '../middleware/auth';
-import fs from 'fs/promises';
-import dayjs from 'dayjs';
 import { AppDataSource } from '../../../database';
 
 const router = express.Router();

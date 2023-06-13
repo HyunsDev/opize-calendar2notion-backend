@@ -1,7 +1,5 @@
 import { APIResponseError } from '@notionhq/client';
-import { ErrorLogEntity } from '@opize/calendar2notion-model';
 import { sleep } from '../../../utils';
-import { DB } from '../../../database';
 import { SyncError } from '../../error/error';
 
 export function notionApi(targetObject: 'database' | 'page') {
