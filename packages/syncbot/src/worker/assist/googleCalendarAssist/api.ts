@@ -89,6 +89,12 @@ export class GoogleCalendarAssistApi {
                 calendarId,
             });
         } catch (err) {
+            if (err instanceof GaxiosError) {
+                if (err.response?.status === 404) {
+                    return;
+                }
+            }
+
             throw err;
         }
     }
