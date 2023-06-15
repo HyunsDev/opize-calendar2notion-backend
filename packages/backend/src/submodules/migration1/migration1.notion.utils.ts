@@ -54,7 +54,7 @@ export class NotionMigrate1Util {
             throw new Migration1Error(
                 'NOTION_DATABASE_INVALID_PROPERTIES',
                 '노션 데이터베이스 속성이 올바르지 않아요.',
-                '속성을 올바르게 바꿔주세요',
+                `속성을 올바르게 바꿔주세요. (${propsValid.errorMessage})`,
                 HttpStatus.BAD_REQUEST,
                 propsValid.props,
             );
@@ -65,7 +65,9 @@ export class NotionMigrate1Util {
             throw new Migration1Error(
                 'NOTION_DATABASE_INVALID_CALENDAR',
                 '노션 데이터베이스 캘린더 속성이 올바르지 않아요.',
-                '가이드에 따라 calendar 속성을 바꿔주세요.',
+                `가이드에 따라 calendar 속성을 바꿔주세요. ${calendarPropValid.incorrectOptionNames.join(
+                    ', ',
+                )} 속성을 못찾았어요.`,
                 HttpStatus.BAD_REQUEST,
                 calendarPropValid.incorrectOptionNames,
                 'tpTpxNSAFVk',
@@ -210,9 +212,35 @@ export class NotionMigrate1Util {
             (e) => e.exist && e.type,
         );
 
+        const propsTypesKorean = {
+            title: '제목',
+            select: '선택',
+            date: '날짜',
+            checkbox: '체크박스',
+            rich_text: '텍스트',
+        };
+
+        const errorMessages = [];
+        for (const prop in propsCheck) {
+            if (!propsCheck[prop].exist) {
+                errorMessages.push(
+                    `${prop} 속성을 '${
+                        propsTypesKorean[propsTypes[prop]]
+                    }' 타입으로 만들어주세요.`,
+                );
+            } else if (!propsCheck[prop].type) {
+                errorMessages.push(
+                    `${prop} 속성의 타입을 '${
+                        propsTypesKorean[propsTypes[prop]]
+                    }'로 바꿔주세요.`,
+                );
+            }
+        }
+
         return {
             isValid,
             props: propsCheck,
+            errorMessage: errorMessages.join(' '),
         };
     }
 
