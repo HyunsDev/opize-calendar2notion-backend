@@ -5,13 +5,13 @@ type ErrorSyncConstructor = {
     from: ErrorLogEntity['from'];
     description: ErrorLogEntity['description'];
     detail?: ErrorLogEntity['detail'];
-    showUser: ErrorLogEntity['showUser'];
+    showUser?: ErrorLogEntity['showUser'];
     guideUrl?: ErrorLogEntity['guideUrl'];
     knownError?: ErrorLogEntity['knownError'];
-    level: ErrorLogEntity['level'];
-    archive: ErrorLogEntity['archive'];
+    level?: ErrorLogEntity['level'];
+    archive?: ErrorLogEntity['archive'];
     user: ErrorLogEntity['user'];
-    finishWork: ErrorLogEntity['finishWork'];
+    finishWork?: ErrorLogEntity['finishWork'];
 };
 
 export class SyncError extends Error {
@@ -34,12 +34,12 @@ export class SyncError extends Error {
         from,
         description,
         detail,
-        showUser,
+        showUser = true,
         guideUrl,
         knownError,
-        level,
-        archive,
-        finishWork,
+        level = 'ERROR',
+        archive = true,
+        finishWork = 'STOP',
     }: ErrorSyncConstructor) {
         super(description);
         this.code = code;

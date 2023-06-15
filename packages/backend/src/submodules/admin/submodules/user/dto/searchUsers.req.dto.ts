@@ -1,4 +1,4 @@
-import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class SearchUsersReqDto {
     @IsString()

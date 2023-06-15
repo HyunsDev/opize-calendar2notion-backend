@@ -18,6 +18,8 @@ import { AddCalendarDto } from './dto/add-calendar.dto';
 import { AuthService } from './submodules/auth/auth.service';
 import { OpizeAuthService } from './submodules/auth/opize.auth.service';
 import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
+import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
@@ -39,12 +41,16 @@ export class UserService {
         );
         const opizeUser = await this.opizeAuthService.getUserByOpize(token);
 
-        let user =
-            (await this.usersRepository.findOne({
-                where: {
-                    opizeId: opizeUser.id,
-                },
-            })) || new UserEntity();
+        let user = await this.usersRepository.findOne({
+            where: {
+                opizeId: opizeUser.id,
+            },
+        });
+
+        if (!user) {
+            user = new UserEntity();
+            user.syncYear = dayjs().year();
+        }
 
         user.name = opizeUser.name;
         user.email = opizeUser.email;
@@ -91,9 +97,12 @@ export class UserService {
             },
         });
 
+        const tokens = getGoogleCalendarTokensByUser(user);
+
         const googleClient = new GoogleCalendarClient(
-            user.googleAccessToken,
-            user.googleRefreshToken,
+            tokens.accessToken,
+            tokens.refreshToken,
+            tokens.callbackUrl,
         );
         const googleCalendarsRes = await googleClient.getCalendars();
         const googleCalendars = googleCalendarsRes.data.items.map((e) => {
@@ -158,9 +167,12 @@ export class UserService {
     }
 
     async addCalendar(user: UserEntity, addCalendarDto: AddCalendarDto) {
+        const tokens = getGoogleCalendarTokensByUser(user);
+
         const googleClient = new GoogleCalendarClient(
-            user.googleAccessToken,
-            user.googleRefreshToken,
+            tokens.accessToken,
+            tokens.refreshToken,
+            tokens.callbackUrl,
         );
 
         let googleCalendar: calendar_v3.Schema$CalendarListEntry;
@@ -217,17 +229,14 @@ export class UserService {
             !oldCalendar ||
             (oldCalendar && oldCalendar.status === 'DISCONNECTED')
         ) {
-            const calendar = new CalendarEntity();
-            calendar.accessRole = googleCalendar.accessRole as
-                | 'none'
-                | 'freeBusyReader'
-                | 'reader'
-                | 'writer'
-                | 'owner';
-            calendar.googleCalendarId = googleCalendar.id;
-            calendar.googleCalendarName = googleCalendar.summary;
-            calendar.status = 'PENDING';
-            calendar.user = user;
+            const calendar = new CalendarEntity({
+                accessRole:
+                    googleCalendar.accessRole as CalendarEntity['accessRole'],
+                googleCalendarId: googleCalendar.id,
+                googleCalendarName: googleCalendar.summary,
+                user: user,
+            });
+
             await this.calendarsRepository.save(calendar);
         } else {
             const calendar = oldCalendar;

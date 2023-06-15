@@ -1,10 +1,6 @@
 import {
-    AfterLoad,
     Column,
     Entity,
-    ManyToMany,
-    OneToMany,
-    PrimaryColumn,
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -54,4 +50,13 @@ export class PaymentLogEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    constructor(
+        partial: Omit<
+            PaymentLogEntity,
+            'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'userId'
+        >,
+    ) {
+        Object.assign(this, partial);
+    }
 }

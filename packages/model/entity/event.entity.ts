@@ -1,10 +1,6 @@
 import {
-    AfterLoad,
     Column,
     Entity,
-    ManyToMany,
-    OneToMany,
-    PrimaryColumn,
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -59,4 +55,21 @@ export class EventEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    constructor(
+        partial: Pick<
+            EventEntity,
+            | 'googleCalendarEventId'
+            | 'notionPageId'
+            | 'googleCalendarCalendarId'
+            | 'status'
+            | 'willRemove'
+            | 'user'
+            | 'calendar'
+            | 'lastNotionUpdate'
+            | 'lastGoogleCalendarUpdate'
+        >,
+    ) {
+        Object.assign(this, partial);
+    }
 }

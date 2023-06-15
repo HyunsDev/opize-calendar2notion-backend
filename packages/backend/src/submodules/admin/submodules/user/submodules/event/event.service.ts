@@ -1,14 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-    CalendarEntity,
-    EventEntity,
-    UserEntity,
-} from '@opize/calendar2notion-model';
+import { EventEntity, UserEntity } from '@opize/calendar2notion-model';
 import { Repository } from 'typeorm';
 import { FetchEventResDto } from './dto/getEvent.res.dto';
 import { GoogleCalendarClient } from '../../../../../../common/api-client/googleCalendar.client';
 import { NotionClient } from 'src/common/api-client/notion.client';
+import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
 
 @Injectable()
 export class AdminUserEventService {
@@ -48,12 +45,15 @@ export class AdminUserEventService {
             });
         }
 
+        const tokens = getGoogleCalendarTokensByUser(user);
+
         const googleCalendarEvent = await this.getGoogleCalendarEventById(
             event.googleCalendarCalendarId,
             event.googleCalendarEventId,
             {
-                accessToken: user.googleAccessToken,
-                refreshToken: user.googleRefreshToken,
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken,
+                callbackUrl: tokens.callbackUrl,
             },
         );
 
@@ -75,11 +75,13 @@ export class AdminUserEventService {
         tokens: {
             accessToken: string;
             refreshToken: string;
+            callbackUrl: string;
         },
     ) {
         const client = new GoogleCalendarClient(
             tokens.accessToken,
             tokens.refreshToken,
+            tokens.callbackUrl,
         );
 
         return await client.getEvent(calendarId, eventId);

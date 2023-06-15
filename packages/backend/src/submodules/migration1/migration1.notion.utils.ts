@@ -1,9 +1,8 @@
-import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import { UserEntity } from '@opize/calendar2notion-model';
 import { NotionClient } from 'src/common/api-client/notion.client';
 import { Migration1UserEntity } from './entity/migration1.user.entity';
-import { Migration1StreamHelper } from './migration1.stream.helper';
 import { Migration1Error } from './error/migration.error';
 
 type PropName =

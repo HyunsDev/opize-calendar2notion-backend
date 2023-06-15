@@ -1,10 +1,7 @@
 import {
-    AfterLoad,
     Column,
     Entity,
-    ManyToMany,
     OneToMany,
-    PrimaryColumn,
     CreateDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -117,6 +114,18 @@ export class UserEntity {
 
     @Column({ type: 'datetime', nullable: true })
     nextPaymentTime: Date;
+
+    @Column({ type: 'int', default: 1 })
+    googleRedirectUrlVersion: number;
+
+    /**
+     * 1: 기존 동기화 기간: env.MIN_DATE ~ env.MAX_DATE
+     * (연도): 신규 동기화 기간:
+     *  TIME_MIN: (연도)-01-01T00:00:00.000Z
+     *  TIME_MAX: env.MAX_DATE
+     */
+    @Column({ type: 'int', default: 0 })
+    syncYear: number;
 
     @CreateDateColumn()
     createdAt: Date;

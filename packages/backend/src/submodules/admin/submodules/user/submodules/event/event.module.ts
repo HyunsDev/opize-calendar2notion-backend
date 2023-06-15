@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AdminUserEventController } from './event.controller';
 import { AdminUserEventService } from './event.service';
-import { UserService } from 'src/submodules/user/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,

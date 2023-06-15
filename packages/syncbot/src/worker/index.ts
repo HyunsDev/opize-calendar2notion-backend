@@ -17,6 +17,8 @@ import { timeout } from '../../src/utils/timeout';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { SyncConfig } from './types/syncConfig';
+import { ENV } from '../env/env';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -143,19 +145,20 @@ export class Worker {
                         lastSyncStatus: err.code || 'unknown_error',
                     });
 
-                    const errorLog = new ErrorLogEntity();
-                    errorLog.code = err.code;
-                    errorLog.from = err.from;
-                    errorLog.description = err.description;
-                    errorLog.detail = err.detail;
-                    errorLog.showUser = err.showUser;
-                    errorLog.guideUrl = err.guideUrl;
-                    errorLog.knownError = err.knownError;
-                    errorLog.level = err.level;
-                    errorLog.archive = err.archive;
-                    errorLog.user = this.user;
-                    errorLog.stack = err.stack;
-                    errorLog.finishWork = err.finishWork;
+                    const errorLog = new ErrorLogEntity({
+                        code: err.code,
+                        from: err.from,
+                        description: err.description,
+                        detail: err.detail,
+                        showUser: err.showUser,
+                        guideUrl: err.guideUrl,
+                        knownError: err.knownError,
+                        level: err.level,
+                        archive: err.archive,
+                        user: this.user,
+                        stack: err.stack,
+                        finishWork: err.finishWork,
+                    });
                     await DB.errorLog.save(errorLog);
                 } else {
                     await DB.user.update(this.user.id, {
@@ -165,17 +168,20 @@ export class Worker {
                     workerLogger.error(
                         `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
                     );
-                    const error = new ErrorLogEntity();
-                    error.code = 'unknown_error';
-                    error.description = '알 수 없는 오류';
-                    error.detail = err.message;
-                    error.from = 'UNKNOWN';
-                    error.guideUrl = '';
-                    error.level = 'CRIT';
-                    error.showUser = true;
-                    error.stack = err.stack;
-                    error.user = this.user;
-                    error.finishWork = 'STOP';
+                    const error = new ErrorLogEntity({
+                        code: 'unknown_error',
+                        from: 'UNKNOWN',
+                        description: '알 수 없는 오류',
+                        detail: err.message,
+                        showUser: true,
+                        guideUrl: '',
+                        level: 'CRIT',
+                        archive: true,
+                        user: this.user,
+                        stack: err.stack,
+                        finishWork: 'STOP',
+                    });
+
                     await DB.errorLog.save(error);
                 }
             } catch (err) {
@@ -200,11 +206,22 @@ export class Worker {
             user: this.user,
         });
 
+        const config: SyncConfig = {
+            timeMin:
+                this.user.syncYear === 0
+                    ? ENV.MIN_DATE
+                    : dayjs(
+                          `${this.user.syncYear - 1}-01-01T01:00:00+09:00`,
+                      ).toISOString(),
+            timeMax: ENV.MAX_DATE,
+        };
+
         this.notionAssist = new NotionAssist({
             user: this.user,
             startedAt: this.startedAt,
             calendars: this.calendars,
             eventLinkAssist: this.eventLinkAssist,
+            config,
         });
 
         this.googleCalendarAssist = new GoogleCalendarAssist({
@@ -212,6 +229,7 @@ export class Worker {
             startedAt: this.startedAt,
             calendars: this.calendars,
             eventLinkAssist: this.eventLinkAssist,
+            config,
         });
 
         this.workerAssist = new WorkerAssist({

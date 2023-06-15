@@ -50,7 +50,17 @@ export class AdminUserPlanService {
             await this.usersRepository.save(user);
         }
 
-        const paymentLog = new PaymentLogEntity();
+        const paymentLog = new PaymentLogEntity({
+            plan: dto.plan,
+            paymentKind: dto.paymentKind,
+            price: dto.price,
+            priceKind: dto.priceKind,
+            expirationTime: nextPaymentTime,
+            memo: dto.memo,
+            paymentTime: now.toDate(),
+            user,
+            months: dto.months,
+        });
         paymentLog.plan = dto.plan;
         paymentLog.paymentKind = dto.paymentKind;
         paymentLog.price = dto.price;

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AdminUserPlanController } from './plan.controller';
 import { AdminUserPlanService } from './plan.service';
-import { UserService } from 'src/submodules/user/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import {

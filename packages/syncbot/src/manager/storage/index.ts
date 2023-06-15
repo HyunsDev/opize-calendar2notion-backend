@@ -3,10 +3,7 @@ import packageJson from '../../../package.json';
 type ManagerStorageMap = {
     readonly prefix: string;
     readonly startedAt: Date;
-    timeout: number;
-    stop: boolean;
     readonly verizon: string;
-
     readonly workerAmount: {
         init: number;
         pro: number;
@@ -14,12 +11,27 @@ type ManagerStorageMap = {
         sponsor: number;
     };
 
+    timeout: number;
+    stop: boolean;
+
+    // 현재 작업에 대한 데이터
     work: {
         [id: string]: {
             loopId: string;
             nowWorkUserId: number | null;
             completedSyncCount: number;
+            startedAt: string | null;
         };
+    };
+
+    // 주기적 알림을 위한 데이터
+    notice: {
+        initCount: number;
+        syncCount: number;
+
+        successfulSyncCount: number;
+        failedSyncCount: number;
+        startedAt: string;
     };
 };
 
@@ -36,6 +48,13 @@ const initValues: ManagerStorageMap = {
         sponsor: 2,
     },
     work: {},
+    notice: {
+        initCount: 0,
+        syncCount: 0,
+        successfulSyncCount: 0,
+        failedSyncCount: 0,
+        startedAt: new Date().toISOString(),
+    },
 };
 
 /**

@@ -1,9 +1,5 @@
-import axios, { AxiosError } from 'axios';
-import {
-    BadRequestException,
-    Injectable,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { AxiosError } from 'axios';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -12,13 +8,14 @@ import {
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { HttpService } from '@nestjs/axios';
-import * as jwt from 'jsonwebtoken';
 import { firstValueFrom } from 'rxjs';
 import { google } from 'googleapis';
 import { GoogleAccountDTO } from './dto/googleAccount.dto';
 import { NotionAccountDTO } from './dto/notionAccount.dto';
 import { Client } from '@notionhq/client';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
+import { ConfigService } from '@nestjs/config';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class UserConnectService {
@@ -30,14 +27,15 @@ export class UserConnectService {
         @InjectRepository(NotionWorkspaceEntity)
         private notionWorkspaceRepository: Repository<NotionWorkspaceEntity>,
 
+        private readonly configService: ConfigService,
         private readonly httpService: HttpService,
     ) {}
 
     async googleAccount(googleAccountDto: GoogleAccountDTO, user: UserEntity) {
         const oAuth2Client = new google.auth.OAuth2(
-            process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_PASSWORD,
-            process.env.GOOGLE_CALLBACK,
+            this.configService.get('GOOGLE_CLIENT_ID'),
+            this.configService.get('GOOGLE_CLIENT_PASSWORD'),
+            this.configService.get('GOOGLE_CALLBACK'),
         );
         const googleTokens = await oAuth2Client.getToken(googleAccountDto);
 
@@ -81,16 +79,20 @@ export class UserConnectService {
         user.googleRefreshToken = googleTokens.tokens.refresh_token;
         user.googleId = userProfile.id;
         user.googleEmail = userProfile.email;
-        await this.usersRepository.save(user);
+        user.googleRedirectUrlVersion = this.configService.get(
+            'GOOGLE_CALLBACK_VERSION',
+        );
+        user.syncYear = dayjs().year();
+        user = await this.usersRepository.save(user);
 
         return;
     }
 
     async notionAccount(notionAccountDto: NotionAccountDTO, user: UserEntity) {
         const authorizationCode = Buffer.from(
-            process.env.NOTION_CLIENT_ID +
+            this.configService.get('NOTION_CLIENT_ID') +
                 ':' +
-                process.env.NOTION_CLIENT_SECRET,
+                this.configService.get('NOTION_CLIENT_SECRET'),
             'utf8',
         ).toString('base64');
 
@@ -101,7 +103,7 @@ export class UserConnectService {
                     {
                         code: notionAccountDto.code,
                         grant_type: 'authorization_code',
-                        redirect_uri: process.env.NOTION_CALLBACK,
+                        redirect_uri: this.configService.get('NOTION_CALLBACK'),
                     },
                     {
                         headers: {
@@ -132,10 +134,16 @@ export class UserConnectService {
             workspace.tokenType = res.data.token_type;
             await this.notionWorkspaceRepository.save(workspace);
 
-            user.notionDatabaseId = res.data.duplicated_template_id;
-            user.status = 'NOTION_API_SET';
-            user.notionWorkspace = workspace;
-            await this.usersRepository.save(user);
+            await this.usersRepository.update(
+                {
+                    id: user.id,
+                },
+                {
+                    notionDatabaseId: res.data.duplicated_template_id,
+                    status: 'NOTION_API_SET',
+                    notionWorkspace: workspace,
+                },
+            );
             return;
         } catch (err) {
             console.log(err);
@@ -262,9 +270,9 @@ export class UserConnectService {
 
         // 구글 캘린더 등록
         const oAuth2Client = new google.auth.OAuth2(
-            process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_PASSWORD,
-            process.env.GOOGLE_CALLBACK,
+            this.configService.get('GOOGLE_CLIENT_ID'),
+            this.configService.get('GOOGLE_CLIENT_PASSWORD'),
+            this.configService.get('GOOGLE_CALLBACK'),
         );
         oAuth2Client.setCredentials({
             access_token: user.googleAccessToken,
@@ -289,19 +297,29 @@ export class UserConnectService {
             });
 
         for (const newCalendar of allCalendarList) {
-            const calendar =
-                (await this.calendarsRepository.findOne({
-                    where: {
-                        userId: user.id,
-                        googleCalendarId: newCalendar.id,
-                    },
-                })) || new CalendarEntity();
-            calendar.accessRole = 'owner';
-            calendar.googleCalendarId = newCalendar.id;
-            calendar.googleCalendarName = newCalendar.summary;
-            calendar.status = 'PENDING';
-            calendar.user = user;
-            await this.calendarsRepository.save(calendar);
+            let calendar = await this.calendarsRepository.findOne({
+                where: {
+                    userId: user.id,
+                    googleCalendarId: newCalendar.id,
+                },
+            });
+
+            if (calendar) {
+                calendar.accessRole =
+                    newCalendar.accessRole as CalendarEntity['accessRole'];
+                calendar.googleCalendarName = newCalendar.summary;
+                await this.calendarsRepository.save(calendar);
+                continue;
+            } else {
+                calendar = new CalendarEntity({
+                    accessRole:
+                        newCalendar.accessRole as CalendarEntity['accessRole'],
+                    googleCalendarId: newCalendar.id,
+                    googleCalendarName: newCalendar.summary,
+                    user,
+                });
+                await this.calendarsRepository.save(calendar);
+            }
         }
 
         // 유저 업데이트
