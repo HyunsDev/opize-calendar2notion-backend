@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { UserEntity } from '@opize/calendar2notion-model';
 
-import { Webhook, Embed } from '@opize/discord-webhook';
+import { Webhook, Embed } from '@hyunsdev/discord-webhook';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

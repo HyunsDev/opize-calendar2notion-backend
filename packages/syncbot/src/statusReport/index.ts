@@ -1,4 +1,4 @@
-import { Embed } from '@opize/discord-webhook';
+import { Embed } from '@hyunsdev/discord-webhook';
 import { managerStorage } from '../manager/storage';
 import { webhook } from '../logger/webhook';
 import { ENV } from '../../src/env/env';

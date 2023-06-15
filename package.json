@@ -13,8 +13,7 @@
         "packages": [
             "packages/backend",
             "packages/model",
-            "packages/syncbot",
-            "packages/discord-webhook"
+            "packages/syncbot"
         ]
     },
     "scripts": {

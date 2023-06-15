@@ -1,4 +1,4 @@
-import { Webhook } from '@opize/discord-webhook';
+import { Webhook } from '@hyunsdev/discord-webhook';
 import { ENV } from '../../src/env/env';
 
 const noticeWebhook = new Webhook(

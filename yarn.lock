@@ -449,6 +449,14 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
+"@hyunsdev/discord-webhook@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@hyunsdev/discord-webhook/-/discord-webhook-1.0.2.tgz#24c082ebc7ab2a631033a684f56aaa0a224b3161"
+  integrity sha512-06AN1LD6gOjmtDVeqkc/d9bvlLxelzYEwSommQcEjUsZ0TYT1Dhf27rJkJxcEmsaBRIC/oUlGMh4eqiM2s9SUA==
+  dependencies:
+    axios "^1.4.0"
+    discord-api-types "^0.37.43"
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz"
