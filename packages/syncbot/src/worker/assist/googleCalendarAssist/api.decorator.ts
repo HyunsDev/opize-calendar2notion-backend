@@ -134,9 +134,14 @@ export function gCalApi() {
                                 .add(-10, 'days')
                                 .toDate();
 
-                            await DB.user.update(this.user, {
-                                lastCalendarSync: newDate,
-                            });
+                            await DB.user.update(
+                                {
+                                    id: this.user.id,
+                                },
+                                {
+                                    lastCalendarSync: newDate,
+                                },
+                            );
 
                             throw new GoogleCalendarSyncError({
                                 code: GoogleCalendarSyncErrorCode.GONE_UPDATED_MIN_TOO_LONG_AGO,
