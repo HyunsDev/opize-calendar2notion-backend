@@ -104,8 +104,6 @@ export class GoogleCalendarAssistApi {
         let nextPageToken: string = undefined;
         const events: calendar_v3.Schema$Event[] = [];
 
-        console.log(this.config);
-
         while (true) {
             const res = await this.client.events.list({
                 calendarId: calendarId,

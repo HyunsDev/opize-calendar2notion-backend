@@ -19,11 +19,14 @@ import { Migration1Error } from './error/migration.error';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
+import { Embed, Webhook } from '@hyunsdev/discord-webhook';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 @Injectable()
 export class Migration1Service {
+    webhook: Webhook;
+
     constructor(
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>,
@@ -37,7 +40,13 @@ export class Migration1Service {
         private migration1Repository: Repository<Migration1Entity>,
 
         private readonly queryManager: Migration1Query,
-    ) {}
+    ) {
+        this.webhook = new Webhook(
+            process.env.DISCORD_WEBHOOK_MIGRATION_NOTICE_URL,
+            'Calendar2notion Backend',
+            process.env.DISCORD_WEBHOOK_ICON_URL,
+        );
+    }
 
     // 마이그레이션 가능 여부를 확인합니다.
     public async migrateCheck(userId: number): Promise<MigrationCheckResDto> {
@@ -94,6 +103,35 @@ export class Migration1Service {
         await this.queryManager.changeIsConnected(migrateUser.id, false);
 
         if (migrateUser.paymentLogs.length === 0) {
+            const embed: Embed = new Embed({
+                title: '계정 정보 마이그레이션 완료',
+                fields: [
+                    {
+                        name: 'User',
+                        value: `${migrateUser.name}(${migrateUser.email})`,
+                    },
+                    {
+                        name: 'Plan',
+                        value: migrateUser.userPlan === 'pro' ? 'PRO' : 'FREE',
+                    },
+                    {
+                        name: 'PaymentLog',
+                        value: migrateUser.paymentLogs.length.toString(),
+                    },
+                ],
+                thumbnail: {
+                    url: migrateUser.imageUrl,
+                },
+                timestamp: new Date().toISOString(),
+                footer: {
+                    text: `calendar2notion v${process.env.npm_package_version}`,
+                    icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+                },
+                color: 0x03fc6f,
+            });
+
+            await this.webhook.send('', [embed]);
+
             return {
                 success: true,
                 canCalendarMigration,
@@ -153,6 +191,35 @@ export class Migration1Service {
         });
         await this.migration1Repository.save(migration1);
 
+        const embed: Embed = new Embed({
+            title: '계정 정보 마이그레이션 완료',
+            fields: [
+                {
+                    name: 'User',
+                    value: `${migrateUser.name}(${migrateUser.email})`,
+                },
+                {
+                    name: 'Plan',
+                    value: migrateUser.userPlan === 'pro' ? 'PRO' : 'FREE',
+                },
+                {
+                    name: 'PaymentLog',
+                    value: migrateUser.paymentLogs.length.toString(),
+                },
+            ],
+            thumbnail: {
+                url: migrateUser.imageUrl,
+            },
+            timestamp: new Date().toISOString(),
+            footer: {
+                text: `calendar2notion v${process.env.npm_package_version}`,
+                icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+            },
+            color: 0x03fc6f,
+        });
+
+        await this.webhook.send('', [embed]);
+
         return {
             success: true,
             canCalendarMigration,
@@ -167,8 +234,37 @@ export class Migration1Service {
 
         await this.queryManager.changeIsConnected(migrateUser.id, false);
         const calendarMap = await this.calendarInfoMigrate(user, migrateUser);
-        await this.eventMigrate(user, migrateUser, calendarMap);
+        const res = await this.eventMigrate(user, migrateUser, calendarMap);
         await this.connectFinish(user.id);
+
+        const embed: Embed = new Embed({
+            title: '캘린더 마이그레이션 완료',
+            fields: [
+                {
+                    name: 'User',
+                    value: `${migrateUser.name}(${migrateUser.email})`,
+                },
+                {
+                    name: 'Calendar',
+                    value: migrateUser.calendars.length.toString(),
+                },
+                {
+                    name: 'Event',
+                    value: res.count.toString(),
+                },
+            ],
+            thumbnail: {
+                url: migrateUser.imageUrl,
+            },
+            timestamp: new Date().toISOString(),
+            footer: {
+                text: `calendar2notion v${process.env.npm_package_version}`,
+                icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+            },
+            color: 0x03a1fc,
+        });
+
+        await this.webhook.send('', [embed]);
         return;
     }
 
@@ -300,6 +396,10 @@ export class Migration1Service {
                     })),
             );
         }
+
+        return {
+            count: eventCount,
+        };
     }
 
     private async connectFinish(userId: number) {
@@ -310,6 +410,7 @@ export class Migration1Service {
             {
                 isConnected: true,
                 status: 'FINISHED',
+                syncYear: 1,
             },
         );
     }
