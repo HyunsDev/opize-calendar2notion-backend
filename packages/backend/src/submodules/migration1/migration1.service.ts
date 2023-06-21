@@ -410,6 +410,7 @@ export class Migration1Service {
             {
                 isConnected: true,
                 status: 'FINISHED',
+                syncYear: 1,
             },
         );
     }
