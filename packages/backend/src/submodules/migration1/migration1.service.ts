@@ -272,21 +272,32 @@ export class Migration1Service {
                 migrateUser.id,
                 page,
             );
+
             await this.addEvents(
-                events.map((event) => ({
-                    calendarId: calendarMap.find(
-                        (calendar) =>
-                            calendar.migrateGoogleCalendarId ===
-                            event.gcalCalendar,
-                    )?.calendarId,
-                    googleCalendarCalendarId: event.gcalCalendar,
-                    googleCalendarEventId: event.googleCalendarEventId,
-                    lastGoogleCalendarUpdate: new Date(event.lastGoogleUpdate),
-                    lastNotionUpdate: new Date(event.lastNotionUpdate),
-                    notionPageId: event.notionPageId,
-                    status: 'SYNCED',
-                    userId: user.id,
-                })),
+                events
+                    .filter((event) =>
+                        calendarMap.find(
+                            (calendar) =>
+                                calendar.migrateGoogleCalendarId ===
+                                event.gcalCalendar,
+                        ),
+                    )
+                    .map((event) => ({
+                        calendarId: calendarMap.find(
+                            (calendar) =>
+                                calendar.migrateGoogleCalendarId ===
+                                event.gcalCalendar,
+                        )?.calendarId,
+                        googleCalendarCalendarId: event.gcalCalendar,
+                        googleCalendarEventId: event.googleCalendarEventId,
+                        lastGoogleCalendarUpdate: new Date(
+                            event.lastGoogleUpdate,
+                        ),
+                        lastNotionUpdate: new Date(event.lastNotionUpdate),
+                        notionPageId: event.notionPageId,
+                        status: 'SYNCED',
+                        userId: user.id,
+                    })),
             );
         }
     }
