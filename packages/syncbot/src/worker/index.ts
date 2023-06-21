@@ -126,7 +126,6 @@ export class Worker {
 
                 this.result.fail = true;
                 await DB.user.update(this.user.id, {
-                    lastCalendarSync: this.user.workStartedAt,
                     isWork: false,
                 });
 
