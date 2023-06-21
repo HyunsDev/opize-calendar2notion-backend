@@ -74,6 +74,9 @@ export class Migration1Service {
         const user = await this.getUser(userId);
         const migrateUser = await this.getMigrateUserByGoogleId(user.googleId);
 
+        const canCalendarMigration =
+            migrateUser.notionDatabaseId && migrateUser.status === 'finish';
+
         const isAlreadyMigrated = await this.migration1Repository.findOne({
             where: {
                 migrationUserId: migrateUser.id,
@@ -93,6 +96,7 @@ export class Migration1Service {
         if (migrateUser.paymentLogs.length === 0) {
             return {
                 success: true,
+                canCalendarMigration,
                 userPlan: 'FREE',
                 paymentLogLength: 0,
             };
@@ -151,6 +155,7 @@ export class Migration1Service {
 
         return {
             success: true,
+            canCalendarMigration,
             userPlan: migrateUser.userPlan === 'pro' ? 'PRO' : 'FREE',
             paymentLogLength: migrateUser.paymentLogs.length,
         };

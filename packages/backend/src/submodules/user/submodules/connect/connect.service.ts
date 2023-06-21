@@ -32,12 +32,26 @@ export class UserConnectService {
     ) {}
 
     async googleAccount(googleAccountDto: GoogleAccountDTO, user: UserEntity) {
+        const googleCallbackVersion = googleAccountDto?.callbackVersion || 1;
+        const googleCallback =
+            this.configService.get('GOOGLE_CALLBACKS')[
+                `${googleCallbackVersion}`
+            ];
+
+        if (!googleCallback) {
+            throw new BadRequestException({
+                code: 'invalid_google_callback_version',
+            });
+        }
+
         const oAuth2Client = new google.auth.OAuth2(
             this.configService.get('GOOGLE_CLIENT_ID'),
             this.configService.get('GOOGLE_CLIENT_PASSWORD'),
-            this.configService.get('GOOGLE_CALLBACK'),
+            googleCallback,
         );
-        const googleTokens = await oAuth2Client.getToken(googleAccountDto);
+        const googleTokens = await oAuth2Client.getToken({
+            code: googleAccountDto.code,
+        });
 
         oAuth2Client.setCredentials({
             access_token: googleTokens.tokens.access_token,
@@ -79,9 +93,7 @@ export class UserConnectService {
         user.googleRefreshToken = googleTokens.tokens.refresh_token;
         user.googleId = userProfile.id;
         user.googleEmail = userProfile.email;
-        user.googleRedirectUrlVersion = this.configService.get(
-            'GOOGLE_CALLBACK_VERSION',
-        );
+        user.googleRedirectUrlVersion = googleCallbackVersion;
         user.syncYear = dayjs().year();
         user = await this.usersRepository.save(user);
 

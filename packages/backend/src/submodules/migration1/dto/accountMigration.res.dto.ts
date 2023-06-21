@@ -1,5 +1,6 @@
 interface accountMigrateSuccessResDto {
     success: true;
+    canCalendarMigration: boolean;
     userPlan: string;
     paymentLogLength: number;
 }
