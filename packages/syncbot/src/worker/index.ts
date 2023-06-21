@@ -180,14 +180,14 @@ export class Worker {
 
                     await DB.errorLog.save(error);
                 }
-
-                await DB.user.update(this.user.id, {
-                    isWork: false,
-                });
             } catch (err) {
                 console.log(err);
             }
         } finally {
+            await DB.user.update(this.user.id, {
+                isWork: false,
+            });
+
             await this.resultPush();
             return this.result;
         }
