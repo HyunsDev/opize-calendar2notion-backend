@@ -125,9 +125,6 @@ export class Worker {
                 console.error(err);
 
                 this.result.fail = true;
-                await DB.user.update(this.user.id, {
-                    isWork: false,
-                });
 
                 if (err instanceof SyncError) {
                     workerLogger.error(
@@ -183,6 +180,10 @@ export class Worker {
 
                     await DB.errorLog.save(error);
                 }
+
+                await DB.user.update(this.user.id, {
+                    isWork: false,
+                });
             } catch (err) {
                 console.log(err);
             }
