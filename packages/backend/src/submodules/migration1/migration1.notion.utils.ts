@@ -62,15 +62,19 @@ export class NotionMigrate1Util {
 
         const calendarPropValid = this.checkCalendarPropValid();
         if (!calendarPropValid.isValid) {
+            const guideMessage = calendarPropValid.changedOptionNamesGuide
+                .map(
+                    (e) =>
+                        `'${e.originalName}'을 '${e.changedName}'로 변경해주세요.`,
+                )
+                .join('\n');
             throw new Migration1Error(
                 'NOTION_DATABASE_INVALID_CALENDAR',
                 '노션 데이터베이스 캘린더 속성이 올바르지 않아요.',
-                `가이드에 따라 calendar 속성을 바꿔주세요. ${calendarPropValid.incorrectOptionNames.join(
-                    ', ',
-                )} 속성을 못찾았어요.`,
+                `노션 데이터베이스의 calendar 속성의 옵션들을 바꿔주세요.\n\n${guideMessage}\n\n만약 노션에 위 옵션이 없다면, 새로 추가해주세요.`,
                 HttpStatus.BAD_REQUEST,
                 calendarPropValid.incorrectOptionNames,
-                'tpTpxNSAFVk',
+                'zR8sZnkXo-E',
             );
         }
 
@@ -255,6 +259,20 @@ export class NotionMigrate1Util {
             (e) => e.googleCalendarName,
         );
         const diff = correctOptionNames.filter((e) => !optionNames.includes(e));
+        const changedOptionNamesGuide = this.migrateUser.calendars
+            .filter((e) => !optionNames.includes(e.googleCalendarName))
+            .map((e) => ({
+                originalName:
+                    e.googleCalendarId === this.migrateUser.email
+                        ? `My Calendar | ${e.googleCalendarId.substring(
+                              0,
+                              5,
+                          )}...`
+                        : `${
+                              e.googleCalendarName
+                          } | ${e.googleCalendarId.substring(0, 5)}...`,
+                changedName: e.googleCalendarName,
+            }));
 
         if (diff.length === 0) {
             return {
@@ -264,6 +282,7 @@ export class NotionMigrate1Util {
             return {
                 isValid: false,
                 incorrectOptionNames: diff,
+                changedOptionNamesGuide: changedOptionNamesGuide,
             };
         }
     }
