@@ -68,17 +68,6 @@ export class NotionMigrate1Util {
                         `'${e.originalName}'을 '${e.changedName}'로 변경해주세요.`,
                 )
                 .join('\n');
-
-            // throw new Migration1Error(
-            //     'NOTION_DATABASE_INVALID_CALENDAR',
-            //     '노션 데이터베이스 캘린더 속성이 올바르지 않아요.',
-            //     `가이드에 따라 calendar 속성을 바꿔주세요.\n${calendarPropValid.incorrectOptionNames.join(
-            //         ', ',
-            //     )} 속성을 못찾았어요.`,
-            //     HttpStatus.BAD_REQUEST,
-            //     calendarPropValid.incorrectOptionNames,
-            //     'tpTpxNSAFVk',
-            // );
             throw new Migration1Error(
                 'NOTION_DATABASE_INVALID_CALENDAR',
                 '노션 데이터베이스 캘린더 속성이 올바르지 않아요.',
