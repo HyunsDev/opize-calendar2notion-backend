@@ -17,14 +17,14 @@ export class OpizeAuthService {
         private readonly httpService: HttpService,
     ) {}
 
-    async getUserToken(token: string) {
+    async getUserToken(token: string, redirectUrl: string) {
         try {
             const res = await firstValueFrom(
                 this.httpService.post(
                     `${process.env.OPIZE_API_SERVER}/oauth`,
                     {
                         generateToken: token,
-                        redirectUrl: process.env.OPIZE_REDIRECT_URL,
+                        redirectUrl: redirectUrl,
                     },
                     {
                         headers: {

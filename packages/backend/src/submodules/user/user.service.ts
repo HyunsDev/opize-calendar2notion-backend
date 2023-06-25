@@ -38,6 +38,7 @@ export class UserService {
     async post(createUserDto: CreateUserDto) {
         const token = await this.opizeAuthService.getUserToken(
             createUserDto.token,
+            createUserDto.redirectUrl,
         );
         const opizeUser = await this.opizeAuthService.getUserByOpize(token);
 
