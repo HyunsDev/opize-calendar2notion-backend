@@ -143,7 +143,7 @@ export class Worker {
                         lastSyncStatus: err.code || 'unknown_error',
                     });
 
-                    const errorLog = new ErrorLogEntity({
+                    let errorLog = new ErrorLogEntity({
                         code: err.code,
                         from: err.from,
                         description: err.description,
@@ -157,35 +157,36 @@ export class Worker {
                         stack: err.stack,
                         finishWork: err.finishWork,
                     });
-                    await DB.errorLog.save(errorLog);
+                    errorLog = await DB.errorLog.save(errorLog);
 
                     const embed: Embed = new Embed({
                         title: '동기화 실패',
-                        description: `**${this.user.name}**님의 동기화가 실패하였습니다.`,
+                        description: `**${this.user.name}**님의 동기화가 실패하였습니다. \`로그 ID: ${errorLog.id}\``,
                         fields: [
                             {
                                 name: '오류 코드',
-                                value: err.code,
+                                value: `\`${err.code}\``,
+                                inline: true,
                             },
-                            {
-                                name: '오류 발생 위치',
-                                value: err.from,
-                            },
+
                             {
                                 name: '오류 설명',
                                 value: err.description,
                             },
                             {
-                                name: '오류 상세',
-                                value: err.detail,
+                                name: '오류 발생 위치',
+                                value: `\`${err.from}\``,
+                                inline: true,
                             },
                             {
                                 name: 'level',
-                                value: err.level,
+                                value: `\`${err.level}\``,
+                                inline: true,
                             },
                             {
                                 name: 'finishWork',
-                                value: err.finishWork,
+                                value: `\`${err.finishWork}\``,
+                                inline: true,
                             },
                             {
                                 name: 'User',
@@ -203,11 +204,7 @@ export class Worker {
                         },
                     });
 
-                    const embed2: Embed = new Embed({
-                        description: `\`\`\`${(err as Error).stack}\`\`\``,
-                    });
-
-                    await webhook.error.send('', [embed, embed2]);
+                    await webhook.error.send('', [embed]);
                 } else {
                     await DB.user.update(this.user.id, {
                         lastSyncStatus: err.code || 'unknown_error',
@@ -216,7 +213,7 @@ export class Worker {
                     workerLogger.error(
                         `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
                     );
-                    const error = new ErrorLogEntity({
+                    let errorLog = new ErrorLogEntity({
                         code: 'unknown_error',
                         from: 'UNKNOWN',
                         description: '알 수 없는 오류',
@@ -230,35 +227,29 @@ export class Worker {
                         finishWork: 'STOP',
                     });
 
-                    await DB.errorLog.save(error);
+                    errorLog = await DB.errorLog.save(errorLog);
 
                     const embed: Embed = new Embed({
                         title: '알 수 없는 오류 동기화 실패',
-                        description: `**${this.user.name}**님의 동기화가 알 수 없는 오류로 실패하였습니다.`,
+                        description: `**${this.user.name}**님의 동기화가 알 수 없는 오류로 실패하였습니다. 로그 ID: \`${errorLog.id}\``,
                         fields: [
                             {
                                 name: '오류 코드',
-                                value: 'unknown_error',
-                            },
-                            {
-                                name: '오류 발생 위치',
-                                value: 'UNKNOWN',
-                            },
-                            {
-                                name: '오류 설명',
-                                value: '알 수 없는 오류',
+                                value: '`unknown_error`',
                             },
                             {
                                 name: '오류 상세',
-                                value: err.message,
+                                value: `\`${err.message}\``,
                             },
                             {
                                 name: 'level',
-                                value: 'CRIT',
+                                value: '`CRIT`',
+                                inline: true,
                             },
                             {
                                 name: 'finishWork',
-                                value: 'STOP',
+                                value: '`STOP`',
+                                inline: true,
                             },
                             {
                                 name: 'User',
@@ -276,11 +267,7 @@ export class Worker {
                         },
                     });
 
-                    const embed2: Embed = new Embed({
-                        description: `\`\`\`${(err as Error).stack}\`\`\``,
-                    });
-
-                    await webhook.error.send('', [embed, embed2]);
+                    await webhook.error.send('', [embed]);
                 }
             } catch (err) {
                 console.log(err);
