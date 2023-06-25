@@ -105,4 +105,7 @@ export class EnvironmentVariables {
 
     @IsString()
     DISCORD_WEBHOOK_MIGRATION_NOTICE_URL: string;
+
+    @IsString()
+    DISCORD_WEBHOOK_CONNECT_NOTICE_URL: string;
 }
