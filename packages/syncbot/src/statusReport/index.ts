@@ -8,7 +8,7 @@ export class StatusReporter {
         await this.startReport();
         setInterval(async () => {
             await this.report();
-        }, 1000 * 60 * 60 * 60);
+        }, 1000 * 60 * 60 * 12);
     }
 
     public async startReport() {

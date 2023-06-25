@@ -10,6 +10,8 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { webhook } from '../../logger/webhook';
+import { Embed } from '@hyunsdev/discord-webhook';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -75,6 +77,19 @@ export class Runner {
         runnerLogger.info(
             `[Runner] DB 커넥션을 해제했습니다. 서버를 종료합니다.`,
         );
+
+        const embed = new Embed({
+            title: '동기화봇을 종료합니다.',
+            color: 0x00ff00,
+            description: ``,
+            timestamp: new Date().toISOString(),
+            footer: {
+                text: `calendar2notion v${process.env.npm_package_version}`,
+                icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+            },
+        });
+        await webhook.notice.send('', [embed]);
+
         process.exit(0);
     }
 

@@ -19,6 +19,8 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { SyncConfig } from './types/syncConfig';
 import { ENV } from '../env/env';
+import { Embed, Webhook } from '@hyunsdev/discord-webhook';
+import { webhook } from '../logger/webhook';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -141,7 +143,7 @@ export class Worker {
                         lastSyncStatus: err.code || 'unknown_error',
                     });
 
-                    const errorLog = new ErrorLogEntity({
+                    let errorLog = new ErrorLogEntity({
                         code: err.code,
                         from: err.from,
                         description: err.description,
@@ -155,7 +157,54 @@ export class Worker {
                         stack: err.stack,
                         finishWork: err.finishWork,
                     });
-                    await DB.errorLog.save(errorLog);
+                    errorLog = await DB.errorLog.save(errorLog);
+
+                    const embed: Embed = new Embed({
+                        title: '동기화 실패',
+                        description: `**${this.user.name}**님의 동기화가 실패하였습니다. \`로그 ID: ${errorLog.id}\``,
+                        fields: [
+                            {
+                                name: '오류 코드',
+                                value: `\`${err.code}\``,
+                                inline: true,
+                            },
+
+                            {
+                                name: '오류 설명',
+                                value: err.description,
+                            },
+                            {
+                                name: '오류 발생 위치',
+                                value: `\`${err.from}\``,
+                                inline: true,
+                            },
+                            {
+                                name: 'level',
+                                value: `\`${err.level}\``,
+                                inline: true,
+                            },
+                            {
+                                name: 'finishWork',
+                                value: `\`${err.finishWork}\``,
+                                inline: true,
+                            },
+                            {
+                                name: 'User',
+                                value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
+                            },
+                        ],
+                        color: 0xff0000,
+                        thumbnail: {
+                            url: this.user.imageUrl,
+                        },
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: `calendar2notion v${process.env.npm_package_version}`,
+                            icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+                        },
+                    });
+
+                    await webhook.error.send('', [embed]);
                 } else {
                     await DB.user.update(this.user.id, {
                         lastSyncStatus: err.code || 'unknown_error',
@@ -164,7 +213,7 @@ export class Worker {
                     workerLogger.error(
                         `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
                     );
-                    const error = new ErrorLogEntity({
+                    let errorLog = new ErrorLogEntity({
                         code: 'unknown_error',
                         from: 'UNKNOWN',
                         description: '알 수 없는 오류',
@@ -178,7 +227,47 @@ export class Worker {
                         finishWork: 'STOP',
                     });
 
-                    await DB.errorLog.save(error);
+                    errorLog = await DB.errorLog.save(errorLog);
+
+                    const embed: Embed = new Embed({
+                        title: '알 수 없는 오류 동기화 실패',
+                        description: `**${this.user.name}**님의 동기화가 알 수 없는 오류로 실패하였습니다. 로그 ID: \`${errorLog.id}\``,
+                        fields: [
+                            {
+                                name: '오류 코드',
+                                value: '`unknown_error`',
+                            },
+                            {
+                                name: '오류 상세',
+                                value: `\`${err.message}\``,
+                            },
+                            {
+                                name: 'level',
+                                value: '`CRIT`',
+                                inline: true,
+                            },
+                            {
+                                name: 'finishWork',
+                                value: '`STOP`',
+                                inline: true,
+                            },
+                            {
+                                name: 'User',
+                                value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
+                            },
+                        ],
+                        color: 0xff0000,
+                        thumbnail: {
+                            url: this.user.imageUrl,
+                        },
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: `calendar2notion v${process.env.npm_package_version}`,
+                            icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+                        },
+                    });
+
+                    await webhook.error.send('', [embed]);
                 }
             } catch (err) {
                 console.log(err);

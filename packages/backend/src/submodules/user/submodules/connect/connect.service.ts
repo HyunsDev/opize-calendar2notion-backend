@@ -16,9 +16,12 @@ import { Client } from '@notionhq/client';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import { ConfigService } from '@nestjs/config';
 import * as dayjs from 'dayjs';
+import { Embed, Webhook } from '@hyunsdev/discord-webhook';
 
 @Injectable()
 export class UserConnectService {
+    webhook: Webhook;
+
     constructor(
         @InjectRepository(UserEntity)
         private usersRepository: Repository<UserEntity>,
@@ -29,7 +32,13 @@ export class UserConnectService {
 
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-    ) {}
+    ) {
+        this.webhook = new Webhook(
+            process.env.DISCORD_WEBHOOK_CONNECT_NOTICE_URL,
+            'Calendar2notion Backend',
+            process.env.DISCORD_WEBHOOK_ICON_URL,
+        );
+    }
 
     async googleAccount(googleAccountDto: GoogleAccountDTO, user: UserEntity) {
         const googleCallbackVersion = googleAccountDto?.callbackVersion || 1;
@@ -339,6 +348,27 @@ export class UserConnectService {
         user.notionProps = JSON.stringify(propsId);
         user.status = 'FINISHED';
         await this.usersRepository.save(user);
+
+        const embed: Embed = new Embed({
+            title: '유저 연결 완료',
+            fields: [
+                {
+                    name: 'User',
+                    value: `${user.id}. ${user.name}(${user.email})`,
+                },
+            ],
+            thumbnail: {
+                url: user.imageUrl,
+            },
+            timestamp: new Date().toISOString(),
+            footer: {
+                text: `calendar2notion v${process.env.npm_package_version}`,
+                icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+            },
+            color: 0x03fc6f,
+        });
+
+        await this.webhook.send('', [embed]);
 
         return;
     }
