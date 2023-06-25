@@ -20,6 +20,7 @@ import timezone from 'dayjs/plugin/timezone';
 import { SyncConfig } from './types/syncConfig';
 import { ENV } from '../env/env';
 import { Embed, Webhook } from '@hyunsdev/discord-webhook';
+import { webhook } from '../logger/webhook';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -206,11 +207,7 @@ export class Worker {
                         description: `\`\`\`${(err as Error).stack}\`\`\``,
                     });
 
-                    const webhook = new Webhook(
-                        process.env.DISCORD_WEBHOOK_ERROR_URL,
-                    );
-
-                    await webhook.send('', [embed, embed2]);
+                    await webhook.error.send('', [embed, embed2]);
                 } else {
                     await DB.user.update(this.user.id, {
                         lastSyncStatus: err.code || 'unknown_error',
@@ -283,11 +280,7 @@ export class Worker {
                         description: `\`\`\`${(err as Error).stack}\`\`\``,
                     });
 
-                    const webhook = new Webhook(
-                        process.env.DISCORD_WEBHOOK_ERROR_URL,
-                    );
-
-                    await webhook.send('', [embed, embed2]);
+                    await webhook.error.send('', [embed, embed2]);
                 }
             } catch (err) {
                 console.log(err);
