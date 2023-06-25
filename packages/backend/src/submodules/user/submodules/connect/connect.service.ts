@@ -124,7 +124,7 @@ export class UserConnectService {
                     {
                         code: notionAccountDto.code,
                         grant_type: 'authorization_code',
-                        redirect_uri: this.configService.get('NOTION_CALLBACK'),
+                        redirect_uri: notionAccountDto.redirectUrl,
                     },
                     {
                         headers: {
