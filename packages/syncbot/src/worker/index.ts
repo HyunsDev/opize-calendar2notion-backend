@@ -19,6 +19,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { SyncConfig } from './types/syncConfig';
 import { ENV } from '../env/env';
+import { Embed, Webhook } from '@hyunsdev/discord-webhook';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -156,6 +157,60 @@ export class Worker {
                         finishWork: err.finishWork,
                     });
                     await DB.errorLog.save(errorLog);
+
+                    const embed: Embed = new Embed({
+                        title: '동기화 실패',
+                        description: `**${this.user.name}**님의 동기화가 실패하였습니다.`,
+                        fields: [
+                            {
+                                name: '오류 코드',
+                                value: err.code,
+                            },
+                            {
+                                name: '오류 발생 위치',
+                                value: err.from,
+                            },
+                            {
+                                name: '오류 설명',
+                                value: err.description,
+                            },
+                            {
+                                name: '오류 상세',
+                                value: err.detail,
+                            },
+                            {
+                                name: 'level',
+                                value: err.level,
+                            },
+                            {
+                                name: 'finishWork',
+                                value: err.finishWork,
+                            },
+                            {
+                                name: 'User',
+                                value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
+                            },
+                        ],
+                        color: 0xff0000,
+                        thumbnail: {
+                            url: this.user.imageUrl,
+                        },
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: `calendar2notion v${process.env.npm_package_version}`,
+                            icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+                        },
+                    });
+
+                    const embed2: Embed = new Embed({
+                        description: `\`\`\`${(err as Error).stack}\`\`\``,
+                    });
+
+                    const webhook = new Webhook(
+                        process.env.DISCORD_WEBHOOK_ERROR_URL,
+                    );
+
+                    await webhook.send('', [embed, embed2]);
                 } else {
                     await DB.user.update(this.user.id, {
                         lastSyncStatus: err.code || 'unknown_error',
@@ -179,6 +234,60 @@ export class Worker {
                     });
 
                     await DB.errorLog.save(error);
+
+                    const embed: Embed = new Embed({
+                        title: '알 수 없는 오류 동기화 실패',
+                        description: `**${this.user.name}**님의 동기화가 알 수 없는 오류로 실패하였습니다.`,
+                        fields: [
+                            {
+                                name: '오류 코드',
+                                value: 'unknown_error',
+                            },
+                            {
+                                name: '오류 발생 위치',
+                                value: 'UNKNOWN',
+                            },
+                            {
+                                name: '오류 설명',
+                                value: '알 수 없는 오류',
+                            },
+                            {
+                                name: '오류 상세',
+                                value: err.message,
+                            },
+                            {
+                                name: 'level',
+                                value: 'CRIT',
+                            },
+                            {
+                                name: 'finishWork',
+                                value: 'STOP',
+                            },
+                            {
+                                name: 'User',
+                                value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
+                            },
+                        ],
+                        color: 0xff0000,
+                        thumbnail: {
+                            url: this.user.imageUrl,
+                        },
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: `calendar2notion v${process.env.npm_package_version}`,
+                            icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+                        },
+                    });
+
+                    const embed2: Embed = new Embed({
+                        description: `\`\`\`${(err as Error).stack}\`\`\``,
+                    });
+
+                    const webhook = new Webhook(
+                        process.env.DISCORD_WEBHOOK_ERROR_URL,
+                    );
+
+                    await webhook.send('', [embed, embed2]);
                 }
             } catch (err) {
                 console.log(err);
