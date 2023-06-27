@@ -70,11 +70,13 @@ export const transDate = {
             return {
                 start: {
                     date: start.date,
+                    dateTime: null,
                 },
                 end: {
                     date: end?.date
                         ? dayjs(end.date).add(1, 'day').format('YYYY-MM-DD')
                         : start.date,
+                    dateTime: null,
                 },
             };
         } else {
