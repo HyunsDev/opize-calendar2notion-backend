@@ -9,8 +9,6 @@ type ErrorLogObject = Pick<
     | 'description'
     | 'detail'
     | 'stack'
-    | 'showUser'
-    | 'guideUrl'
     | 'level'
     | 'archive'
     | 'finishWork'
@@ -32,8 +30,6 @@ export class GetErrorsResDto {
                 'description',
                 'detail',
                 'stack',
-                'showUser',
-                'guideUrl',
                 'level',
                 'archive',
                 'finishWork',

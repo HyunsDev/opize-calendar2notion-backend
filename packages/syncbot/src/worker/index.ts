@@ -110,11 +110,9 @@ export class Worker {
                     throw new SyncError({
                         code: 'timeout',
                         from: 'UNKNOWN',
-                        archive: true,
                         description: '타임아웃',
                         level: 'ERROR',
                         finishWork: 'RETRY',
-                        showUser: true,
                         user: this.user,
                         detail: JSON.stringify(this.result),
                     });
@@ -143,20 +141,7 @@ export class Worker {
                         lastSyncStatus: err.code || 'unknown_error',
                     });
 
-                    let errorLog = new ErrorLogEntity({
-                        code: err.code,
-                        from: err.from,
-                        description: err.description,
-                        detail: err.detail,
-                        showUser: err.showUser,
-                        guideUrl: err.guideUrl,
-                        knownError: err.knownError,
-                        level: err.level,
-                        archive: err.archive,
-                        user: this.user,
-                        stack: err.stack,
-                        finishWork: err.finishWork,
-                    });
+                    let errorLog = err.getErrorLog();
                     errorLog = await DB.errorLog.save(errorLog);
 
                     const embed: Embed = new Embed({
@@ -218,8 +203,6 @@ export class Worker {
                         from: 'UNKNOWN',
                         description: '알 수 없는 오류',
                         detail: err.message,
-                        showUser: true,
-                        guideUrl: '',
                         level: 'CRIT',
                         archive: true,
                         user: this.user,

@@ -5,13 +5,9 @@ type ErrorSyncConstructor = {
     from: ErrorLogEntity['from'];
     description: ErrorLogEntity['description'];
     detail?: ErrorLogEntity['detail'];
-    showUser?: ErrorLogEntity['showUser'];
-    guideUrl?: ErrorLogEntity['guideUrl'];
-    knownError?: ErrorLogEntity['knownError'];
-    level?: ErrorLogEntity['level'];
-    archive?: ErrorLogEntity['archive'];
     user: ErrorLogEntity['user'];
     finishWork?: ErrorLogEntity['finishWork'];
+    level?: ErrorLogEntity['level'];
 };
 
 export class SyncError extends Error {
@@ -19,13 +15,9 @@ export class SyncError extends Error {
     from: ErrorLogEntity['from'];
     description: ErrorLogEntity['description'];
     detail: ErrorLogEntity['detail'];
-    showUser: ErrorLogEntity['showUser'];
-    guideUrl?: ErrorLogEntity['guideUrl'];
-    knownError?: ErrorLogEntity['knownError'];
-    level: ErrorLogEntity['level'];
-    archive: ErrorLogEntity['archive'];
     user: ErrorLogEntity['user'];
     finishWork: ErrorLogEntity['finishWork'];
+    level: ErrorLogEntity['level'];
 
     isReported: boolean;
 
@@ -34,24 +26,31 @@ export class SyncError extends Error {
         from,
         description,
         detail,
-        showUser = true,
-        guideUrl,
-        knownError,
-        level = 'ERROR',
-        archive = true,
         finishWork = 'STOP',
+        level = 'ERROR',
     }: ErrorSyncConstructor) {
         super(description);
         this.code = code;
         this.from = from;
         this.description = description;
         this.detail = detail;
-        this.showUser = showUser;
-        this.guideUrl = guideUrl;
-        this.knownError = knownError;
-        this.level = level;
-        this.archive = archive;
         this.finishWork = finishWork;
+        this.level = level;
+
         this.isReported = false;
+    }
+
+    getErrorLog(): ErrorLogEntity {
+        return new ErrorLogEntity({
+            code: this.code,
+            from: this.from,
+            description: this.description,
+            detail: this.detail,
+            finishWork: this.finishWork,
+            user: this.user,
+            archive: false,
+            level: this.level,
+            stack: this.stack,
+        });
     }
 }

@@ -21,11 +21,9 @@ export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
         throw new SyncError({
             code: 'GOOGLE_CALLBACK_URL_NOT_FOUND',
             description: '콜백 URL을 찾을 수 없습니다.',
-            archive: true,
             finishWork: 'STOP',
             from: 'SYNCBOT',
             level: 'ERROR',
-            showUser: true,
             user: user,
             detail: JSON.stringify({
                 callbackUrls,

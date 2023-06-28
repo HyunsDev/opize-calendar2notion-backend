@@ -224,17 +224,14 @@ export class NotionAssist extends Assist {
             }
         }
 
-        // TODO: KnownError 추가 필요
         if (errors.length !== 0) {
             // 유효성 검증 단계에서 문제 발생
             throw new SyncError({
                 code: 'notion_validation_error',
-                archive: false,
                 description: '노션 유효성 체크에서 문제가 발견되었습니다.',
                 from: 'NOTION',
                 level: 'ERROR',
                 user: this.user,
-                showUser: true,
                 finishWork: 'STOP',
                 detail:
                     `function: checkProps\n` +
