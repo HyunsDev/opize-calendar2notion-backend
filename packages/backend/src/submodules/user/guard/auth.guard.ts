@@ -7,11 +7,12 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from '@opize/calendar2notion-model';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { Repository } from 'typeorm';
+
 import { Role } from '../role/role';
-import { UserEntity } from '@opize/calendar2notion-model';
 import { AuthService } from '../submodules/auth/auth.service';
 
 @Injectable()

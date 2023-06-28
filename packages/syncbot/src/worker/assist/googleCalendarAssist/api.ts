@@ -1,16 +1,17 @@
-import { google, calendar_v3 } from 'googleapis';
-
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { NotionDateTime, transDate } from '../../utils/dateUtils';
-import { gCalApi } from './api.decorator';
 import { GaxiosError } from 'gaxios';
+import { google, calendar_v3 } from 'googleapis';
+
 import { SyncError } from '../../error/error';
 import { SyncConfig } from '../../types/syncConfig';
+import { NotionDateTime, transDate } from '../../utils/dateUtils';
+
+import { gCalApi } from './api.decorator';
 
 export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
     const callbackUrls = JSON.parse(process.env.GOOGLE_CALLBACKS || '{}');

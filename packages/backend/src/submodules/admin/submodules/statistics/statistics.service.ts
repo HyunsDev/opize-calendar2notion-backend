@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
 import {
     CalendarEntity,
@@ -7,6 +6,7 @@ import {
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { Repository } from 'typeorm';
+
 import { GetStatisticsResDto } from './dto/getStatisitics.res.dto';
 
 @Injectable()

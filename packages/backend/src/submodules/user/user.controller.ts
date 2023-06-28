@@ -7,13 +7,14 @@ import {
     Param,
     Delete,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserEntity } from '@opize/calendar2notion-model';
+
 import { Auth } from './decorator/auth.decorator';
 import { User } from './decorator/user.decorator';
-import { UserEntity } from '@opize/calendar2notion-model';
 import { AddCalendarDto } from './dto/add-calendar.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {

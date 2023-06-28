@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@opize/calendar2notion-model';
 import { FindManyOptions, Repository } from 'typeorm';
+
 import { SearchUserResDto } from './dto/searchUser.res.dto';
 import { SearchUsersResDto } from './dto/searchUsers.res.dto';
 import { UpdateUserReqDto } from './dto/updateUser.req.dto';

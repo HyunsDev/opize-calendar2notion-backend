@@ -1,22 +1,23 @@
-import { AxiosError } from 'axios';
+import { Embed, Webhook } from '@hyunsdev/discord-webhook';
+import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Client } from '@notionhq/client';
+import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import {
     CalendarEntity,
     NotionWorkspaceEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
+import * as dayjs from 'dayjs';
 import { google } from 'googleapis';
+import { firstValueFrom } from 'rxjs';
+import { Repository } from 'typeorm';
+
 import { GoogleAccountDTO } from './dto/googleAccount.dto';
 import { NotionAccountDTO } from './dto/notionAccount.dto';
-import { Client } from '@notionhq/client';
-import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
-import { ConfigService } from '@nestjs/config';
-import * as dayjs from 'dayjs';
-import { Embed, Webhook } from '@hyunsdev/discord-webhook';
 
 @Injectable()
 export class UserConnectService {

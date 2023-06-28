@@ -29,7 +29,8 @@
         "dev": "ts-node index.ts",
         "test": "jest --detectOpenHandles",
         "build": "tsc",
-        "start": "ts-node index.ts"
+        "start": "ts-node index.ts",
+        "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix"
     },
     "devDependencies": {
         "@types/cors": "^2.8.12",

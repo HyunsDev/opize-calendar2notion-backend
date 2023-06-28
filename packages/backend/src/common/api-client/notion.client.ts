@@ -1,5 +1,6 @@
 import { Client } from '@notionhq/client';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
+
 import { retry } from '../utils/retry.decorator';
 
 export class NotionClient {

@@ -1,8 +1,10 @@
-import { UserEntity } from '@opize/calendar2notion-model';
-import { valueof } from '../../utils/valueOf';
-import { SyncErrorCode } from './errorCode';
-import { SyncError } from './error';
 import { APIResponseError } from '@notionhq/client';
+import { UserEntity } from '@opize/calendar2notion-model';
+
+import { valueof } from '../../utils/valueOf';
+
+import { SyncError } from './error';
+import { SyncErrorCode } from './errorCode';
 
 interface ErrorProps {
     code: valueof<typeof SyncErrorCode.Notion>;

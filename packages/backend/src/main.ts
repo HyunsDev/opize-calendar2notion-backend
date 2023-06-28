@@ -1,9 +1,11 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import * as dotenv from 'dotenv';
 import * as path from 'path';
+
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import * as dotenv from 'dotenv';
+
 import { GlobalExceptionFilter } from './app.exceptionFilter';
+import { AppModule } from './app.module';
 
 dotenv.config({
     path: path.resolve(

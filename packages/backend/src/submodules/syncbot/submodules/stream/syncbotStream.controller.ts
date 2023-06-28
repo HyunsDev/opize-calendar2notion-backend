@@ -8,11 +8,12 @@ import {
     MessageEvent,
     Headers,
 } from '@nestjs/common';
-import { SyncbotStreamService } from './syncbotStream.service';
-import { LiveCheckDto } from './dto/LiveCheck.dto';
+import { Response } from 'express';
 import { Observable, ReplaySubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Response } from 'express';
+
+import { LiveCheckDto } from './dto/LiveCheck.dto';
+import { SyncbotStreamService } from './syncbotStream.service';
 
 @Controller('syncbot/stream')
 export class SyncbotStreamController {

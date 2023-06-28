@@ -1,7 +1,8 @@
 import { Embed } from '@hyunsdev/discord-webhook';
-import { managerStorage } from '../manager/storage';
-import { webhook } from '../logger/webhook';
+
 import { ENV } from '../../src/env/env';
+import { webhook } from '../logger/webhook';
+import { managerStorage } from '../manager/storage';
 
 export class StatusReporter {
     public async startLoop() {

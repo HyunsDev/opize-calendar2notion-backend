@@ -1,11 +1,12 @@
+import { PartialPageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { DB } from '../../../database';
 import { calendar_v3 } from 'googleapis';
-import { PartialPageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+
+import { DB } from '../../../database';
 
 export class EventLinkAssist {
     user: UserEntity;

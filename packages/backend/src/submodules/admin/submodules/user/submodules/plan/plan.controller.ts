@@ -1,7 +1,8 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { Auth } from 'src/submodules/user/decorator/auth.decorator';
-import { AdminUserPlanService } from './plan.service';
+
 import { PlanUpgradeReqDto } from './dto/planUpgrade.req.dto';
+import { AdminUserPlanService } from './plan.service';
 
 @Controller('admin/users/:userId/plan')
 @Auth('admin')

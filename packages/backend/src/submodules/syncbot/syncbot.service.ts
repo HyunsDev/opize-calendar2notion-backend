@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SyncBotEntity } from '@opize/calendar2notion-model';
 import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
+
 import { AddSyncBotDto } from './dto/add-syncbot.dto';
 import { ManagerStorageMap } from './types/storageMap';
 

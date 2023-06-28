@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
-import { Migration1UserEntity } from './entity/migration1.user.entity';
+
 import { Migration1EventEntity } from './entity/migration1.event.entity';
+import { Migration1UserEntity } from './entity/migration1.user.entity';
 
 @Injectable()
 export class Migration1Query {

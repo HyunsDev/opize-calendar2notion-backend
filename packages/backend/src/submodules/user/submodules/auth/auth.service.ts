@@ -1,7 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '@opize/calendar2notion-model';
-import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()

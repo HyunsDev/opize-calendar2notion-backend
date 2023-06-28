@@ -1,8 +1,9 @@
 import { APIResponseError } from '@notionhq/client';
-import { sleep } from '../../../utils';
 import { UserEntity } from '@opize/calendar2notion-model';
-import { NotionSyncError } from '../../error/notion.error';
+
+import { sleep } from '../../../utils';
 import { SyncErrorCode } from '../../error';
+import { NotionSyncError } from '../../error/notion.error';
 
 const handleNotionHandlerErrors = async (
     err: APIResponseError,

@@ -1,6 +1,7 @@
+import * as path from 'path';
+
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { Migration1Service } from './migration1.service';
-import { Migration1Query } from './migration1.query.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,
@@ -9,12 +10,13 @@ import {
     PaymentLogEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { HttpModule } from '@nestjs/axios';
-
 import * as dotenv from 'dotenv';
-import * as path from 'path';
-import { Migration1Controller } from './migration1.controller';
+
 import { AuthService } from '../user/submodules/auth/auth.service';
+
+import { Migration1Controller } from './migration1.controller';
+import { Migration1Query } from './migration1.query.service';
+import { Migration1Service } from './migration1.service';
 
 dotenv.config({
     path: path.resolve(process.env.NODE_ENV === 'production' ? '.env' : '.env'),

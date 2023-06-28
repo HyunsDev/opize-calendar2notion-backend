@@ -1,11 +1,11 @@
-import { sleep } from '../../../utils';
-import { GaxiosError } from 'googleapis-common';
-import { DB } from '../../../database';
 import { UserEntity } from '@opize/calendar2notion-model';
-
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import { GaxiosError } from 'googleapis-common';
+
+import { DB } from '../../../database';
+import { sleep } from '../../../utils';
 import { SyncErrorCode } from '../../error';
 import { GoogleCalendarSyncError } from '../../error/googleCalendar.error';
 dayjs.extend(utc);

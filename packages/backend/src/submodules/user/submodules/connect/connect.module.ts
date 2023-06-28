@@ -1,6 +1,5 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { UserConnectService } from './connect.service';
-import { UserConnectController } from './connect.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,
@@ -8,10 +7,13 @@ import {
     NotionWorkspaceEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { HttpModule } from '@nestjs/axios';
+
 import { UserService } from '../../user.service';
 import { AuthService } from '../auth/auth.service';
 import { OpizeAuthService } from '../auth/opize.auth.service';
+
+import { UserConnectController } from './connect.controller';
+import { UserConnectService } from './connect.service';
 
 @Module({
     controllers: [UserConnectController],

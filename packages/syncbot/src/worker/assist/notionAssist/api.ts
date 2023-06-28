@@ -1,15 +1,16 @@
 import { Client } from '@notionhq/client';
-import { calendar_v3 } from 'googleapis';
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { calendar_v3 } from 'googleapis';
 
 import { transDate } from '../../../worker/utils/dateUtils';
-import { notionApi } from './api.decorator';
 import { SyncConfig } from '../../types/syncConfig';
+
+import { notionApi } from './api.decorator';
 
 export class NotionAssistApi {
     private user: UserEntity;

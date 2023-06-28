@@ -1,10 +1,11 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import morgan from 'morgan';
 
-import statusRouter from './router/status';
-import controlRouter from './router/control';
 import { serverLogger } from '../../logger';
+
+import controlRouter from './router/control';
+import statusRouter from './router/status';
 
 const app = express();
 app.use(

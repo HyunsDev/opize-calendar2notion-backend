@@ -2,6 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import { UserEntity } from '@opize/calendar2notion-model';
 import { NotionClient } from 'src/common/api-client/notion.client';
+
 import { Migration1UserEntity } from './entity/migration1.user.entity';
 import { Migration1Error } from './error/migration.error';
 

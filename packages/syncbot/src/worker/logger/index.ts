@@ -1,5 +1,6 @@
-import chalk from 'chalk';
 import { UserEntity } from '@opize/calendar2notion-model';
+import chalk from 'chalk';
+
 import { DB } from '../../database';
 
 type LogFrom = 'GOOGLE CALENDAR' | 'NOTION' | 'SYNCBOT' | 'COMPLEX' | 'UNKNOWN';

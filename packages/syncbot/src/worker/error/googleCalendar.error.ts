@@ -1,8 +1,10 @@
 import { UserEntity } from '@opize/calendar2notion-model';
 import { GaxiosError } from 'googleapis-common';
+
 import { valueof } from '../../utils/valueOf';
-import { SyncErrorCode } from './errorCode';
+
 import { SyncError } from './error';
+import { SyncErrorCode } from './errorCode';
 
 interface ErrorProps {
     code: valueof<typeof SyncErrorCode.GoogleCalendar>;

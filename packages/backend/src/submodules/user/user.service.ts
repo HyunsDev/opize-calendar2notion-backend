@@ -5,22 +5,23 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import * as dayjs from 'dayjs';
 import { calendar_v3 } from 'googleapis';
-import { AddCalendarDto } from './dto/add-calendar.dto';
-import { AuthService } from './submodules/auth/auth.service';
-import { OpizeAuthService } from './submodules/auth/opize.auth.service';
 import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
 import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
-import * as dayjs from 'dayjs';
+import { Not, Repository } from 'typeorm';
+
+import { AddCalendarDto } from './dto/add-calendar.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { FindOneUserResDto } from './dto/find-one-user.res.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthService } from './submodules/auth/auth.service';
+import { OpizeAuthService } from './submodules/auth/opize.auth.service';
 
 @Injectable()
 export class UserService {
