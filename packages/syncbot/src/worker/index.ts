@@ -79,190 +79,197 @@ export class Worker {
     async run() {
         try {
             try {
-                this.result = {
-                    step: 'init',
-                    fail: false,
-                };
+                try {
+                    this.result = {
+                        step: 'init',
+                        fail: false,
+                    };
 
-                this.user = await DB.user.findOne({
-                    where: {
-                        id: this.userId,
-                    },
-                });
-
-                this.startedAt = new Date();
-
-                await timeout(
-                    (async () => {
-                        await this.init();
-                        await this.startSync();
-                        await this.validation();
-                        await this.eraseDeletedEvent();
-                        await this.syncEvents();
-                        await this.syncNewCalendar();
-                        await this.endSync();
-                    })(),
-                    1000 * 60 * 60 * 12,
-                );
-            } catch (timeoutErr) {
-                if (
-                    timeoutErr instanceof Error &&
-                    timeoutErr.message === 'timeout'
-                ) {
-                    throw new SyncError({
-                        code: 'timeout',
-                        from: 'UNKNOWN',
-                        description: '타임아웃',
-                        level: 'ERROR',
-                        finishWork: 'RETRY',
-                        user: this.user,
-                        detail: JSON.stringify(this.result),
+                    this.user = await DB.user.findOne({
+                        where: {
+                            id: this.userId,
+                        },
                     });
-                } else {
-                    throw timeoutErr;
-                }
-            }
-        } catch (err) {
-            try {
-                console.error(err);
 
-                this.result.fail = true;
+                    this.startedAt = new Date();
 
-                if (err instanceof SyncError) {
-                    workerLogger.error(
-                        `[${this.workerId}, ${this.user.id}] 문제가 발견되어 동기화에 실패하였습니다. (${err.code})`,
+                    await timeout(
+                        (async () => {
+                            await this.init();
+                            await this.startSync();
+                            await this.validation();
+                            await this.eraseDeletedEvent();
+                            await this.syncEvents();
+                            await this.syncNewCalendar();
+                            await this.endSync();
+                        })(),
+                        1000 * 60 * 60 * 12,
                     );
-
-                    if (err.finishWork === 'STOP') {
-                        await DB.user.update(this.user.id, {
-                            isConnected: false,
+                } catch (timeoutErr) {
+                    if (
+                        timeoutErr instanceof Error &&
+                        timeoutErr.message === 'timeout'
+                    ) {
+                        throw new SyncError({
+                            code: 'timeout',
+                            from: 'UNKNOWN',
+                            description: '타임아웃',
+                            level: 'ERROR',
+                            finishWork: 'RETRY',
+                            user: this.user,
+                            detail: JSON.stringify(this.result),
                         });
+                    } else {
+                        throw timeoutErr;
                     }
-
-                    await DB.user.update(this.user.id, {
-                        lastSyncStatus: err.code || 'unknown_error',
-                    });
-
-                    let errorLog = err.getErrorLog();
-                    errorLog = await DB.errorLog.save(errorLog);
-
-                    const embed: Embed = new Embed({
-                        title: '동기화 실패',
-                        description: `**${this.user.name}**님의 동기화가 실패하였습니다. \`로그 ID: ${errorLog.id}\``,
-                        fields: [
-                            {
-                                name: '오류 코드',
-                                value: `\`${err.code}\``,
-                                inline: true,
-                            },
-
-                            {
-                                name: '오류 설명',
-                                value: err.description,
-                            },
-                            {
-                                name: '오류 발생 위치',
-                                value: `\`${err.from}\``,
-                                inline: true,
-                            },
-                            {
-                                name: 'level',
-                                value: `\`${err.level}\``,
-                                inline: true,
-                            },
-                            {
-                                name: 'finishWork',
-                                value: `\`${err.finishWork}\``,
-                                inline: true,
-                            },
-                            {
-                                name: 'User',
-                                value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
-                            },
-                        ],
-                        color: 0xff0000,
-                        thumbnail: {
-                            url: this.user.imageUrl,
-                        },
-                        timestamp: new Date().toISOString(),
-                        footer: {
-                            text: `calendar2notion v${process.env.npm_package_version}`,
-                            icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
-                        },
-                    });
-
-                    await webhook.error.send('', [embed]);
-                } else {
-                    await DB.user.update(this.user.id, {
-                        lastSyncStatus: err.code || 'unknown_error',
-                    });
-
-                    workerLogger.error(
-                        `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
-                    );
-                    let errorLog = new ErrorLogEntity({
-                        code: 'unknown_error',
-                        from: 'UNKNOWN',
-                        description: '알 수 없는 오류',
-                        detail: err.message,
-                        level: 'CRIT',
-                        archive: true,
-                        user: this.user,
-                        stack: err.stack,
-                        finishWork: 'STOP',
-                    });
-
-                    errorLog = await DB.errorLog.save(errorLog);
-
-                    const embed: Embed = new Embed({
-                        title: '알 수 없는 오류 동기화 실패',
-                        description: `**${this.user.name}**님의 동기화가 알 수 없는 오류로 실패하였습니다. 로그 ID: \`${errorLog.id}\``,
-                        fields: [
-                            {
-                                name: '오류 코드',
-                                value: '`unknown_error`',
-                            },
-                            {
-                                name: '오류 상세',
-                                value: `\`${err.message}\``,
-                            },
-                            {
-                                name: 'level',
-                                value: '`CRIT`',
-                                inline: true,
-                            },
-                            {
-                                name: 'finishWork',
-                                value: '`STOP`',
-                                inline: true,
-                            },
-                            {
-                                name: 'User',
-                                value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
-                            },
-                        ],
-                        color: 0xff0000,
-                        thumbnail: {
-                            url: this.user.imageUrl,
-                        },
-                        timestamp: new Date().toISOString(),
-                        footer: {
-                            text: `calendar2notion v${process.env.npm_package_version}`,
-                            icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
-                        },
-                    });
-
-                    await webhook.error.send('', [embed]);
                 }
             } catch (err) {
-                console.log(err);
-            }
-        } finally {
-            await DB.user.update(this.user.id, {
-                isWork: false,
-            });
+                try {
+                    console.error(err);
 
-            await this.resultPush();
+                    this.result.fail = true;
+
+                    if (err instanceof SyncError) {
+                        workerLogger.error(
+                            `[${this.workerId}, ${this.user.id}] 문제가 발견되어 동기화에 실패하였습니다. (${err.code})`,
+                        );
+
+                        if (err.finishWork === 'STOP') {
+                            await DB.user.update(this.user.id, {
+                                isConnected: false,
+                            });
+                        }
+
+                        await DB.user.update(this.user.id, {
+                            lastSyncStatus: err.code || 'unknown_error',
+                        });
+
+                        let errorLog = err.getErrorLog();
+                        errorLog = await DB.errorLog.save(errorLog);
+
+                        const embed: Embed = new Embed({
+                            title: '동기화 실패',
+                            description: `**${this.user.name}**님의 동기화가 실패하였습니다. \`로그 ID: ${errorLog.id}\``,
+                            fields: [
+                                {
+                                    name: '오류 코드',
+                                    value: `\`${err.code}\``,
+                                    inline: true,
+                                },
+
+                                {
+                                    name: '오류 설명',
+                                    value: err.description,
+                                },
+                                {
+                                    name: '오류 발생 위치',
+                                    value: `\`${err.from}\``,
+                                    inline: true,
+                                },
+                                {
+                                    name: 'level',
+                                    value: `\`${err.level}\``,
+                                    inline: true,
+                                },
+                                {
+                                    name: 'finishWork',
+                                    value: `\`${err.finishWork}\``,
+                                    inline: true,
+                                },
+                                {
+                                    name: 'User',
+                                    value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
+                                },
+                            ],
+                            color: 0xff0000,
+                            thumbnail: {
+                                url: this.user.imageUrl,
+                            },
+                            timestamp: new Date().toISOString(),
+                            footer: {
+                                text: `calendar2notion v${process.env.npm_package_version}`,
+                                icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+                            },
+                        });
+
+                        await webhook.error.send('', [embed]);
+                    } else {
+                        await DB.user.update(this.user.id, {
+                            lastSyncStatus: err.code || 'unknown_error',
+                        });
+
+                        workerLogger.error(
+                            `[${this.workerId}, ${this.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
+                        );
+                        let errorLog = new ErrorLogEntity({
+                            code: 'unknown_error',
+                            from: 'UNKNOWN',
+                            description: '알 수 없는 오류',
+                            detail: err.message,
+                            level: 'CRIT',
+                            archive: true,
+                            user: this.user,
+                            stack: err.stack,
+                            finishWork: 'STOP',
+                        });
+
+                        errorLog = await DB.errorLog.save(errorLog);
+
+                        const embed: Embed = new Embed({
+                            title: '알 수 없는 오류 동기화 실패',
+                            description: `**${this.user.name}**님의 동기화가 알 수 없는 오류로 실패하였습니다. 로그 ID: \`${errorLog.id}\``,
+                            fields: [
+                                {
+                                    name: '오류 코드',
+                                    value: '`unknown_error`',
+                                },
+                                {
+                                    name: '오류 상세',
+                                    value: `\`${err.message}\``,
+                                },
+                                {
+                                    name: 'level',
+                                    value: '`CRIT`',
+                                    inline: true,
+                                },
+                                {
+                                    name: 'finishWork',
+                                    value: '`STOP`',
+                                    inline: true,
+                                },
+                                {
+                                    name: 'User',
+                                    value: ` \`(${this.user.id})\` ${this.user.name} (${this.user.email})`,
+                                },
+                            ],
+                            color: 0xff0000,
+                            thumbnail: {
+                                url: this.user.imageUrl,
+                            },
+                            timestamp: new Date().toISOString(),
+                            footer: {
+                                text: `calendar2notion v${process.env.npm_package_version}`,
+                                icon_url: process.env.DISCORD_WEBHOOK_ICON_URL,
+                            },
+                        });
+
+                        await webhook.error.send('', [embed]);
+                    }
+                } catch (err) {
+                    console.error('처리할 수 없는 에러');
+                    console.log(err);
+                }
+            } finally {
+                await DB.user.update(this.user.id, {
+                    isWork: false,
+                });
+
+                await this.resultPush();
+                return this.result;
+            }
+        } catch (err) {
+            console.error('처리할 수 없는 에러');
+            console.error(err);
             return this.result;
         }
     }
