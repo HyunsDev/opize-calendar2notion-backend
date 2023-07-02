@@ -1,9 +1,10 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { SyncbotStreamService } from './syncbotStream.service';
-import { SyncbotStreamController } from './syncbotStream.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SyncBotEntity } from '@opize/calendar2notion-model';
-import { HttpModule } from '@nestjs/axios';
+
+import { SyncbotStreamController } from './syncbotStream.controller';
+import { SyncbotStreamService } from './syncbotStream.service';
 
 @Module({
     controllers: [SyncbotStreamController],

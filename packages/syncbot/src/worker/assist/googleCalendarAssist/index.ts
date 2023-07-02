@@ -1,16 +1,16 @@
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { calendar_v3 } from 'googleapis';
 
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
-import { EventLinkAssist } from '../eventLinkAssist';
-import { Assist } from '../../types/assist';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
-import { GoogleCalendarAssistApi } from './api';
-import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+import { Assist } from '../../types/assist';
 import { SyncConfig } from '../../types/syncConfig';
+import { EventLinkAssist } from '../eventLinkAssist';
+
+import { GoogleCalendarAssistApi } from './api';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 

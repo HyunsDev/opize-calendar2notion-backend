@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { SyncbotService } from './syncbot.service';
 
 describe('SyncbotService', () => {

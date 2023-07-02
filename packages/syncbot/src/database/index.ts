@@ -3,7 +3,6 @@ import {
     CalendarEntity,
     ErrorLogEntity,
     EventEntity,
-    KnownErrorEntity,
     PaymentLogEntity,
     SyncBotEntity,
     NotionWorkspaceEntity,
@@ -25,7 +24,6 @@ export const AppDataSource = new DataSource({
         CalendarEntity,
         ErrorLogEntity,
         EventEntity,
-        KnownErrorEntity,
         PaymentLogEntity,
         SyncBotEntity,
         NotionWorkspaceEntity,
@@ -39,7 +37,6 @@ export const DB = {
     calendar: AppDataSource.getRepository(CalendarEntity),
     errorLog: AppDataSource.getRepository(ErrorLogEntity),
     event: AppDataSource.getRepository(EventEntity),
-    knownError: AppDataSource.getRepository(KnownErrorEntity),
     paymentLog: AppDataSource.getRepository(PaymentLogEntity),
     notionWorkspace: AppDataSource.getRepository(NotionWorkspaceEntity),
 };

@@ -5,21 +5,23 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import * as dayjs from 'dayjs';
 import { calendar_v3 } from 'googleapis';
-import { AddCalendarDto } from './dto/add-calendar.dto';
-import { AuthService } from './submodules/auth/auth.service';
-import { OpizeAuthService } from './submodules/auth/opize.auth.service';
 import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
 import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
-import * as dayjs from 'dayjs';
+import { Not, Repository } from 'typeorm';
+
+import { AddCalendarDto } from './dto/add-calendar.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { FindOneUserResDto } from './dto/find-one-user.res.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthService } from './submodules/auth/auth.service';
+import { OpizeAuthService } from './submodules/auth/opize.auth.service';
 
 @Injectable()
 export class UserService {
@@ -66,39 +68,19 @@ export class UserService {
         };
     }
 
-    async findOne(user: UserEntity) {
-        if (user.status !== 'FINISHED') {
-            return {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                imageUrl: user.imageUrl,
-                opizeId: user.opizeId,
-                googleEmail: user.googleEmail,
-                notionDatabaseId: user.notionDatabaseId,
-                lastCalendarSync: user.lastCalendarSync,
-                lastSyncStatus: user.lastSyncStatus,
-                status: user.status,
-                isConnected: user.isConnected,
-                userPlan: user.userPlan,
-                userTimeZone: user.userTimeZone,
-                notionProps: JSON.parse(user.notionProps || '{}'),
-                isWork: user.isWork,
-                isAdmin: user.isAdmin,
-                createdAt: user.createdAt,
-                calendars: [],
-                allCalendars: [],
-            };
-        }
-
-        const calendars = await this.calendarsRepository.find({
+    async findOne(userEntity: UserEntity) {
+        const user = await this.usersRepository.findOne({
             where: {
-                userId: user.id,
-                status: Not('DISCONNECTED'),
+                id: userEntity.id,
             },
+            relations: ['calendars', 'notionWorkspace', 'paymentLogs'],
         });
 
-        const tokens = getGoogleCalendarTokensByUser(user);
+        if (user.status !== 'FINISHED') {
+            return new FindOneUserResDto(user, []);
+        }
+
+        const tokens = getGoogleCalendarTokensByUser(userEntity);
 
         const googleClient = new GoogleCalendarClient(
             tokens.accessToken,
@@ -106,51 +88,25 @@ export class UserService {
             tokens.callbackUrl,
         );
         const googleCalendarsRes = await googleClient.getCalendars();
-        const googleCalendars = googleCalendarsRes.data.items.map((e) => {
-            return {
-                id: e.id,
-                summary: e.summary,
-                primary: e.primary,
-                backgroundColor: e.backgroundColor,
-                foregroundColor: e.foregroundColor,
-                accessRole: e.accessRole as
-                    | 'none'
-                    | 'freeBusyReader'
-                    | 'reader'
-                    | 'writer'
-                    | 'owner',
-            };
-        });
+        const googleCalendars = googleCalendarsRes.data.items.map((e) => ({
+            id: e.id,
+            summary: e.summary,
+            primary: e.primary,
+            backgroundColor: e.backgroundColor,
+            foregroundColor: e.foregroundColor,
+            accessRole: e.accessRole as
+                | 'none'
+                | 'freeBusyReader'
+                | 'reader'
+                | 'writer'
+                | 'owner',
+        }));
 
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            imageUrl: user.imageUrl,
-            opizeId: user.opizeId,
-            googleEmail: user.googleEmail,
-            notionDatabaseId: user.notionDatabaseId,
-            lastCalendarSync: user.lastCalendarSync,
-            lastSyncStatus: user.lastSyncStatus,
-            status: user.status,
-            isConnected: user.isConnected,
-            userPlan: user.userPlan,
-            userTimeZone: user.userTimeZone,
-            notionProps: JSON.parse(user.notionProps),
-            isWork: user.isWork,
-            isAdmin: user.isAdmin,
-            createdAt: user.createdAt,
-            calendars: calendars.map((calendar) => ({
-                id: calendar.id,
-                googleCalendarId: calendar.googleCalendarId,
-                googleCalendarName: calendar.googleCalendarName,
-                status: calendar.status,
-                accessRole: calendar.accessRole,
-                notionPropertyId: calendar.notionPropertyId,
-                createdAt: calendar.createdAt,
-            })),
-            googleCalendars: googleCalendars,
-        };
+        user.calendars = user.calendars.filter(
+            (e) => e.status !== 'DISCONNECTED',
+        );
+
+        return new FindOneUserResDto(user, googleCalendars);
     }
 
     async update(user: UserEntity, updateUserDto: UpdateUserDto) {
@@ -364,21 +320,4 @@ export class UserService {
             throw new InternalServerErrorException();
         }
     }
-
-    // private async getGoogleClient(user: UserEntity) {
-    //     const oAuth2Client = new google.auth.OAuth2(
-    //         process.env.GOOGLE_CLIENT_ID,
-    //         process.env.GOOGLE_CLIENT_PASSWORD,
-    //         process.env.GOOGLE_CALLBACK,
-    //     );
-    //     oAuth2Client.setCredentials({
-    //         access_token: user.googleAccessToken,
-    //         refresh_token: user.googleRefreshToken,
-    //     });
-    //     const googleClient = google.calendar({
-    //         version: 'v3',
-    //         auth: oAuth2Client,
-    //     });
-    //     return googleClient;
-    // }
 }

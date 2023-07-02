@@ -1,16 +1,17 @@
-import { google, calendar_v3 } from 'googleapis';
-
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import {
     CalendarEntity,
     EventEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { NotionDateTime, transDate } from '../../utils/dateUtils';
-import { gCalApi } from './api.decorator';
 import { GaxiosError } from 'gaxios';
+import { google, calendar_v3 } from 'googleapis';
+
 import { SyncError } from '../../error/error';
 import { SyncConfig } from '../../types/syncConfig';
+import { NotionDateTime, transDate } from '../../utils/dateUtils';
+
+import { gCalApi } from './api.decorator';
 
 export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
     const callbackUrls = JSON.parse(process.env.GOOGLE_CALLBACKS || '{}');
@@ -21,11 +22,9 @@ export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
         throw new SyncError({
             code: 'GOOGLE_CALLBACK_URL_NOT_FOUND',
             description: '콜백 URL을 찾을 수 없습니다.',
-            archive: true,
             finishWork: 'STOP',
             from: 'SYNCBOT',
             level: 'ERROR',
-            showUser: true,
             user: user,
             detail: JSON.stringify({
                 callbackUrls,

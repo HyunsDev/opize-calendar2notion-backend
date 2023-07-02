@@ -1,8 +1,6 @@
-import { Module } from '@nestjs/common';
-import { AdminUserPlanController } from './plan.controller';
-import { AdminUserPlanService } from './plan.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,
     EventEntity,
@@ -10,6 +8,9 @@ import {
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { AuthService } from 'src/submodules/user/submodules/auth/auth.service';
+
+import { AdminUserPlanController } from './plan.controller';
+import { AdminUserPlanService } from './plan.service';
 
 @Module({
     controllers: [AdminUserPlanController],

@@ -6,8 +6,9 @@ import {
     Query,
 } from '@nestjs/common';
 import { Auth } from 'src/submodules/user/decorator/auth.decorator';
-import { AdminUserEventService } from './event.service';
+
 import { GetEventReqDto } from './dto/getEvent.req.dto';
+import { AdminUserEventService } from './event.service';
 
 @Controller('admin/:userId/events')
 @Auth('admin')

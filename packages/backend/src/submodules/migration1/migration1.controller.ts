@@ -1,10 +1,12 @@
 import { Controller, Get, Post, Query } from '@nestjs/common';
-import { Migration1Service } from './migration1.service';
-import { Auth } from '../user/decorator/auth.decorator';
-import { MigrationCheckResDto } from './dto/migrationCheck.res.dto';
-import { accountMigrateResDto } from './dto/accountMigration.res.dto';
-import { User } from '../user/decorator/user.decorator';
 import { UserEntity } from '@opize/calendar2notion-model';
+
+import { Auth } from '../user/decorator/auth.decorator';
+import { User } from '../user/decorator/user.decorator';
+
+import { accountMigrateResDto } from './dto/accountMigration.res.dto';
+import { MigrationCheckResDto } from './dto/migrationCheck.res.dto';
+import { Migration1Service } from './migration1.service';
 
 @Controller('migrations/v1')
 @Auth()

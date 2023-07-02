@@ -1,7 +1,5 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { SyncbotService } from './syncbot.service';
-import { SyncbotController } from './syncbot.controller';
-import { SyncbotStreamModule } from './submodules/stream/syncbotStream.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,
@@ -9,8 +7,12 @@ import {
     SyncBotEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { HttpModule } from '@nestjs/axios';
+
 import { AuthService } from '../user/submodules/auth/auth.service';
+
+import { SyncbotStreamModule } from './submodules/stream/syncbotStream.module';
+import { SyncbotController } from './syncbot.controller';
+import { SyncbotService } from './syncbot.service';
 
 @Module({
     controllers: [SyncbotController],

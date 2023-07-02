@@ -1,6 +1,5 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { AdminStatisticsController } from './statisics.controller';
-import { UserService } from 'src/submodules/user/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
     CalendarEntity,
@@ -9,9 +8,10 @@ import {
     PaymentLogEntity,
     UserEntity,
 } from '@opize/calendar2notion-model';
-import { HttpModule } from '@nestjs/axios';
-import { AdminStatisticsService } from './statistics.service';
 import { AuthService } from 'src/submodules/user/submodules/auth/auth.service';
+
+import { AdminStatisticsController } from './statisics.controller';
+import { AdminStatisticsService } from './statistics.service';
 
 @Module({
     controllers: [AdminStatisticsController],

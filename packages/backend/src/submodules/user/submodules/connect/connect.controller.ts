@@ -1,15 +1,9 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { UserEntity } from '@opize/calendar2notion-model';
+
 import { Auth } from '../../decorator/auth.decorator';
 import { User } from '../../decorator/user.decorator';
+
 import { UserConnectService } from './connect.service';
 import { GoogleAccountDTO } from './dto/googleAccount.dto';
 import { NotionAccountDTO } from './dto/notionAccount.dto';
