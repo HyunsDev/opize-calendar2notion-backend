@@ -454,6 +454,7 @@ export class Worker {
     private async endSync() {
         this.result.step = 'endSync';
         await DB.user.update(this.user.id, {
+            lastSyncStatus: '',
             lastCalendarSync: new Date(),
             isWork: false,
         });
