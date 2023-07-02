@@ -218,17 +218,23 @@ export class GoogleCalendarAssistApi {
                 },
             });
         } catch (err: unknown) {
-            if (
-                err instanceof GaxiosError &&
-                err.response.status === 403 &&
-                err.response.data.error.message === 'Forbidden' &&
-                err.response.data.error.errors[0].domain === 'global' &&
-                err.response.data.error.errors[0].reason === 'forbidden'
-            ) {
-                return false;
-            } else {
-                throw err;
+            if (err instanceof GaxiosError) {
+                if (
+                    err.response.status === 403 &&
+                    err.response.data.error.message === 'Forbidden' &&
+                    err.response.data.error.errors[0].domain === 'global' &&
+                    err.response.data.error.errors[0].reason === 'forbidden'
+                ) {
+                    return false;
+                }
+
+                // TODO: #94 노션에서 수정된 일정이 구글 캘린더에 없을 경우의 처리 수정
+                if (err.response.status === 404) {
+                    return false;
+                }
             }
+
+            throw err;
         }
     }
 
