@@ -76,6 +76,8 @@ export class UserService {
             relations: ['calendars', 'notionWorkspace', 'paymentLogs'],
         });
 
+        user.paymentLogs = [...user.paymentLogs].reverse();
+
         if (user.status !== 'FINISHED') {
             return new FindOneUserResDto(user, []);
         }
