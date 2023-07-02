@@ -379,8 +379,9 @@ export class Worker {
         const updatedGCalEvents =
             await this.googleCalendarAssist.getUpdatedEvents();
 
+        // TODO: #92 .length가 undefined 오류가 발생하여 강제 종료 오류 발생
         const updatedGCalEventsLength = updatedGCalEvents.reduce(
-            (pre, cur) => pre + cur.events.length,
+            (pre, cur) => pre + cur.events?.length || 0,
             0,
         );
 
