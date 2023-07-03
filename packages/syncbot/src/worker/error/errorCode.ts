@@ -1,4 +1,4 @@
-const GoogleCalendarSyncErrorCode = {
+const GoogleCalendarAPIErrorCode = {
     INVALID_REQUEST: 'gcal_api_invalid_request',
     INVALID_CREDENTIALS: 'gcal_api_invalid_credentials',
     RATE_LIMIT: 'gcal_api_user_rate_limit_exceeded',
@@ -11,7 +11,7 @@ const GoogleCalendarSyncErrorCode = {
     UNKNOWN_ERROR: 'gcal_api_unknown_error',
 } as const;
 
-const NotionSyncErrorCode = {
+const NotionAPIErrorCode = {
     INVALID_REQUEST: 'notion_api_invalid_request',
     DATABASE_NOT_FOUND: 'notion_api_database_not_found',
     PAGE_NOT_FOUND: 'notion_api_page_not_found',
@@ -23,7 +23,16 @@ const NotionSyncErrorCode = {
     UNKNOWN_ERROR: 'notion_api_unknown_error',
 };
 
+const NotionSyncErrorCode = {
+    VALIDATION_ERROR: 'notion_validation_error',
+};
+
 export const SyncErrorCode = {
-    GoogleCalendar: GoogleCalendarSyncErrorCode,
-    Notion: NotionSyncErrorCode,
+    googleCalendar: {
+        api: GoogleCalendarAPIErrorCode,
+    },
+    notion: {
+        api: NotionAPIErrorCode,
+        sync: NotionSyncErrorCode,
+    },
 } as const;

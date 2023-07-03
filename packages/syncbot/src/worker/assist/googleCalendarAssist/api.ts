@@ -6,6 +6,7 @@ import {
 } from '@opize/calendar2notion-model';
 import { GaxiosError } from 'gaxios';
 import { google, calendar_v3 } from 'googleapis';
+import { WorkerContext } from 'src/worker/context/workerContext';
 
 import { SyncError } from '../../error/error';
 import { SyncConfig } from '../../types/syncConfig';
@@ -41,29 +42,14 @@ export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
 };
 
 export class GoogleCalendarAssistApi {
-    private user: UserEntity;
-    private calendars: CalendarEntity[];
+    private context: WorkerContext;
+
     private client: calendar_v3.Calendar;
-    private startedAt: Date;
-    private config: SyncConfig;
 
-    constructor({
-        user,
-        calendars,
-        startedAt,
-        config,
-    }: {
-        user: UserEntity;
-        calendars: CalendarEntity[];
-        startedAt: Date;
-        config: SyncConfig;
-    }) {
-        this.user = user;
-        this.calendars = calendars;
-        this.startedAt = startedAt;
-        this.config = config;
+    constructor({ context }: { context: WorkerContext }) {
+        this.context = context;
 
-        const tokens = getGoogleCalendarTokensByUser(user);
+        const tokens = getGoogleCalendarTokensByUser(this.context.user);
 
         const oAuth2Client = new google.auth.OAuth2(
             process.env.GOOGLE_CLIENT_ID,
@@ -107,11 +93,11 @@ export class GoogleCalendarAssistApi {
             const res = await this.client.events.list({
                 calendarId: calendarId,
                 maxResults: 2500,
-                timeZone: this.user.userTimeZone,
+                timeZone: this.context.user.userTimeZone,
                 pageToken: nextPageToken,
                 singleEvents: true,
-                timeMin: this.config.timeMin,
-                timeMax: this.config.timeMax,
+                timeMin: this.context.config.timeMin,
+                timeMax: this.context.config.timeMax,
             });
 
             events.push(...res.data.items);
@@ -131,13 +117,15 @@ export class GoogleCalendarAssistApi {
             const res = await this.client.events.list({
                 calendarId: calendar.googleCalendarId,
                 maxResults: 2500,
-                timeZone: this.user.userTimeZone,
+                timeZone: this.context.user.userTimeZone,
                 pageToken: nextPageToken,
                 showDeleted: true,
                 singleEvents: true,
-                updatedMin: new Date(this.user.lastCalendarSync).toISOString(),
-                timeMin: this.config.timeMin,
-                timeMax: this.config.timeMax,
+                updatedMin: new Date(
+                    this.context.user.lastCalendarSync,
+                ).toISOString(),
+                timeMin: this.context.config.timeMin,
+                timeMax: this.context.config.timeMax,
             });
 
             events.push(...res.data.items);
@@ -171,7 +159,7 @@ export class GoogleCalendarAssistApi {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
+        } = JSON.parse(this.context.user.notionProps);
 
         const titleProp = Object.values(page.properties).find(
             (e) => e.type === 'title',
@@ -251,7 +239,7 @@ export class GoogleCalendarAssistApi {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
+        } = JSON.parse(this.context.user.notionProps);
 
         const titleProp = Object.values(page.properties).find(
             (e) => e.type === 'title',

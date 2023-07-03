@@ -1,52 +1,42 @@
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity } from '@opize/calendar2notion-model';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { calendar_v3 } from 'googleapis';
 
 import { DB } from '../../../database';
+import { WorkerContext } from '../../context/workerContext';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
-import { SyncError } from '../../error/error';
+import { SyncErrorCode } from '../../error';
+import { NotionSyncError } from '../../error/notion.error';
 import { Assist } from '../../types/assist';
-import { SyncConfig } from '../../types/syncConfig';
 import { EventLinkAssist } from '../eventLinkAssist';
 
 import { NotionAssistApi } from './api';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export class NotionAssist extends Assist {
-    private user: UserEntity;
-    private calendars: CalendarEntity[];
+    private context: WorkerContext;
+
     private api: NotionAssistApi;
     private eventLinkAssist: EventLinkAssist;
-    private config: SyncConfig;
 
     constructor({
-        user,
-        calendars,
+        context,
         eventLinkAssist,
-        startedAt,
-        config,
     }: {
-        user: UserEntity;
-        calendars: CalendarEntity[];
+        context: WorkerContext;
         eventLinkAssist: EventLinkAssist;
-        startedAt: Date;
-        config: SyncConfig;
     }) {
         super();
-        this.user = user;
-        this.calendars = calendars;
+        this.context = context;
         this.eventLinkAssist = eventLinkAssist;
         this.assistName = 'NotionAssist';
-        this.config = config;
 
         this.api = new NotionAssistApi({
-            user,
-            calendars,
-            startedAt,
-            config: this.config,
+            context: this.context,
         });
     }
 
@@ -66,7 +56,7 @@ export class NotionAssist extends Assist {
         const calendars: {
             id?: string;
             name: string;
-        }[] = this.calendars
+        }[] = this.context.calendars
             .filter((e) => e.notionPropertyId)
             .map((e) => ({
                 id: e.notionPropertyId,
@@ -79,8 +69,12 @@ export class NotionAssist extends Assist {
         await this.api.updateCalendarProps(calendars);
 
         // 새로운 속성 찾기
-        const calendarProp: string = JSON.parse(this.user.notionProps).calendar;
-        const oldPropIds = this.calendars.map((e) => e.notionPropertyId);
+        const calendarProp: string = JSON.parse(
+            this.context.user.notionProps,
+        ).calendar;
+        const oldPropIds = this.context.calendars.map(
+            (e) => e.notionPropertyId,
+        );
         const newProp: {
             id: string;
             name: string;
@@ -113,7 +107,9 @@ export class NotionAssist extends Assist {
 
     @SyncErrorBoundary('getUpdatedPages')
     public async getUpdatedPages() {
-        return await this.api.getUpdatedPages();
+        const updatedPages = await this.api.getUpdatedPages();
+        this.context.result.syncEvents.notion2GCalCount = updatedPages.length;
+        return updatedPages;
     }
 
     @SyncErrorBoundary('CUDPage')
@@ -128,7 +124,7 @@ export class NotionAssist extends Assist {
 
         if (eventLink && eventLink.notionPageId) {
             const gCalEventUpdated = dayjs(event.updated);
-            const userUpdated = dayjs(this.user.lastCalendarSync);
+            const userUpdated = dayjs(this.context.user.lastCalendarSync);
             // const eventLinkUpdated = new Date(
             //     eventLink.lastGoogleCalendarUpdate,
             // );
@@ -174,7 +170,7 @@ export class NotionAssist extends Assist {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
+        } = JSON.parse(this.context.user.notionProps);
 
         const requiredProps = ['title', 'calendar', 'date', 'delete'];
 
@@ -225,17 +221,12 @@ export class NotionAssist extends Assist {
         }
 
         if (errors.length !== 0) {
-            // 유효성 검증 단계에서 문제 발생
-            throw new SyncError({
-                code: 'notion_validation_error',
-                description: '노션 유효성 체크에서 문제가 발견되었습니다.',
-                from: 'NOTION',
-                level: 'ERROR',
-                user: this.user,
-                finishWork: 'STOP',
-                detail:
-                    `function: checkProps\n` +
-                    errors.map((e) => `${e.error} (${e.message})`).join('\n'),
+            throw new NotionSyncError({
+                code: SyncErrorCode.notion.sync.VALIDATION_ERROR,
+                user: this.context.user,
+                detail: errors
+                    .map((e) => `${e.error}: ${e.message}`)
+                    .join('\n'),
             });
         }
 

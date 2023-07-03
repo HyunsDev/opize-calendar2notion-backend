@@ -7,7 +7,7 @@ import { GaxiosError } from 'googleapis-common';
 import { DB } from '../../../database';
 import { sleep } from '../../../utils';
 import { SyncErrorCode } from '../../error';
-import { GoogleCalendarSyncError } from '../../error/googleCalendar.error';
+import { GoogleCalendarAPIError } from '../../error/googleCalendar.error';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -18,16 +18,16 @@ const handleGoogleHandlerErrors = async (
     if (err.response) {
         const { status, data } = err.response;
         if (status === 400) {
-            throw new GoogleCalendarSyncError({
-                code: SyncErrorCode.GoogleCalendar.INVALID_REQUEST,
+            throw new GoogleCalendarAPIError({
+                code: SyncErrorCode.googleCalendar.api.INVALID_REQUEST,
                 user,
                 err,
             });
         }
 
         if (status === 401) {
-            throw new GoogleCalendarSyncError({
-                code: SyncErrorCode.GoogleCalendar.INVALID_CREDENTIALS,
+            throw new GoogleCalendarAPIError({
+                code: SyncErrorCode.googleCalendar.api.INVALID_CREDENTIALS,
                 user,
                 err,
             });
@@ -39,8 +39,8 @@ const handleGoogleHandlerErrors = async (
                     data.message,
                 )
             ) {
-                throw new GoogleCalendarSyncError({
-                    code: SyncErrorCode.GoogleCalendar.RATE_LIMIT,
+                throw new GoogleCalendarAPIError({
+                    code: SyncErrorCode.googleCalendar.api.RATE_LIMIT,
                     user,
                     err,
                 });
@@ -52,24 +52,25 @@ const handleGoogleHandlerErrors = async (
                     'Calendar usage limits exceeded',
                 ].includes(data.message)
             ) {
-                throw new GoogleCalendarSyncError({
-                    code: SyncErrorCode.GoogleCalendar
+                throw new GoogleCalendarAPIError({
+                    code: SyncErrorCode.googleCalendar.api
                         .USER_CALENDAR_USAGE_LIMIT,
                     user,
                     err,
                 });
             }
 
-            throw new GoogleCalendarSyncError({
-                code: SyncErrorCode.GoogleCalendar.USER_CALENDAR_USAGE_LIMIT,
+            throw new GoogleCalendarAPIError({
+                code: SyncErrorCode.googleCalendar.api
+                    .USER_CALENDAR_USAGE_LIMIT,
                 user,
                 err,
             });
         }
 
         if (status === 404) {
-            throw new GoogleCalendarSyncError({
-                code: SyncErrorCode.GoogleCalendar.NOT_FOUND,
+            throw new GoogleCalendarAPIError({
+                code: SyncErrorCode.googleCalendar.api.NOT_FOUND,
                 user,
                 err,
             });
@@ -90,45 +91,45 @@ const handleGoogleHandlerErrors = async (
                     },
                 );
 
-                throw new GoogleCalendarSyncError({
-                    code: SyncErrorCode.GoogleCalendar
+                throw new GoogleCalendarAPIError({
+                    code: SyncErrorCode.googleCalendar.api
                         .GONE_UPDATED_MIN_TOO_LONG_AGO,
                     user,
                     err,
                 });
             }
 
-            throw new GoogleCalendarSyncError({
-                code: SyncErrorCode.GoogleCalendar.GONE,
+            throw new GoogleCalendarAPIError({
+                code: SyncErrorCode.googleCalendar.api.GONE,
                 user,
                 err,
             });
         }
 
         if (status === 429) {
-            throw new GoogleCalendarSyncError({
-                code: SyncErrorCode.GoogleCalendar.RATE_LIMIT,
+            throw new GoogleCalendarAPIError({
+                code: SyncErrorCode.googleCalendar.api.RATE_LIMIT,
                 user,
                 err,
             });
         }
 
         if (status === 500) {
-            throw new GoogleCalendarSyncError({
-                code: SyncErrorCode.GoogleCalendar.INTERNAL_SERVER_ERROR,
+            throw new GoogleCalendarAPIError({
+                code: SyncErrorCode.googleCalendar.api.INTERNAL_SERVER_ERROR,
                 user,
                 err,
             });
         }
 
-        throw new GoogleCalendarSyncError({
-            code: SyncErrorCode.GoogleCalendar.UNKNOWN_ERROR,
+        throw new GoogleCalendarAPIError({
+            code: SyncErrorCode.googleCalendar.api.UNKNOWN_ERROR,
             user,
             err,
         });
     } else {
-        throw new GoogleCalendarSyncError({
-            code: SyncErrorCode.GoogleCalendar.UNKNOWN_ERROR,
+        throw new GoogleCalendarAPIError({
+            code: SyncErrorCode.googleCalendar.api.UNKNOWN_ERROR,
             user,
             err,
         });
@@ -154,7 +155,7 @@ export function gCalApi() {
                 }
             } catch (err: unknown) {
                 if (err instanceof GaxiosError) {
-                    handleGoogleHandlerErrors(err, this.user);
+                    handleGoogleHandlerErrors(err, this.context.user);
                 } else {
                     throw err;
                 }

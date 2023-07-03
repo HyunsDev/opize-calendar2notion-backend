@@ -1,51 +1,32 @@
 import { Client } from '@notionhq/client';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import {
-    CalendarEntity,
-    EventEntity,
-    UserEntity,
-} from '@opize/calendar2notion-model';
+import { CalendarEntity, EventEntity } from '@opize/calendar2notion-model';
 import { calendar_v3 } from 'googleapis';
 
 import { transDate } from '../../../worker/utils/dateUtils';
-import { SyncConfig } from '../../types/syncConfig';
+import { WorkerContext } from '../../context/workerContext';
 
 import { notionApi } from './api.decorator';
 
 export class NotionAssistApi {
-    private user: UserEntity;
-    private calendars: CalendarEntity[];
-    private client: Client;
-    private startedAt: Date;
-    private config: SyncConfig;
+    private context: WorkerContext;
 
-    constructor({
-        user,
-        calendars,
-        startedAt,
-        config,
-    }: {
-        user: UserEntity;
-        calendars: CalendarEntity[];
-        startedAt: Date;
-        config: SyncConfig;
-    }) {
-        this.user = user;
-        this.calendars = calendars;
-        this.startedAt = startedAt;
-        this.config = config;
+    private client: Client;
+
+    constructor({ context }: { context: WorkerContext }) {
+        this.context = context;
 
         this.client = new Client({
             auth:
-                this.user.notionWorkspace?.accessToken ||
-                this.user.notionAccessToken,
+                this.context.user.notionWorkspace?.accessToken ||
+                this.context.user.notionAccessToken,
         });
     }
 
     @notionApi('database')
     async getDatabase() {
         return await this.client.databases.retrieve({
-            database_id: this.user.notionDatabaseId,
+            database_id: this.context.user.notionDatabaseId,
         });
     }
 
@@ -59,8 +40,8 @@ export class NotionAssistApi {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
-        const calendarOptions = this.calendars
+        } = JSON.parse(this.context.user.notionProps);
+        const calendarOptions = this.context.calendars
             .filter((e) => e.accessRole !== 'reader')
             .map((e) => ({
                 property: props.calendar,
@@ -73,7 +54,7 @@ export class NotionAssistApi {
         let nextCursor: string = undefined;
         while (true) {
             const res = await this.client.databases.query({
-                database_id: this.user.notionDatabaseId,
+                database_id: this.context.user.notionDatabaseId,
                 start_cursor: nextCursor,
                 filter: {
                     and: [
@@ -92,8 +73,8 @@ export class NotionAssistApi {
                         {
                             property: props.date,
                             date: {
-                                on_or_after: this.config.timeMin,
-                                on_or_before: this.config.timeMax,
+                                on_or_after: this.context.config.timeMin,
+                                on_or_before: this.context.config.timeMax,
                             },
                         },
                         {
@@ -149,9 +130,11 @@ export class NotionAssistApi {
             id?: string;
         }[],
     ) {
-        const calendarProp: string = JSON.parse(this.user.notionProps).calendar;
+        const calendarProp: string = JSON.parse(
+            this.context.user.notionProps,
+        ).calendar;
         return await this.client.databases.update({
-            database_id: this.user.notionDatabaseId,
+            database_id: this.context.user.notionDatabaseId,
             properties: {
                 [calendarProp]: {
                     select: {
@@ -175,12 +158,12 @@ export class NotionAssistApi {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
+        } = JSON.parse(this.context.user.notionProps);
 
         return await this.client.pages.create({
             parent: {
                 type: 'database_id',
-                database_id: this.user.notionDatabaseId,
+                database_id: this.context.user.notionDatabaseId,
             },
             properties: {
                 title: {
@@ -245,9 +228,9 @@ export class NotionAssistApi {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
+        } = JSON.parse(this.context.user.notionProps);
 
-        const calendarOptions = this.calendars
+        const calendarOptions = this.context.calendars
             .filter((e) => e.status === 'CONNECTED')
             .filter((e) => e.accessRole !== 'reader')
             .map((e) => ({
@@ -262,7 +245,7 @@ export class NotionAssistApi {
 
         while (true) {
             const res = await this.client.databases.query({
-                database_id: this.user.notionDatabaseId,
+                database_id: this.context.user.notionDatabaseId,
                 start_cursor: nextCursor,
                 filter: {
                     and: [
@@ -281,8 +264,8 @@ export class NotionAssistApi {
                         {
                             property: props.date,
                             date: {
-                                on_or_after: this.config.timeMin,
-                                on_or_before: this.config.timeMax,
+                                on_or_after: this.context.config.timeMin,
+                                on_or_before: this.context.config.timeMax,
                             },
                         },
                         {
@@ -292,7 +275,7 @@ export class NotionAssistApi {
                             timestamp: 'last_edited_time',
                             last_edited_time: {
                                 on_or_after: new Date(
-                                    this.user.lastCalendarSync,
+                                    this.context.user.lastCalendarSync,
                                 ).toISOString(),
                             },
                         },
@@ -322,7 +305,7 @@ export class NotionAssistApi {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
+        } = JSON.parse(this.context.user.notionProps);
 
         try {
             return await this.client.pages.update({

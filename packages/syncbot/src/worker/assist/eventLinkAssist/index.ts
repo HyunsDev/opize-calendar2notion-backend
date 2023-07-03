@@ -5,21 +5,22 @@ import {
     UserEntity,
 } from '@opize/calendar2notion-model';
 import { calendar_v3 } from 'googleapis';
+import { WorkerContext } from 'src/worker/context/workerContext';
 
 import { DB } from '../../../database';
 
 export class EventLinkAssist {
-    user: UserEntity;
+    context: WorkerContext;
 
-    constructor({ user }: { user: UserEntity }) {
-        this.user = user;
+    constructor({ context }: { context: WorkerContext }) {
+        this.context = context;
     }
 
     public async findByNotionPageId(pageId: string) {
         return await DB.event.findOne({
             where: {
                 notionPageId: pageId,
-                userId: this.user.id,
+                userId: this.context.user.id,
             },
             relations: ['calendar'],
         });
@@ -30,7 +31,7 @@ export class EventLinkAssist {
             where: {
                 googleCalendarCalendarId: gCalCalendarId,
                 googleCalendarEventId: gCalEventId,
-                userId: this.user.id,
+                userId: this.context.user.id,
             },
             relations: ['calendar'],
         });
@@ -39,7 +40,7 @@ export class EventLinkAssist {
     public async findDeletedEventLinks() {
         return await DB.event.find({
             where: {
-                userId: this.user.id,
+                userId: this.context.user.id,
                 willRemove: true,
             },
             relations: ['calendar'],
@@ -49,7 +50,7 @@ export class EventLinkAssist {
     public async deleteEventLink(eventLink: EventEntity) {
         return await DB.event.delete({
             id: eventLink.id,
-            userId: this.user.id,
+            userId: this.context.user.id,
         });
     }
 
@@ -86,7 +87,7 @@ export class EventLinkAssist {
             willRemove: false,
             notionPageId: page.id,
             calendar,
-            user: this.user,
+            user: this.context.user,
         });
         await DB.event.save(eventLink);
     }

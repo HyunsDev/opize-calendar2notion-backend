@@ -7,64 +7,64 @@ import { SyncError } from './error';
 import { SyncErrorCode } from './errorCode';
 
 interface ErrorProps {
-    code: valueof<typeof SyncErrorCode.GoogleCalendar>;
+    code: valueof<typeof SyncErrorCode.googleCalendar.api>;
     user: UserEntity;
     err?: GaxiosError;
 }
 
 const ErrorMap: {
-    [key in valueof<typeof SyncErrorCode.GoogleCalendar>]: {
+    [key in valueof<typeof SyncErrorCode.googleCalendar.api>]: {
         message: string;
         finishWork?: 'RETRY' | 'STOP';
     };
 } = {
-    [SyncErrorCode.GoogleCalendar.INVALID_REQUEST]: {
+    [SyncErrorCode.googleCalendar.api.INVALID_REQUEST]: {
         message: '구글 캘린더 API 호출 오류',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.INVALID_CREDENTIALS]: {
+    [SyncErrorCode.googleCalendar.api.INVALID_CREDENTIALS]: {
         message: '구글 캘린더 API 인증 오류',
         finishWork: 'STOP',
     },
-    [SyncErrorCode.GoogleCalendar.RATE_LIMIT]: {
+    [SyncErrorCode.googleCalendar.api.RATE_LIMIT]: {
         message: '구글 캘린더 API 유저 호출 제한',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.USER_CALENDAR_USAGE_LIMIT]: {
+    [SyncErrorCode.googleCalendar.api.USER_CALENDAR_USAGE_LIMIT]: {
         message: '구글 캘린더 API 유저 캘린더 사용량 초과',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.FORBIDDEN]: {
+    [SyncErrorCode.googleCalendar.api.FORBIDDEN]: {
         message: '구글 캘린더 API FORBIDDEN',
         finishWork: 'STOP',
     },
-    [SyncErrorCode.GoogleCalendar.NOT_FOUND]: {
+    [SyncErrorCode.googleCalendar.api.NOT_FOUND]: {
         message: '구글 캘린더 API NOT_FOUND',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.GONE_UPDATED_MIN_TOO_LONG_AGO]: {
+    [SyncErrorCode.googleCalendar.api.GONE_UPDATED_MIN_TOO_LONG_AGO]: {
         message: '구글 캘린더 API 너무 오랜시간 동기화 되지 않음',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.GONE]: {
+    [SyncErrorCode.googleCalendar.api.GONE]: {
         message: '구글 캘린더 API GONE',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.INTERNAL_SERVER_ERROR]: {
+    [SyncErrorCode.googleCalendar.api.INTERNAL_SERVER_ERROR]: {
         message: '구글 캘린더 API 서버 오류',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.UNKNOWN_ERROR]: {
+    [SyncErrorCode.googleCalendar.api.UNKNOWN_ERROR]: {
         message: '구글 캘린더 API 알 수 없는 오류',
         finishWork: 'RETRY',
     },
-    [SyncErrorCode.GoogleCalendar.RATE_LIMIT]: {
+    [SyncErrorCode.googleCalendar.api.RATE_LIMIT]: {
         message: '구글 캘린더 API RATE_LIMIT (사용되지 않는 에러)',
         finishWork: 'RETRY',
     },
 };
 
-export class GoogleCalendarSyncError extends SyncError {
+export class GoogleCalendarAPIError extends SyncError {
     constructor(props: ErrorProps) {
         super({
             code: props.code,

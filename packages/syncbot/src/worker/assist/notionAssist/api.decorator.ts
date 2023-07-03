@@ -3,7 +3,7 @@ import { UserEntity } from '@opize/calendar2notion-model';
 
 import { sleep } from '../../../utils';
 import { SyncErrorCode } from '../../error';
-import { NotionSyncError } from '../../error/notion.error';
+import { NotionAPIError } from '../../error/notion.error';
 
 const handleNotionHandlerErrors = async (
     err: APIResponseError,
@@ -13,58 +13,58 @@ const handleNotionHandlerErrors = async (
     const { status } = err;
 
     if (status === 400) {
-        throw new NotionSyncError({
-            code: SyncErrorCode.Notion.INVALID_REQUEST,
+        throw new NotionAPIError({
+            code: SyncErrorCode.notion.api.INVALID_REQUEST,
             user,
             err,
         });
     }
 
     if (status === 401) {
-        throw new NotionSyncError({
-            code: SyncErrorCode.Notion.UNAUTHORIZED,
+        throw new NotionAPIError({
+            code: SyncErrorCode.notion.api.UNAUTHORIZED,
             user,
             err,
         });
     }
 
     if (status === 404) {
-        throw new NotionSyncError({
+        throw new NotionAPIError({
             code:
                 target === 'database'
-                    ? SyncErrorCode.Notion.DATABASE_NOT_FOUND
-                    : SyncErrorCode.Notion.PAGE_NOT_FOUND,
+                    ? SyncErrorCode.notion.api.DATABASE_NOT_FOUND
+                    : SyncErrorCode.notion.api.PAGE_NOT_FOUND,
             user,
             err,
         });
     }
 
     if (status === 429) {
-        throw new NotionSyncError({
-            code: SyncErrorCode.Notion.RATE_LIMIT,
+        throw new NotionAPIError({
+            code: SyncErrorCode.notion.api.RATE_LIMIT,
             user,
             err,
         });
     }
 
     if (status === 500) {
-        throw new NotionSyncError({
-            code: SyncErrorCode.Notion.INTERNAL_SERVER_ERROR,
+        throw new NotionAPIError({
+            code: SyncErrorCode.notion.api.INTERNAL_SERVER_ERROR,
             user,
             err,
         });
     }
 
     if (status === 503) {
-        throw new NotionSyncError({
-            code: SyncErrorCode.Notion.SERVICE_UNAVAILABLE,
+        throw new NotionAPIError({
+            code: SyncErrorCode.notion.api.SERVICE_UNAVAILABLE,
             user,
             err,
         });
     }
 
-    throw new NotionSyncError({
-        code: SyncErrorCode.Notion.UNKNOWN_ERROR,
+    throw new NotionAPIError({
+        code: SyncErrorCode.notion.api.UNKNOWN_ERROR,
         user,
         err,
     });
@@ -92,7 +92,7 @@ export function notionApi(targetObject: 'database' | 'page') {
                 if (err instanceof APIResponseError) {
                     await handleNotionHandlerErrors(
                         err,
-                        this.user,
+                        this.context.user,
                         targetObject,
                     );
                 } else {
