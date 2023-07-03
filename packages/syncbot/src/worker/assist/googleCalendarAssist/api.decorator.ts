@@ -155,7 +155,7 @@ export function gCalApi() {
                 }
             } catch (err: unknown) {
                 if (err instanceof GaxiosError) {
-                    handleGoogleHandlerErrors(err, this.context.user);
+                    await handleGoogleHandlerErrors(err, this.context.user);
                 } else {
                     throw err;
                 }

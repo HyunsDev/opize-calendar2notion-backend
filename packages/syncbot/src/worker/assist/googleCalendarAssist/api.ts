@@ -213,12 +213,12 @@ export class GoogleCalendarAssistApi {
                     err.response.data.error.errors[0].domain === 'global' &&
                     err.response.data.error.errors[0].reason === 'forbidden'
                 ) {
-                    return false;
+                    return;
                 }
 
                 // TODO: #94 노션에서 수정된 일정이 구글 캘린더에 없을 경우의 처리 수정
                 if (err.response.status === 404) {
-                    return false;
+                    return;
                 }
             }
 
