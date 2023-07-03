@@ -101,6 +101,7 @@ export class WorkerAssist extends Assist {
     public async endSyncUserUpdate() {
         await DB.user.update(this.context.user.id, {
             workStartedAt: '',
+            lastSyncStatus: '',
             isWork: false,
             syncbotId: null,
             lastCalendarSync: new Date(),
