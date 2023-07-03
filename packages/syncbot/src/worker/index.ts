@@ -50,22 +50,23 @@ export class Worker {
             await this.runSteps();
         } catch (err) {
             try {
-                console.error(err);
-
                 this.context.result.fail = true;
 
                 if (isSyncError(err)) {
                     workerLogger.error(
-                        `[${this.context.workerId}, ${this.context.user.id}] 문제가 발견되어 동기화에 실패하였습니다. (${err.code})`,
+                        `[${this.context.workerId}:${this.context.user.id}] 문제가 발견되어 동기화에 실패하였습니다. (${err.code})`,
                     );
                     await syncErrorFilter(this.context, err);
+                } else {
+                    workerLogger.error(
+                        `[${this.context.workerId}:${this.context.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
+                    );
+                    await unknownErrorFilter(this.context, err);
                 }
-
-                workerLogger.error(
-                    `[${this.context.workerId}, ${this.context.user.id}] 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
-                );
-                await unknownErrorFilter(this.context, err);
             } catch (err) {
+                workerLogger.error(
+                    `[${this.context.workerId}:${this.context.user.id}] **에러 필터 실패** 동기화 과정 중 알 수 없는 오류가 발생하여 동기화에 실패하였습니다. \n[알 수 없는 오류 디버그 보고서]\nname: ${err.name}\nmessage: ${err.message}\nstack: ${err.stack}`,
+                );
                 console.error('처리할 수 없는 에러');
                 console.log(err);
             }
@@ -75,7 +76,8 @@ export class Worker {
             isWork: false,
         });
 
-        return this.context.getResult();
+        const result = this.context.getResult();
+        return result;
     }
 
     private async runSteps() {

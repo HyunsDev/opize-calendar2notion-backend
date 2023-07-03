@@ -1,4 +1,4 @@
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity } from '@opize/calendar2notion-model';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -7,12 +7,13 @@ import { calendar_v3 } from 'googleapis';
 import { DB } from '../../../database';
 import { WorkerContext } from '../../context/workerContext';
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
-import { SyncError } from '../../error/error';
+import { SyncErrorCode } from '../../error';
+import { NotionSyncError } from '../../error/notion.error';
 import { Assist } from '../../types/assist';
-import { SyncConfig } from '../../types/syncConfig';
 import { EventLinkAssist } from '../eventLinkAssist';
 
 import { NotionAssistApi } from './api';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -220,17 +221,12 @@ export class NotionAssist extends Assist {
         }
 
         if (errors.length !== 0) {
-            // 유효성 검증 단계에서 문제 발생
-            throw new SyncError({
-                code: 'notion_validation_error',
-                description: '노션 유효성 체크에서 문제가 발견되었습니다.',
-                from: 'NOTION',
-                level: 'ERROR',
+            throw new NotionSyncError({
+                code: SyncErrorCode.notion.sync.VALIDATION_ERROR,
                 user: this.context.user,
-                finishWork: 'STOP',
-                detail:
-                    `function: checkProps\n` +
-                    errors.map((e) => `${e.error} (${e.message})`).join('\n'),
+                detail: errors
+                    .map((e) => `${e.error}: ${e.message}`)
+                    .join('\n'),
             });
         }
 
