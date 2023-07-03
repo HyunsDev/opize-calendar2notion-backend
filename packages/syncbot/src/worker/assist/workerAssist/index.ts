@@ -1,50 +1,67 @@
-import {
-    CalendarEntity,
-    EventEntity,
-    UserEntity,
-} from '@opize/calendar2notion-model';
+import { CalendarEntity, EventEntity } from '@opize/calendar2notion-model';
+import dayjs from 'dayjs';
 import { calendar_v3 } from 'googleapis';
+import { LessThan } from 'typeorm';
 
+import { DB } from '../../../database';
+import { WorkerContext } from '../../context/workerContext';
 import { Assist } from '../../types/assist';
 import { EventLinkAssist } from '../eventLinkAssist';
 import { GoogleCalendarAssist } from '../googleCalendarAssist';
 import { NotionAssist } from '../notionAssist';
 
 export class WorkerAssist extends Assist {
-    private user: UserEntity;
+    private context: WorkerContext;
 
     private eventLinkAssist: EventLinkAssist;
     private googleCalendarAssist: GoogleCalendarAssist;
     private notionAssist: NotionAssist;
-    private calendars: CalendarEntity[];
-    private startedAt: Date;
 
     constructor({
-        user,
-        calendars,
+        context,
         eventLinkAssist,
         googleCalendarAssist,
         notionAssist,
-        startedAt,
     }: {
-        user: UserEntity;
-        calendars: CalendarEntity[];
+        context: WorkerContext;
         eventLinkAssist: EventLinkAssist;
         googleCalendarAssist: GoogleCalendarAssist;
         notionAssist: NotionAssist;
-        startedAt: Date;
     }) {
         super();
-        this.user = user;
-        this.calendars = calendars;
+        this.context = context;
         this.eventLinkAssist = eventLinkAssist;
         this.googleCalendarAssist = googleCalendarAssist;
         this.notionAssist = notionAssist;
-        this.startedAt = startedAt;
         this.assistName = 'WorkerAssist';
     }
 
-    public async eraseNotionPage(pageId: string) {
+    public async validation() {
+        await this.notionAssist.validation();
+        await this.googleCalendarAssist.validation();
+    }
+
+    public async eraseDeletedNotionPage() {
+        const notionDeletedPageIds =
+            await this.notionAssist.getDeletedPageIds();
+        for (const pageId of notionDeletedPageIds) {
+            await this.eraseNotionPage(pageId);
+        }
+        this.context.result.eraseDeletedEvent.notion =
+            notionDeletedPageIds.length;
+    }
+
+    public async eraseDeletedEventLink() {
+        const deletedEventLinks =
+            await this.eventLinkAssist.findDeletedEventLinks();
+        for (const eventLink of deletedEventLinks) {
+            await this.eraseEvent(eventLink);
+        }
+        this.context.result.eraseDeletedEvent.eventLink =
+            deletedEventLinks.length;
+    }
+
+    private async eraseNotionPage(pageId: string) {
         const eventLink = await this.eventLinkAssist.findByNotionPageId(pageId);
         if (eventLink) {
             await this.eraseEvent(eventLink);
@@ -53,7 +70,7 @@ export class WorkerAssist extends Assist {
         }
     }
 
-    public async eraseEvent(eventLink: EventEntity) {
+    private async eraseEvent(eventLink: EventEntity) {
         await this.notionAssist.deletePage(eventLink.notionPageId);
         if (eventLink.calendar.accessRole !== 'reader') {
             await this.googleCalendarAssist.deleteEvent(
@@ -71,5 +88,54 @@ export class WorkerAssist extends Assist {
         const page = await this.notionAssist.addPage(event, calendar);
         await this.eventLinkAssist.create(page, event, calendar);
         return page;
+    }
+
+    public async startSyncUserUpdate() {
+        await DB.user.update(this.context.user.id, {
+            workStartedAt: this.context.user.lastCalendarSync,
+            isWork: true,
+            syncbotId: process.env.SYNCBOT_PREFIX,
+        });
+    }
+
+    public async endSyncUserUpdate() {
+        await DB.user.update(this.context.user.id, {
+            workStartedAt: '',
+            isWork: false,
+            syncbotId: null,
+            lastCalendarSync: new Date(),
+        });
+    }
+
+    public async deleteOldErrorLogs() {
+        await DB.errorLog.delete({
+            userId: this.context.user.id,
+            createdAt: LessThan(dayjs().add(-21, 'days').toDate()),
+            archive: false,
+        });
+    }
+
+    public async syncNewCalendar(newCalendar: CalendarEntity) {
+        this.context.result.syncNewCalendar[`${newCalendar.id}`] = {
+            id: newCalendar.id,
+            gCalId: newCalendar.googleCalendarId,
+            gCalName: newCalendar.googleCalendarName,
+            eventCount: 0,
+        };
+
+        await DB.calendar.update(newCalendar.id, {
+            status: 'CONNECTED',
+        });
+
+        await this.notionAssist.addCalendarProp(newCalendar);
+        const events = await this.googleCalendarAssist.getEventByCalendar(
+            newCalendar.googleCalendarId,
+        );
+        for (const event of events) {
+            await this.addEventByGCal(event, newCalendar);
+        }
+
+        this.context.result.syncNewCalendar[`${newCalendar.id}`].eventCount =
+            events.length;
     }
 }

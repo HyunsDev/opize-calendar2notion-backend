@@ -64,18 +64,16 @@ export class Runner {
         }
         await Promise.allSettled(promises);
         if (managerStorage.data.work) {
-            runnerLogger.info(
-                `[Runner] 모든 루프가 정상적으로 종료되었습니다.`,
-            );
+            runnerLogger.info(`[Runner] 모든 루프가 정상적으로 종료되었습니다`);
         } else {
             runnerLogger.error(
-                `[Runner] 모든 루프가 종료 신호 없이 종료되었습니다.`,
+                `[Runner] 모든 루프가 종료 신호 없이 종료되었습니다`,
             );
         }
 
         await AppDataSource.destroy();
         runnerLogger.info(
-            `[Runner] DB 커넥션을 해제했습니다. 서버를 종료합니다.`,
+            `[Runner] DB 커넥션을 해제했습니다. 서버를 종료합니다`,
         );
 
         const embed = new Embed({
@@ -100,10 +98,10 @@ export class Runner {
             completedSyncCount: 0,
             startedAt: null,
         };
-        runnerLogger.info(`[${loopId}] 루프를 시작합니다.`);
+        runnerLogger.info(`[${loopId}] 루프 시작`);
         while (true) {
             if (managerStorage.getItem('stop')) {
-                runnerLogger.info(`[${loopId}] 루프를 종료합니다.`);
+                runnerLogger.info(`[${loopId}] 루프 종료`);
                 break;
             }
             const user = await this.getTargetUser(plan);
@@ -130,10 +128,10 @@ export class Runner {
             completedSyncCount: 0,
             startedAt: null,
         };
-        runnerLogger.info(`[${loopId}] 루프를 시작합니다.`);
+        runnerLogger.info(`[${loopId}] 루프 시작`);
         while (true) {
             if (managerStorage.getItem('stop')) {
-                runnerLogger.info(`[${loopId}] 루프를 종료합니다.`);
+                runnerLogger.info(`[${loopId}] 루프 종료`);
                 break;
             }
             const user = await this.getTargetInitUser();

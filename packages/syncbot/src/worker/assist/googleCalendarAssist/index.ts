@@ -1,13 +1,13 @@
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity } from '@opize/calendar2notion-model';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { calendar_v3 } from 'googleapis';
+import { WorkerContext } from 'src/worker/context/workerContext';
 
 import { SyncErrorBoundary } from '../../decorator/errorBoundary.decorator';
 import { Assist } from '../../types/assist';
-import { SyncConfig } from '../../types/syncConfig';
 import { EventLinkAssist } from '../eventLinkAssist';
 
 import { GoogleCalendarAssistApi } from './api';
@@ -15,36 +15,24 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export class GoogleCalendarAssist extends Assist {
-    private user: UserEntity;
-    private calendars: CalendarEntity[];
+    private context: WorkerContext;
+
     private eventLinkAssist: EventLinkAssist;
     private api: GoogleCalendarAssistApi;
-    private config: SyncConfig;
 
     constructor({
-        user,
-        calendars,
+        context,
         eventLinkAssist,
-        startedAt,
-        config,
     }: {
-        user: UserEntity;
-        calendars: CalendarEntity[];
+        context: WorkerContext;
         eventLinkAssist: EventLinkAssist;
-        startedAt: Date;
-        config: SyncConfig;
     }) {
         super();
-        this.user = user;
-        this.calendars = calendars;
+        this.context = context;
         this.eventLinkAssist = eventLinkAssist;
         this.assistName = 'GoogleAssist';
-        this.config = config;
         this.api = new GoogleCalendarAssistApi({
-            calendars,
-            startedAt,
-            user,
-            config: this.config,
+            context,
         });
     }
 
@@ -65,7 +53,7 @@ export class GoogleCalendarAssist extends Assist {
 
     @SyncErrorBoundary('getUpdatedEvents')
     public async getUpdatedEvents() {
-        const calendars = this.calendars.filter(
+        const connectedCalendars = this.context.calendars.filter(
             (e) => e.status === 'CONNECTED',
         );
 
@@ -73,12 +61,19 @@ export class GoogleCalendarAssist extends Assist {
             calendar: CalendarEntity;
             events: calendar_v3.Schema$Event[];
         }[] = [];
-        for (const calendar of calendars) {
+
+        for (const calendar of connectedCalendars) {
             res.push({
                 calendar,
                 events: await this.api.getUpdatedEventsByCalendar(calendar),
             });
         }
+
+        this.context.result.syncEvents.gCalCalendarCount = res.length;
+        this.context.result.syncEvents.gCal2NotionCount = res.reduce(
+            (pre, cur) => pre + cur.events?.length || 0,
+            0,
+        );
         return res;
     }
 
@@ -92,7 +87,7 @@ export class GoogleCalendarAssist extends Assist {
             link?: string;
             description?: string;
             location?: string;
-        } = JSON.parse(this.user.notionProps);
+        } = JSON.parse(this.context.user.notionProps);
         const eventLink = await this.eventLinkAssist.findByNotionPageId(
             page.id,
         );
@@ -102,7 +97,7 @@ export class GoogleCalendarAssist extends Assist {
                 (e) => e.id === props.calendar,
             ) as any
         ).select.id;
-        const calendar = this.calendars.find(
+        const calendar = this.context.calendars.find(
             (e) => e.notionPropertyId === notionCalendarId,
         );
 
@@ -113,7 +108,7 @@ export class GoogleCalendarAssist extends Assist {
 
         if (eventLink && eventLink.googleCalendarEventId) {
             const notionEventUpdated = new Date(page.last_edited_time);
-            const userUpdated = dayjs(this.user.lastCalendarSync)
+            const userUpdated = dayjs(this.context.user.lastCalendarSync)
                 .tz('Asia/Seoul')
                 .add(-1, 'minute')
                 .toDate();
