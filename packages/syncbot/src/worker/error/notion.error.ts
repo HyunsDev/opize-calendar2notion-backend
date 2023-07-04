@@ -20,7 +20,7 @@ const APIErrorMap: {
 } = {
     [SyncErrorCode.notion.api.INVALID_REQUEST]: {
         message: '노션 API 잘못된 요청',
-        finishWork: 'RETRY',
+        finishWork: 'STOP',
     },
     [SyncErrorCode.notion.api.DATABASE_NOT_FOUND]: {
         message: '노션 API 데이터베이스를 찾을 수 없음',
@@ -36,7 +36,7 @@ const APIErrorMap: {
     },
     [SyncErrorCode.notion.api.UNAUTHORIZED]: {
         message: '노션 API 인증 오류',
-        finishWork: 'RETRY',
+        finishWork: 'STOP',
     },
     [SyncErrorCode.notion.api.CONFLICT_ERROR]: {
         message: '노션 API 트랜젝션 충돌',
