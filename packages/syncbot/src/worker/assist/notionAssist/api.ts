@@ -292,6 +292,71 @@ export class NotionAssistApi {
     }
 
     @notionApi('page')
+    public async getPages() {
+        const props: {
+            title: string;
+            calendar: string;
+            date: string;
+            delete: string;
+            link?: string;
+            description?: string;
+            location?: string;
+        } = JSON.parse(this.context.user.notionProps);
+
+        const calendarOptions = this.context.calendars
+            .filter((e) => e.status === 'CONNECTED')
+            .filter((e) => e.accessRole !== 'reader')
+            .map((e) => ({
+                property: props.calendar,
+                select: {
+                    equals: `${e.googleCalendarName}`,
+                },
+            }));
+
+        const pages: PageObjectResponse[] = [];
+        let nextCursor: string = undefined;
+
+        while (true) {
+            const res = await this.client.databases.query({
+                database_id: this.context.user.notionDatabaseId,
+                start_cursor: nextCursor,
+                filter: {
+                    and: [
+                        {
+                            property: props.delete,
+                            checkbox: {
+                                equals: false,
+                            },
+                        },
+                        {
+                            property: props.calendar,
+                            select: {
+                                is_not_empty: true,
+                            },
+                        },
+                        {
+                            property: props.date,
+                            date: {
+                                on_or_after: this.context.config.timeMin,
+                                on_or_before: this.context.config.timeMax,
+                            },
+                        },
+                        {
+                            or: calendarOptions,
+                        },
+                    ],
+                },
+            });
+
+            pages.push(...(res.results as PageObjectResponse[]));
+            nextCursor = res.next_cursor;
+            if (!nextCursor) break;
+        }
+
+        return pages;
+    }
+
+    @notionApi('page')
     public async updatePage(
         eventLink: EventEntity,
         event: calendar_v3.Schema$Event,

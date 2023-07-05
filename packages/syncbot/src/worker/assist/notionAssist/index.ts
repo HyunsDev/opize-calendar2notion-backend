@@ -68,6 +68,8 @@ export class NotionAssist extends Assist {
         });
         await this.api.updateCalendarProps(calendars);
 
+        const database = await this.api.getDatabase();
+
         // 새로운 속성 찾기
         const calendarProp: string = JSON.parse(
             this.context.user.notionProps,
@@ -81,7 +83,7 @@ export class NotionAssist extends Assist {
             color: string;
         } = Object.values(
             (
-                Object.values((await this.api.getDatabase()).properties).find(
+                Object.values(database.properties).find(
                     (e) => e.id === calendarProp,
                 ) as any
             ).select.options,
@@ -110,6 +112,12 @@ export class NotionAssist extends Assist {
         const updatedPages = await this.api.getUpdatedPages();
         this.context.result.syncEvents.notion2GCalCount = updatedPages.length;
         return updatedPages;
+    }
+
+    @SyncErrorBoundary('getAllPages')
+    public async getPages() {
+        const pages = await this.api.getPages();
+        return pages;
     }
 
     @SyncErrorBoundary('CUDPage')

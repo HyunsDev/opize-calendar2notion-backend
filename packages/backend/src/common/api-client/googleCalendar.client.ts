@@ -34,6 +34,12 @@ export class GoogleCalendarClient {
         return await this.client.calendarList.list();
     }
 
+    async getWriteableCalendars() {
+        return await this.client.calendarList.list({
+            minAccessRole: 'writer',
+        });
+    }
+
     async getCalendar(calendarId: string) {
         return await this.client.calendarList.get({
             calendarId,

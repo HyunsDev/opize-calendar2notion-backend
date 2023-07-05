@@ -11,7 +11,6 @@ type PropName =
     | 'calendar'
     | 'date'
     | 'delete'
-    | 'calendar'
     | 'location'
     | 'description';
 type Prop = {
