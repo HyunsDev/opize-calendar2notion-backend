@@ -4,7 +4,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from '@notionhq/client';
-import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 import {
     CalendarEntity,
     NotionWorkspaceEntity,
@@ -14,8 +13,12 @@ import { AxiosError } from 'axios';
 import * as dayjs from 'dayjs';
 import { google } from 'googleapis';
 import { firstValueFrom } from 'rxjs';
+import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
+import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
+import { NotionClient } from 'src/common/api-client/notion.client';
 import { Repository } from 'typeorm';
 
+import { UserConnectNotionService } from './connect-notion.service';
 import { GoogleAccountDTO } from './dto/googleAccount.dto';
 import { NotionAccountDTO } from './dto/notionAccount.dto';
 
@@ -30,6 +33,8 @@ export class UserConnectService {
         private calendarsRepository: Repository<CalendarEntity>,
         @InjectRepository(NotionWorkspaceEntity)
         private notionWorkspaceRepository: Repository<NotionWorkspaceEntity>,
+
+        private readonly connectNotionService: UserConnectNotionService,
 
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
@@ -221,7 +226,7 @@ export class UserConnectService {
 
     async setNotionDatabase(user: UserEntity) {
         const notionAccessToken =
-            user.notionWorkspace.accessToken || user.notionAccessToken;
+            this.connectNotionService.getNotionAccessToken(user);
 
         if (!notionAccessToken) {
             throw new BadRequestException({
@@ -229,94 +234,40 @@ export class UserConnectService {
             });
         }
 
-        const notion = new Client({
-            auth: notionAccessToken,
-        });
+        const notionClient = new NotionClient(notionAccessToken);
 
-        let databaseResponse: GetDatabaseResponse;
+        const databaseResponse = await notionClient.getDatabase(
+            user.notionDatabaseId,
+        );
 
-        try {
-            databaseResponse = await notion.databases.retrieve({
-                database_id: user.notionDatabaseId,
-            });
-        } catch (err) {
-            if (err.code === 'object_not_found') {
-                throw new BadRequestException({
-                    code: 'database_not_found',
-                });
-            } else {
-                throw err;
-            }
-        }
-
-        const props = {
-            title: 'title',
-            calendar: 'select',
-            date: 'date',
-            delete: 'checkbox',
-            location: 'rich_text',
-            description: 'rich_text',
-        };
-
-        const propsId = {
-            title: '',
-            calendar: '',
-            date: '',
-            delete: '',
-            location: '',
-            description: '',
-        };
-
-        let propsList = Object.keys(props);
-        for (const prop in props) {
-            if (
-                databaseResponse.properties[prop] &&
-                databaseResponse.properties[prop].type == props[prop]
-            ) {
-                propsList = propsList.filter((e) => e !== prop);
-                propsId[prop] = databaseResponse.properties[prop].id;
-            }
-        }
-
-        if (propsList.length !== 0) {
-            const errorProps = {};
-            for (const prop of propsList) {
-                errorProps[prop] = props[prop];
-            }
-
+        if (!databaseResponse) {
             throw new BadRequestException({
-                code: 'wrong_props',
-                errorProps,
+                code: 'database_not_found',
             });
         }
+
+        const propsId =
+            this.connectNotionService.getNotionDatabasePropIds(
+                databaseResponse,
+            );
 
         // 구글 캘린더 등록
-        const oAuth2Client = new google.auth.OAuth2(
-            this.configService.get('GOOGLE_CLIENT_ID'),
-            this.configService.get('GOOGLE_CLIENT_PASSWORD'),
-            this.configService.get('GOOGLE_CALLBACK'),
+        const googleTokens = getGoogleCalendarTokensByUser(user);
+        const googleClient = new GoogleCalendarClient(
+            googleTokens.accessToken,
+            googleTokens.refreshToken,
+            googleTokens.callbackUrl,
         );
-        oAuth2Client.setCredentials({
-            access_token: user.googleAccessToken,
-            refresh_token: user.googleRefreshToken,
-        });
-        const googleClient = google.calendar({
-            version: 'v3',
-            auth: oAuth2Client,
-        });
-        const allCalendarList_res = await googleClient.calendarList.list({
-            minAccessRole: 'writer',
-        });
+
+        const allCalendarList_res = await googleClient.getWriteableCalendars();
         const allCalendarList = allCalendarList_res.data.items
             .filter((e) => e.primary)
-            .map((e) => {
-                return {
-                    id: e.id,
-                    summary: e.summary,
-                    primary: e.primary,
-                    accessRole: e.accessRole,
-                };
-            });
+            .map((e) => ({
+                id: e.id,
+                summary: e.summary,
+                primary: e.primary,
+                accessRole: e.accessRole,
+            }));
 
         for (const newCalendar of allCalendarList) {
             let calendar = await this.calendarsRepository.findOne({
@@ -371,6 +322,80 @@ export class UserConnectService {
 
         await this.webhook.send('', [embed]);
 
+        return;
+    }
+
+    async connectExistNotionDatabase(
+        user: UserEntity,
+        notionDatabaseId: string,
+    ) {
+        // 노션 데이터베이스 정보 가져오기
+        const notionAccessToken =
+            this.connectNotionService.getNotionAccessToken(user);
+        const notionClient = new NotionClient(notionAccessToken);
+        const databaseResponse = await notionClient.getDatabase(
+            notionDatabaseId,
+        );
+        if (!databaseResponse) {
+            throw new BadRequestException({
+                code: 'database_not_found',
+            });
+        }
+
+        const propsId =
+            this.connectNotionService.getNotionDatabasePropIds(
+                databaseResponse,
+            );
+
+        // 구글 캘린더 정보 가져오기
+        const googleTokens = getGoogleCalendarTokensByUser(user);
+        const googleClient = new GoogleCalendarClient(
+            googleTokens.accessToken,
+            googleTokens.refreshToken,
+            googleTokens.callbackUrl,
+        );
+        const writeableCalendarsRes =
+            await googleClient.getWriteableCalendars();
+        const primaryCalendars = writeableCalendarsRes.data.items
+            .filter((e) => e.primary)
+            .map((e) => ({
+                id: e.id,
+                summary: e.summary,
+                primary: e.primary,
+                accessRole: e.accessRole,
+            }));
+
+        for (const calendar of primaryCalendars) {
+            const existCalendar = await this.calendarsRepository.findOne({
+                where: {
+                    userId: user.id,
+                    googleCalendarId: calendar.id,
+                },
+            });
+
+            if (existCalendar) {
+                existCalendar.accessRole =
+                    calendar.accessRole as CalendarEntity['accessRole'];
+                existCalendar.googleCalendarName = calendar.summary;
+                await this.calendarsRepository.save(existCalendar);
+            } else {
+                const newCalendar = new CalendarEntity({
+                    accessRole:
+                        calendar.accessRole as CalendarEntity['accessRole'],
+                    googleCalendarId: calendar.id,
+                    googleCalendarName: calendar.summary,
+                    user,
+                });
+                await this.calendarsRepository.save(newCalendar);
+            }
+        }
+
+        // 유저 업데이트
+        user.isConnected = true;
+        user.notionProps = JSON.stringify(propsId);
+        user.notionDatabaseId = notionDatabaseId;
+        user.status = 'FINISHED';
+        await this.usersRepository.save(user);
         return;
     }
 }

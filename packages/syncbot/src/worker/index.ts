@@ -47,7 +47,7 @@ export class Worker {
         });
 
         try {
-            await this.runSteps();
+            await this.runStepsWithTimeout();
         } catch (err) {
             try {
                 this.context.result.fail = true;
@@ -80,20 +80,9 @@ export class Worker {
         return result;
     }
 
-    private async runSteps() {
+    private async runStepsWithTimeout() {
         try {
-            await timeout(
-                (async () => {
-                    await this.init();
-                    await this.startSync();
-                    await this.validation();
-                    await this.eraseDeletedEvent();
-                    await this.syncEvents();
-                    await this.syncNewCalendars();
-                    await this.endSync();
-                })(),
-                TIMEOUT_MS,
-            );
+            await timeout(this.runSteps(), TIMEOUT_MS);
         } catch (err) {
             if (err instanceof TimeoutError) {
                 throw new SyncTimeoutError({
@@ -103,6 +92,22 @@ export class Worker {
                 throw err;
             }
         }
+    }
+
+    private async runSteps() {
+        await this.init();
+        await this.startSync();
+        await this.validation();
+
+        if (this.context.user.lastCalendarSync) {
+            await this.eraseDeletedEvent();
+            await this.syncEvents();
+            await this.syncNewCalendars();
+        } else {
+            await this.initAccount();
+        }
+
+        await this.endSync();
     }
 
     // 어시스트 초기화
@@ -192,6 +197,21 @@ export class Worker {
     // 새로운 캘린더 연결
     private async syncNewCalendars() {
         this.context.result.step = 'syncNewCalendar';
+
+        const newCalendars = this.context.calendars.filter(
+            (e) => e.status === 'PENDING',
+        );
+
+        for (const newCalendar of newCalendars) {
+            await this.workerAssist.syncNewCalendar(newCalendar);
+        }
+    }
+
+    // 계정 초기 세팅
+    private async initAccount() {
+        this.context.result.step = 'initAccount';
+
+        const pages = await this.notionAssist.getPages();
 
         const newCalendars = this.context.calendars.filter(
             (e) => e.status === 'PENDING',

@@ -5,6 +5,7 @@ export type WorkerStep =
     | 'eraseDeletedEvent'
     | 'syncEvents'
     | 'syncNewCalendar'
+    | 'initAccount'
     | 'endSync';
 export type WorkerResult = {
     step: WorkerStep;
