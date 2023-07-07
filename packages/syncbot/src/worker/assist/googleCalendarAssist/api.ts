@@ -78,6 +78,10 @@ export class GoogleCalendarAssistApi {
                 if (err.response?.status === 404) {
                     return;
                 }
+
+                if (err.response.status == 410) {
+                    return;
+                }
             }
 
             throw err;
