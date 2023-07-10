@@ -53,8 +53,7 @@ const handleGoogleHandlerErrors = async (
                 ].includes(data.message)
             ) {
                 throw new GoogleCalendarAPIError({
-                    code: SyncErrorCode.googleCalendar.api
-                        .USER_CALENDAR_USAGE_LIMIT,
+                    code: SyncErrorCode.googleCalendar.api.FORBIDDEN,
                     user,
                     err,
                 });
