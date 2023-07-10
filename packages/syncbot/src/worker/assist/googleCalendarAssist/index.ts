@@ -102,7 +102,12 @@ export class GoogleCalendarAssist extends Assist {
         );
 
         if (!calendar) {
-            console.log('calendar not found');
+            // 캘린더가 없는 경우 처리하지 않음
+            return;
+        }
+
+        if (calendar.accessRole === 'reader') {
+            // 캘린더가 읽기 전용인 경우 처리하지 않음
             return;
         }
 
