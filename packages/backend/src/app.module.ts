@@ -20,6 +20,7 @@ import { AppService } from './app.service';
 import { validate } from './common/env/env.validation';
 import { AdminErrorModule } from './submodules/admin/submodules/error/error.module';
 import { AdminStatisticsModule } from './submodules/admin/submodules/statistics/statisics.module';
+import { AdminToolsModule } from './submodules/admin/submodules/tools/tools.module';
 import { AdminUserModule } from './submodules/admin/submodules/user/admin-user.module';
 import { AdminUserEventModule } from './submodules/admin/submodules/user/submodules/event/event.module';
 import { AdminUserPlanModule } from './submodules/admin/submodules/user/submodules/plan/plan.module';
@@ -63,6 +64,7 @@ dotenv.config({
         AdminErrorModule,
         SyncbotLogModule,
         Migration1Module,
+        AdminToolsModule,
         ConfigModule.forRoot({
             isGlobal: true,
             validate: validate,
