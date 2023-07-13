@@ -21,6 +21,8 @@ const NotionAPIErrorCode = {
     INTERNAL_SERVER_ERROR: 'notion_api_internal_server_error',
     SERVICE_UNAVAILABLE: 'notion_api_service_unavailable',
     UNKNOWN_ERROR: 'notion_api_unknown_error',
+
+    DATABASE_ARCHIVED: 'notion_api_database_archived',
 };
 
 const NotionSyncErrorCode = {
