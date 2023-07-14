@@ -28,7 +28,7 @@ const APIErrorMap: {
     },
     [SyncErrorCode.notion.api.PAGE_NOT_FOUND]: {
         message: '노션 API 페이지를 찾을 수 없음',
-        finishWork: 'RETRY',
+        finishWork: 'STOP',
     },
     [SyncErrorCode.notion.api.RATE_LIMIT]: {
         message: '노션 API 과도한 요청',
