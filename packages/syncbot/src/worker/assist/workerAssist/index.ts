@@ -132,11 +132,17 @@ export class WorkerAssist extends Assist {
         const events = await this.googleCalendarAssist.getEventByCalendar(
             newCalendar.googleCalendarId,
         );
+
+        const calendar = await DB.calendar.findOne({
+            where: {
+                id: newCalendar.id,
+            },
+        });
         for (const event of events) {
-            await this.addEventByGCal(event, newCalendar);
+            await this.addEventByGCal(event, calendar);
         }
 
-        this.context.result.syncNewCalendar[`${newCalendar.id}`].eventCount =
+        this.context.result.syncNewCalendar[`${calendar.id}`].eventCount =
             events.length;
     }
 }

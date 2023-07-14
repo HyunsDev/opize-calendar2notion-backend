@@ -87,16 +87,6 @@ export class NotionAssist extends Assist {
             ).select.options,
         ).filter((e: any) => !oldPropIds.includes(e.id))[0] as any;
 
-        console.log('==================');
-
-        console.log(database);
-
-        console.log('--------');
-
-        console.log(newProp);
-
-        console.log(calendarProp, oldPropIds);
-
         await DB.calendar.update(calendar.id, {
             notionPropertyId: newProp.id,
         });
