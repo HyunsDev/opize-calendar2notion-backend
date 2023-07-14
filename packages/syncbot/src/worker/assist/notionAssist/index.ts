@@ -66,9 +66,7 @@ export class NotionAssist extends Assist {
             name: calendar.googleCalendarName,
             id: undefined,
         });
-        await this.api.updateCalendarProps(calendars);
-
-        const database = await this.api.getDatabase();
+        const database = await this.api.updateCalendarProps(calendars);
 
         // 새로운 속성 찾기
         const calendarProp: string = JSON.parse(
@@ -89,8 +87,9 @@ export class NotionAssist extends Assist {
             ).select.options,
         ).filter((e: any) => !oldPropIds.includes(e.id))[0] as any;
 
-        calendar.notionPropertyId = newProp.id;
-        await DB.calendar.save(calendar);
+        await DB.calendar.update(calendar.id, {
+            notionPropertyId: newProp.id,
+        });
     }
 
     @SyncErrorBoundary('deletePage')

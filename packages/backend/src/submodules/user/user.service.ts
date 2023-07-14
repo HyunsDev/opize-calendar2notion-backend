@@ -153,10 +153,18 @@ export class UserService {
 
         // 동일한 이름의 캘린더 거부
         const sameNameCalendar = await this.calendarsRepository.findOne({
-            where: {
-                userId: user.id,
-                googleCalendarName: googleCalendar.summary,
-            },
+            where: [
+                {
+                    userId: user.id,
+                    googleCalendarName: googleCalendar.summary,
+                    status: 'CONNECTED',
+                },
+                {
+                    userId: user.id,
+                    googleCalendarName: googleCalendar.summary,
+                    status: 'PENDING',
+                },
+            ],
         });
 
         if (sameNameCalendar) {
