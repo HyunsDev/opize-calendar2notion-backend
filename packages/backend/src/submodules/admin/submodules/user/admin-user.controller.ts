@@ -30,6 +30,11 @@ export class AdminUserController {
         return await this.adminUserService.searchUser(option);
     }
 
+    @Get('expiration-users')
+    async getExpirationUsers() {
+        return await this.adminUserService.getExpirationUsers();
+    }
+
     @Get(':userId')
     async getUser(@Param('userId') userId: string) {
         return await this.adminUserService.searchUser({

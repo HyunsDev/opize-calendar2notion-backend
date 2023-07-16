@@ -77,6 +77,20 @@ export class AdminUserService {
         }
     }
 
+    async getExpirationUsers() {
+        const currentDate = new Date().toISOString();
+
+        const users = await this.usersRepository
+            .createQueryBuilder('user')
+            .innerJoinAndSelect('user.paymentLogs', 'paymentLog')
+            .where('paymentLog.expirationTime < :currentDate', { currentDate })
+            .getMany();
+
+        return {
+            users,
+        };
+    }
+
     async updateUser(userId: number, dto: UpdateUserReqDto) {
         const user = await this.usersRepository.findOne({
             where: {
