@@ -192,28 +192,28 @@ export class NotionAssistApi {
                         }),
                     ),
                 },
-                [props.description]: props.description && {
-                    type: 'rich_text',
-                    rich_text: [
-                        {
-                            type: 'text',
-                            text: {
-                                content: event.description || '',
-                            },
-                        },
-                    ],
-                },
-                [props.location]: props.location && {
-                    type: 'rich_text',
-                    rich_text: [
-                        {
-                            type: 'text',
-                            text: {
-                                content: event.location || '',
-                            },
-                        },
-                    ],
-                },
+                // [props.description]: props.description && {
+                //     type: 'rich_text',
+                //     rich_text: [
+                //         {
+                //             type: 'text',
+                //             text: {
+                //                 content: event.description || '',
+                //             },
+                //         },
+                //     ],
+                // },
+                // [props.location]: props.location && {
+                //     type: 'rich_text',
+                //     rich_text: [
+                //         {
+                //             type: 'text',
+                //             text: {
+                //                 content: event.location || '',
+                //             },
+                //         },
+                //     ],
+                // },
             },
         });
     }
@@ -400,28 +400,28 @@ export class NotionAssistApi {
                             id: calendar.notionPropertyId,
                         },
                     },
-                    [props.description]: props.description && {
-                        type: 'rich_text',
-                        rich_text: [
-                            {
-                                type: 'text',
-                                text: {
-                                    content: event.description || '',
-                                },
-                            },
-                        ],
-                    },
-                    [props.location]: props.location && {
-                        type: 'rich_text',
-                        rich_text: [
-                            {
-                                type: 'text',
-                                text: {
-                                    content: event.location || '',
-                                },
-                            },
-                        ],
-                    },
+                    // [props.description]: props.description && {
+                    //     type: 'rich_text',
+                    //     rich_text: [
+                    //         {
+                    //             type: 'text',
+                    //             text: {
+                    //                 content: event.description || '',
+                    //             },
+                    //         },
+                    //     ],
+                    // },
+                    // [props.location]: props.location && {
+                    //     type: 'rich_text',
+                    //     rich_text: [
+                    //         {
+                    //             type: 'text',
+                    //             text: {
+                    //                 content: event.location || '',
+                    //             },
+                    //         },
+                    //     ],
+                    // },
                 },
             });
         } catch (err) {
