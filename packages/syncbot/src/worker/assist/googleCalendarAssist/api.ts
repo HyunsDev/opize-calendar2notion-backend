@@ -161,8 +161,6 @@ export class GoogleCalendarAssistApi {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
 
         const titleProp = Object.values(page.properties).find(
@@ -183,20 +181,6 @@ export class GoogleCalendarAssistApi {
             }),
         );
 
-        const descriptionProp = Object.values(page.properties).find(
-            (e) => e.id === props.description,
-        ) as any;
-        const description: string =
-            descriptionProp.rich_text.map((e: any) => e?.plain_text).join() ||
-            undefined;
-
-        const locationProp = Object.values(page.properties).find(
-            (e) => e.id === props.location,
-        ) as any;
-        const location: string =
-            locationProp.rich_text.map((e: any) => e?.plain_text).join() ||
-            undefined;
-
         try {
             return await this.client.events.patch({
                 eventId: eventLink.googleCalendarEventId,
@@ -205,8 +189,6 @@ export class GoogleCalendarAssistApi {
                     start: date.start,
                     end: date.end,
                     summary: title,
-                    // [description && 'description']: description,
-                    // [location && 'location']: location,
                 },
             });
         } catch (err: unknown) {
@@ -241,8 +223,6 @@ export class GoogleCalendarAssistApi {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
 
         const titleProp = Object.values(page.properties).find(
@@ -263,28 +243,12 @@ export class GoogleCalendarAssistApi {
             }),
         );
 
-        const descriptionProp = Object.values(page.properties).find(
-            (e) => e.id === props.description,
-        ) as any;
-        const description: string =
-            descriptionProp.rich_text.map((e: any) => e?.plain_text).join('') ||
-            undefined;
-
-        const locationProp = Object.values(page.properties).find(
-            (e) => e.id === props.location,
-        ) as any;
-        const location: string =
-            locationProp.rich_text.map((e: any) => e?.plain_text).join('') ||
-            undefined;
-
         const res = await this.client.events.insert({
             calendarId: calendar.googleCalendarId,
             requestBody: {
                 start: date.start,
                 end: date.end,
                 summary: title,
-                // [description && 'description']: description,
-                // [location && 'location']: location,
             },
         });
         return res.data;
