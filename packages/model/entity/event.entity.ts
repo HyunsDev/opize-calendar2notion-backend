@@ -15,7 +15,7 @@ export class EventEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ length: '300' })
+    @Column({ length: '1000' })
     googleCalendarEventId: string;
 
     @Column({ length: '300' })
