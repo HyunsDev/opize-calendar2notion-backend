@@ -9,7 +9,6 @@ import { google, calendar_v3 } from 'googleapis';
 import { WorkerContext } from 'src/worker/context/workerContext';
 
 import { SyncError } from '../../error/error';
-import { SyncConfig } from '../../types/syncConfig';
 import { NotionDateTime, transDate } from '../../utils/dateUtils';
 
 import { gCalApi } from './api.decorator';

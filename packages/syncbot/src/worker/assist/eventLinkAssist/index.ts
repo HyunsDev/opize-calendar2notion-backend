@@ -1,9 +1,5 @@
 import { PartialPageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import {
-    CalendarEntity,
-    EventEntity,
-    UserEntity,
-} from '@opize/calendar2notion-object';
+import { CalendarEntity, EventEntity } from '@opize/calendar2notion-object';
 import { calendar_v3 } from 'googleapis';
 import { WorkerContext } from 'src/worker/context/workerContext';
 

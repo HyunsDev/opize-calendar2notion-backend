@@ -1,4 +1,4 @@
-import { ErrorLogEntity, UserEntity } from '@opize/calendar2notion-object';
+import { ErrorLogEntity } from '@opize/calendar2notion-object';
 
 type ErrorSyncConstructor = {
     code: ErrorLogEntity['code'];
