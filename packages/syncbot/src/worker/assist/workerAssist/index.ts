@@ -1,4 +1,4 @@
-import { CalendarEntity, EventEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity, EventEntity } from '@opize/calendar2notion-object';
 import dayjs from 'dayjs';
 import { calendar_v3 } from 'googleapis';
 import { LessThan } from 'typeorm';

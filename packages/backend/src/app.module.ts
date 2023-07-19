@@ -11,8 +11,8 @@ import {
     NotionWorkspaceEntity,
     SyncBotEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
-import { PaymentLogEntity } from '@opize/calendar2notion-model/dist/entity/paymentLog.entity';
+    PaymentLogEntity,
+} from '@opize/calendar2notion-object';
 import * as dotenv from 'dotenv';
 
 import { AppController } from './app.controller';

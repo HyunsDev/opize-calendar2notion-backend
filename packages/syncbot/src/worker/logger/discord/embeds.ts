@@ -1,5 +1,5 @@
 import { Embed } from '@hyunsdev/discord-webhook';
-import { ErrorLogEntity, UserEntity } from '@opize/calendar2notion-model';
+import { ErrorLogEntity, UserEntity } from '@opize/calendar2notion-object';
 
 import { SyncError } from '../../../worker/error/error';
 

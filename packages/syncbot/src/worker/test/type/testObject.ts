@@ -1,5 +1,5 @@
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { CalendarEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity } from '@opize/calendar2notion-object';
 import { calendar_v3 } from 'googleapis';
 import { EventDateTime } from '../../utils/dateUtils';
 

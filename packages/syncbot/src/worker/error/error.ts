@@ -1,4 +1,4 @@
-import { ErrorLogEntity, UserEntity } from '@opize/calendar2notion-model';
+import { ErrorLogEntity, UserEntity } from '@opize/calendar2notion-object';
 
 type ErrorSyncConstructor = {
     code: ErrorLogEntity['code'];
@@ -43,7 +43,7 @@ export class SyncError extends Error {
     }
 
     getErrorLog(): ErrorLogEntity {
-        return new ErrorLogEntity({
+        return ErrorLogEntity.create({
             code: this.code,
             from: this.from,
             description: this.description,

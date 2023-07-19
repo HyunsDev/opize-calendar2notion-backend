@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '@opize/calendar2notion-model';
+import { UserEntity } from '@opize/calendar2notion-object';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { Repository } from 'typeorm';

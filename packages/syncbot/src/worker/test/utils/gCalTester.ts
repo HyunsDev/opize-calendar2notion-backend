@@ -1,4 +1,4 @@
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity, UserEntity } from '@opize/calendar2notion-object';
 import { google, calendar_v3 } from 'googleapis';
 import { TestEventObject, TestPageObject } from '../type/testObject';
 

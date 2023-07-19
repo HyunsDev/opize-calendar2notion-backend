@@ -1,4 +1,4 @@
-import { UserEntity } from '@opize/calendar2notion-model';
+import { UserEntity } from '@opize/calendar2notion-object';
 import * as express from 'express';
 
 declare global {

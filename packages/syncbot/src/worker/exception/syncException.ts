@@ -1,4 +1,4 @@
-import { ErrorLogEntity } from '@opize/calendar2notion-model';
+import { ErrorLogEntity } from '@opize/calendar2notion-object';
 
 import { DB } from '../../database';
 import { webhook } from '../../logger/webhook';
@@ -37,7 +37,7 @@ export const unknownErrorFilter = async (
     });
 
     const errorLog = await DB.errorLog.save(
-        new ErrorLogEntity({
+        ErrorLogEntity.create({
             code: 'unknown_error',
             from: 'UNKNOWN',
             description: '알 수 없는 오류',

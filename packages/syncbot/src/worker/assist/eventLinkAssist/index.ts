@@ -3,7 +3,7 @@ import {
     CalendarEntity,
     EventEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import { calendar_v3 } from 'googleapis';
 import { WorkerContext } from 'src/worker/context/workerContext';
 
@@ -78,7 +78,7 @@ export class EventLinkAssist {
         event: calendar_v3.Schema$Event,
         calendar: CalendarEntity,
     ) {
-        const eventLink = new EventEntity({
+        const eventLink = EventEntity.create({
             googleCalendarEventId: event.id,
             googleCalendarCalendarId: calendar.googleCalendarId,
             lastGoogleCalendarUpdate: new Date(event.updated),

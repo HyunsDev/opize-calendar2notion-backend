@@ -9,7 +9,7 @@ import {
     CalendarEntity,
     EventEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import * as dayjs from 'dayjs';
 import { calendar_v3 } from 'googleapis';
 import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
@@ -194,7 +194,7 @@ export class UserService {
             !oldCalendar ||
             (oldCalendar && oldCalendar.status === 'DISCONNECTED')
         ) {
-            const calendar = new CalendarEntity({
+            const calendar = CalendarEntity.create({
                 accessRole:
                     googleCalendar.accessRole as CalendarEntity['accessRole'],
                 googleCalendarId: googleCalendar.id,

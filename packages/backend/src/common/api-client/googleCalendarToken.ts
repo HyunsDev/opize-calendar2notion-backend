@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { UserEntity } from '@opize/calendar2notion-model';
+import { UserEntity } from '@opize/calendar2notion-object';
 
 export const getGoogleCalendarTokensByUser = (user: UserEntity) => {
     const callbackUrls = JSON.parse(process.env.GOOGLE_CALLBACKS || '{}');

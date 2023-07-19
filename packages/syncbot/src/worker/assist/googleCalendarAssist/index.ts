@@ -1,5 +1,5 @@
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { CalendarEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity } from '@opize/calendar2notion-object';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';

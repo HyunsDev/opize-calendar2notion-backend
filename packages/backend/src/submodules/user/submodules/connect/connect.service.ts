@@ -8,7 +8,7 @@ import {
     CalendarEntity,
     NotionWorkspaceEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import { AxiosError } from 'axios';
 import * as dayjs from 'dayjs';
 import { google } from 'googleapis';
@@ -148,7 +148,7 @@ export class UserConnectService {
             });
 
             if (!workspace) {
-                workspace = new NotionWorkspaceEntity({
+                workspace = NotionWorkspaceEntity.create({
                     workspaceId: res.data.workspace_id,
                     accessToken: res.data.access_token,
                     botId: res.data.bot_id,
@@ -284,7 +284,7 @@ export class UserConnectService {
                 await this.calendarsRepository.save(calendar);
                 continue;
             } else {
-                calendar = new CalendarEntity({
+                calendar = CalendarEntity.create({
                     accessRole:
                         newCalendar.accessRole as CalendarEntity['accessRole'],
                     googleCalendarId: newCalendar.id,
@@ -379,7 +379,7 @@ export class UserConnectService {
                 existCalendar.googleCalendarName = calendar.summary;
                 await this.calendarsRepository.save(existCalendar);
             } else {
-                const newCalendar = new CalendarEntity({
+                const newCalendar = CalendarEntity.create({
                     accessRole:
                         calendar.accessRole as CalendarEntity['accessRole'],
                     googleCalendarId: calendar.id,

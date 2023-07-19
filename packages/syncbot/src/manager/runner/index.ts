@@ -1,5 +1,5 @@
 import { Embed } from '@hyunsdev/discord-webhook';
-import { UserEntity } from '@opize/calendar2notion-model';
+import { UserEntity } from '@opize/calendar2notion-object';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';

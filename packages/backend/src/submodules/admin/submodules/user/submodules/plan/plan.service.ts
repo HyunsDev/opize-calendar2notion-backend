@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaymentLogEntity, UserEntity } from '@opize/calendar2notion-model';
+import { PaymentLogEntity, UserEntity } from '@opize/calendar2notion-object';
 import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
@@ -51,7 +51,7 @@ export class AdminUserPlanService {
             await this.usersRepository.save(user);
         }
 
-        const paymentLog = new PaymentLogEntity({
+        const paymentLog = PaymentLogEntity.create({
             plan: dto.plan,
             paymentKind: dto.paymentKind,
             price: dto.price,

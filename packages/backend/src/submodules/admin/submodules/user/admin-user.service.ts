@@ -4,7 +4,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '@opize/calendar2notion-model';
+import { UserEntity } from '@opize/calendar2notion-object';
 import { FindManyOptions, Repository } from 'typeorm';
 
 import { SearchUserResDto } from './dto/searchUser.res.dto';

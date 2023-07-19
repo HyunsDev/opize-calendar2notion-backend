@@ -1,4 +1,4 @@
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity, UserEntity } from '@opize/calendar2notion-object';
 
 import { WorkerResult } from '../types/result';
 import { SyncConfig } from '../types/syncConfig';

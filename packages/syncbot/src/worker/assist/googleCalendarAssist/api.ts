@@ -3,7 +3,7 @@ import {
     CalendarEntity,
     EventEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import { GaxiosError } from 'gaxios';
 import { google, calendar_v3 } from 'googleapis';
 import { WorkerContext } from 'src/worker/context/workerContext';

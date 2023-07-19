@@ -6,7 +6,7 @@ import {
     CalendarEntity,
     NotionWorkspaceEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import { Repository } from 'typeorm';
 
 export type NotionPropName = 'title' | 'calendar' | 'date' | 'delete';

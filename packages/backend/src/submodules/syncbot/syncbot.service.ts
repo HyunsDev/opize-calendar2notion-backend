@@ -6,7 +6,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SyncBotEntity } from '@opize/calendar2notion-model';
+import { SyncBotEntity } from '@opize/calendar2notion-object';
 import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 
@@ -101,7 +101,7 @@ export class SyncbotService {
         }
 
         try {
-            const syncBot = new SyncBotEntity({
+            const syncBot = SyncBotEntity.create({
                 controlSecret: dto.controlSecret,
                 name: dto.name,
                 prefix: dto.prefix,

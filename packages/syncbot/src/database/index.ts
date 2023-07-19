@@ -6,7 +6,7 @@ import {
     PaymentLogEntity,
     SyncBotEntity,
     NotionWorkspaceEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 

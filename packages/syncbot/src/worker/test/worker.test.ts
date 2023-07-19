@@ -1,5 +1,5 @@
 import '../testenv';
-import { CalendarEntity, UserEntity } from '@opize/calendar2notion-model';
+import { CalendarEntity, UserEntity } from '@opize/calendar2notion-object';
 import { NotionTester } from './utils/notionTester';
 import { DB, AppDataSource } from '../../database';
 import { Worker } from '..';

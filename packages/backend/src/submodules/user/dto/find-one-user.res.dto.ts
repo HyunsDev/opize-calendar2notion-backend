@@ -3,7 +3,7 @@ import {
     PaymentLogDto,
     UserDto,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 
 type GoogleCalendars = {
     id: string;
@@ -21,8 +21,8 @@ export class FindOneUserResDto extends UserDto {
 
     constructor(user: UserEntity, googleCalendars: GoogleCalendars[]) {
         super(user);
-        this.calendars = user.calendars.map(
-            (calendar) => new CalendarDto(calendar),
+        this.calendars = user.calendars.map((calendar) =>
+            CalendarDto.from(calendar),
         );
         this.googleCalendars = googleCalendars;
         this.paymentLogs = user.paymentLogs.map(

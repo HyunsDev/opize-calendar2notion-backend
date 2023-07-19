@@ -7,7 +7,7 @@ import {
     Migration1Entity,
     PaymentLogEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
@@ -142,7 +142,7 @@ export class Migration1Service {
 
         const nextPaymentTimes: Date[] = [];
         for (const oldPaymentLog of migrateUser.paymentLogs) {
-            const paymentLog = new PaymentLogEntity({
+            const paymentLog = PaymentLogEntity.create({
                 user,
                 plan: oldPaymentLog.userPlan === 'pro' ? 'PRO' : 'FREE',
                 paymentKind: oldPaymentLog.paymentKind,
@@ -179,7 +179,7 @@ export class Migration1Service {
             },
         );
 
-        const migration1 = new Migration1Entity({
+        const migration1 = Migration1Entity.create({
             step: 'ACCOUNT',
             migrationUserId: migrateUser.id,
             migrationUserName: migrateUser.name,
@@ -323,7 +323,7 @@ export class Migration1Service {
         };
 
         for (const calendarData of migrateUser.calendars) {
-            let calendar = new CalendarEntity({
+            let calendar = CalendarEntity.create({
                 user,
                 accessRole:
                     calendarData.accessRole as CalendarEntity['accessRole'],

@@ -9,7 +9,7 @@ import {
     Migration1Entity,
     PaymentLogEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 import * as dotenv from 'dotenv';
 
 import { AuthService } from '../user/submodules/auth/auth.service';

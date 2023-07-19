@@ -5,7 +5,7 @@ import {
     CalendarEntity,
     EventEntity,
     UserEntity,
-} from '@opize/calendar2notion-model';
+} from '@opize/calendar2notion-object';
 
 import { AuthService } from './submodules/auth/auth.service';
 import { OpizeAuthService } from './submodules/auth/opize.auth.service';

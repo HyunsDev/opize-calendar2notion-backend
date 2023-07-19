@@ -1,4 +1,4 @@
-import { ErrorLogEntity } from '@opize/calendar2notion-model';
+import { ErrorLogEntity } from '@opize/calendar2notion-object';
 import { pick } from 'src/common/utils/pick';
 
 type ErrorLogObject = Pick<

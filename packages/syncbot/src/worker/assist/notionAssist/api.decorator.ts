@@ -1,5 +1,5 @@
 import { APIResponseError } from '@notionhq/client';
-import { UserEntity } from '@opize/calendar2notion-model';
+import { UserEntity } from '@opize/calendar2notion-object';
 
 import { sleep } from '../../../utils';
 import { SyncErrorCode } from '../../error';
