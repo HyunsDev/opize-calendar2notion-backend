@@ -9,7 +9,13 @@ import {
 } from '@opize/calendar2notion-model';
 import { Repository } from 'typeorm';
 
-export type NotionPropName = 'title' | 'calendar' | 'date' | 'delete';
+export type NotionPropName =
+    | 'title'
+    | 'calendar'
+    | 'date'
+    | 'delete'
+    | 'location'
+    | 'description';
 
 export type NotionProp = {
     name: NotionPropName;
@@ -24,6 +30,8 @@ const propsTypes = {
     calendar: 'select',
     date: 'date',
     delete: 'checkbox',
+    location: 'rich_text',
+    description: 'rich_text',
 } as const;
 
 @Injectable()
@@ -65,11 +73,20 @@ export class UserConnectNotionService {
             calendar: props.calendar.id,
             date: props.date.id,
             delete: props.delete.id,
+            location: props.location?.id,
+            description: props.description?.id,
         };
     }
 
     private getProps(database: GetDatabaseResponse): NotionProps {
-        const propsNames = ['title', 'calendar', 'date', 'delete'];
+        const propsNames = [
+            'title',
+            'calendar',
+            'date',
+            'delete',
+            'location',
+            'description',
+        ];
 
         const props: NotionProps = {};
 
@@ -101,6 +118,8 @@ export class UserConnectNotionService {
             calendar: this.propCheck(props, 'calendar'),
             date: this.propCheck(props, 'date'),
             delete: this.propCheck(props, 'delete'),
+            location: this.propCheck(props, 'location'),
+            description: this.propCheck(props, 'description'),
         };
 
         const isValid = Object.values(propsCheckRes).every(

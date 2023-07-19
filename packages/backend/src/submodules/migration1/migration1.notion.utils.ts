@@ -6,7 +6,13 @@ import { NotionClient } from 'src/common/api-client/notion.client';
 import { Migration1UserEntity } from './entity/migration1.user.entity';
 import { Migration1Error } from './error/migration.error';
 
-type PropName = 'title' | 'calendar' | 'date' | 'delete';
+type PropName =
+    | 'title'
+    | 'calendar'
+    | 'date'
+    | 'delete'
+    | 'location'
+    | 'description';
 type Prop = {
     name: PropName;
     id: string;
@@ -40,6 +46,8 @@ export class NotionMigrate1Util {
      */
     public async propsMigrate() {
         await this.getDatabase();
+
+        await this.createMissingProps();
 
         const propsValid = this.checkPropsValid();
         if (!propsValid.isValid) {
@@ -120,8 +128,37 @@ export class NotionMigrate1Util {
         return database;
     }
 
+    private async createMissingProps() {
+        const propsIds = this.getPropIds();
+
+        if (!propsIds.location) {
+            await this.client.addProperty(
+                this.database.id,
+                'location',
+                'rich_text',
+            );
+        }
+
+        if (!propsIds.description) {
+            await this.client.addProperty(
+                this.database.id,
+                'description',
+                'rich_text',
+            );
+        }
+
+        await this.getDatabase();
+    }
+
     private getProps(): Props {
-        const propsNames = ['title', 'calendar', 'date', 'delete'];
+        const propsNames = [
+            'title',
+            'calendar',
+            'date',
+            'delete',
+            'location',
+            'description',
+        ];
 
         const props: Props = {};
         propsNames.forEach((e) => {
@@ -140,6 +177,8 @@ export class NotionMigrate1Util {
             calendar: 'select',
             date: 'date',
             delete: 'checkbox',
+            location: 'rich_text',
+            description: 'rich_text',
         };
 
         const propCheck = (name: string) => {
@@ -169,6 +208,8 @@ export class NotionMigrate1Util {
             calendar: propCheck('calendar'),
             date: propCheck('date'),
             delete: propCheck('delete'),
+            location: propCheck('location'),
+            description: propCheck('description'),
         };
 
         const isValid = Object.values(propsCheck).every(

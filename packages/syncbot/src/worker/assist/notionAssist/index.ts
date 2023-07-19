@@ -175,6 +175,8 @@ export class NotionAssist extends Assist {
             date: string;
             delete: string;
             link?: string;
+            description?: string;
+            location?: string;
         } = JSON.parse(this.context.user.notionProps);
 
         const requiredProps = ['title', 'calendar', 'date', 'delete'];
@@ -185,6 +187,8 @@ export class NotionAssist extends Assist {
             date: 'date',
             delete: 'checkbox',
             link: 'url',
+            description: 'rich_text',
+            location: 'rich_text',
         };
 
         const errors: {
@@ -213,7 +217,7 @@ export class NotionAssist extends Assist {
                 });
                 continue;
             }
-            if (propsMap[userProp] && prop.type !== propsMap[userProp]) {
+            if (prop.type !== propsMap[userProp]) {
                 // 정해진 타입과 일치하지 않음
                 errors.push({
                     error: 'wrong_prop_type',
