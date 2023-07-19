@@ -12,7 +12,6 @@
     "workspaces": {
         "packages": [
             "packages/backend",
-            "packages/model",
             "packages/syncbot"
         ]
     },

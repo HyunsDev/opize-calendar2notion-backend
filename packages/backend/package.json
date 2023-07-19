@@ -30,7 +30,6 @@
         "@nestjs/platform-express": "^9.0.0",
         "@nestjs/typeorm": "^9.0.1",
         "@notionhq/client": "^2.2.2",
-        "@opize/calendar2notion-object": "1.0.0",
         "@opize/calendar2notion-object": "^1.0.0",
         "axios": "^1.1.3",
         "class-transformer": "^0.5.1",
