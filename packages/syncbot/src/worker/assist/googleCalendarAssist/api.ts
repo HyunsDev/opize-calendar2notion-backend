@@ -205,8 +205,8 @@ export class GoogleCalendarAssistApi {
                     start: date.start,
                     end: date.end,
                     summary: title,
-                    // [description && 'description']: description,
-                    // [location && 'location']: location,
+                    [description && 'description']: description,
+                    [location && 'location']: location,
                 },
             });
         } catch (err: unknown) {
@@ -283,8 +283,8 @@ export class GoogleCalendarAssistApi {
                 start: date.start,
                 end: date.end,
                 summary: title,
-                // [description && 'description']: description,
-                // [location && 'location']: location,
+                [description && 'description']: description,
+                [location && 'location']: location,
             },
         });
         return res.data;
