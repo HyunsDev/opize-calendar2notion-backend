@@ -91,8 +91,6 @@ export class UserEntity {
         date: string;
         delete: string;
         link?: string;
-        description?: string;
-        location?: string;
     } {
         return JSON.parse(this.notionProps);
     }

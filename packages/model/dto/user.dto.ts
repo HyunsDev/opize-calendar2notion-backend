@@ -16,8 +16,6 @@ export type NotionProps = {
     date: string;
     delete: string;
     title: string;
-    description?: string;
-    location?: string;
 };
 
 export class UserDto {

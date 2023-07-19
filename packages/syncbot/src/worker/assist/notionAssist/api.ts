@@ -38,8 +38,6 @@ export class NotionAssistApi {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
         const calendarOptions = this.context.calendars
             .filter((e) => e.accessRole !== 'reader')
@@ -156,8 +154,6 @@ export class NotionAssistApi {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
 
         return await this.client.pages.create({
@@ -192,28 +188,6 @@ export class NotionAssistApi {
                         }),
                     ),
                 },
-                [props.description]: props.description && {
-                    type: 'rich_text',
-                    rich_text: [
-                        {
-                            type: 'text',
-                            text: {
-                                content: event.description || '',
-                            },
-                        },
-                    ],
-                },
-                [props.location]: props.location && {
-                    type: 'rich_text',
-                    rich_text: [
-                        {
-                            type: 'text',
-                            text: {
-                                content: event.location || '',
-                            },
-                        },
-                    ],
-                },
             },
         });
     }
@@ -226,8 +200,6 @@ export class NotionAssistApi {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
 
         const calendarOptions = this.context.calendars
@@ -299,8 +271,6 @@ export class NotionAssistApi {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
 
         const calendarOptions = this.context.calendars
@@ -368,8 +338,6 @@ export class NotionAssistApi {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
 
         try {
@@ -399,28 +367,6 @@ export class NotionAssistApi {
                         select: {
                             id: calendar.notionPropertyId,
                         },
-                    },
-                    [props.description]: props.description && {
-                        type: 'rich_text',
-                        rich_text: [
-                            {
-                                type: 'text',
-                                text: {
-                                    content: event.description || '',
-                                },
-                            },
-                        ],
-                    },
-                    [props.location]: props.location && {
-                        type: 'rich_text',
-                        rich_text: [
-                            {
-                                type: 'text',
-                                text: {
-                                    content: event.location || '',
-                                },
-                            },
-                        ],
                     },
                 },
             });

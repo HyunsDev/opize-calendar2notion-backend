@@ -85,8 +85,6 @@ export class GoogleCalendarAssist extends Assist {
             date: string;
             delete: string;
             link?: string;
-            description?: string;
-            location?: string;
         } = JSON.parse(this.context.user.notionProps);
         const eventLink = await this.eventLinkAssist.findByNotionPageId(
             page.id,
