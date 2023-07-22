@@ -11,7 +11,6 @@ import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 
 import { AddSyncBotDto } from './dto/add-syncbot.dto';
-import { ManagerStorageMap } from './types/storageMap';
 
 @Injectable()
 export class SyncbotService {
@@ -41,7 +40,7 @@ export class SyncbotService {
                         url: e.url,
                         createdAt: e.createdAt,
                         status: 'good',
-                        data: res.data as ManagerStorageMap,
+                        data: res.data,
                     };
                 } catch (err: any) {
                     return {
