@@ -6,6 +6,11 @@
     "author": "혀느현스 <hyuns@hyuns.dev>",
     "license": "MIT",
     "private": true,
-    "scripts": {},
+    "scripts": {
+        "bot": "pnpm --filter @opize/calendar2notion-syncbot",
+        "server": "pnpm --filter @opize/calendar2notion-server",
+        "entity": "pnpm --filter @opize/calendar2notion-entity",
+        "common": "pnpm --filter @opize/calendar2notion-common"
+    },
     "packageManager": "pnpm@8.7.6"
 }
