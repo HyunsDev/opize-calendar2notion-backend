@@ -9,15 +9,6 @@
     "author": "혀느현스 <hyuns@hyuns.dev>",
     "license": "MIT",
     "private": true,
-    "workspaces": {
-        "packages": [
-            "packages/backend",
-            "packages/syncbot"
-        ]
-    },
-    "scripts": {
-        "backend:dev": "yarn workspace @opize/calendar2notion-backend start:dev",
-        "syncbot:dev": "yarn workspace @opize/calendar2notion-syncbot start",
-        "model:build": "yarn workspace @opize/calendar2notion-model tsc"
-    }
+    "scripts": {},
+    "packageManager": "pnpm@8.7.6"
 }
