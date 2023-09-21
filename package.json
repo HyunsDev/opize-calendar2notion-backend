@@ -1,7 +1,4 @@
 {
-    "dependencies": {
-        "@nestjs/mapped-types": "*"
-    },
     "name": "opize-calendar2notion-backend",
     "version": "2.0.0",
     "main": "index.js",
