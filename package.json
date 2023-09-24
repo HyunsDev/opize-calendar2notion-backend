@@ -8,7 +8,7 @@
     "private": true,
     "scripts": {
         "bot": "pnpm --filter @opize/calendar2notion-syncbot",
-        "server": "pnpm --filter @opize/calendar2notion-server",
+        "nest": "pnpm --filter @opize/calendar2notion-server",
         "entity": "pnpm --filter @opize/calendar2notion-entity",
         "common": "pnpm --filter @opize/calendar2notion-common"
     },
