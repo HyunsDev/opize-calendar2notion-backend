@@ -1,25 +1,18 @@
-import { sleep } from './sleep';
+import { retry } from './retry';
 
-/**
- * API 요청에 실패했을 때 {maxRetriesCount} 만큼 다시 시도합니다
- * @param maxRetriesCount
- * @param interval
- * @returns
- */
-export function retry(maxRetriesCount = 3, interval = 1000) {
-    return function (target: any, key: string, desc: PropertyDescriptor) {
-        const method = desc.value;
-        desc.value = async function (...e: any) {
-            let retriesCount = maxRetriesCount;
-            while (true) {
-                try {
-                    retriesCount -= 1;
-                    return method.apply(this, e);
-                } catch (err) {
-                    if (retriesCount === 0) throw err;
-                    await sleep(interval);
-                }
-            }
+export function Retry(maxRetries: number = 3, delay: number = 300) {
+    return function (
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor,
+    ) {
+        const originalMethod = descriptor.value;
+        descriptor.value = async function (...args: any[]) {
+            return await retry(
+                originalMethod.bind(this, args),
+                maxRetries,
+                delay,
+            );
         };
     };
 }

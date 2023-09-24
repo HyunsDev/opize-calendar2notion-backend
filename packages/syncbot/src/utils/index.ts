@@ -1,4 +1,3 @@
-export * from './retry.decorator';
-export * from './sleep';
-export * from './timeout';
-export * from './valueOf';
+export * from './retry';
+export * from './Retry.decorator';
+export * from './delay';
