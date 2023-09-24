@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EventEntity, UserEntity } from '@opize/calendar2notion-object';
+import { EventEntity, UserEntity } from '@opize/calendar2notion-entity';
 import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';
 import { NotionClient } from 'src/common/api-client/notion.client';
 import { Repository } from 'typeorm';

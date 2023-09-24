@@ -6,7 +6,7 @@ import {
     EventEntity,
     PaymentLogEntity,
     UserEntity,
-} from '@opize/calendar2notion-object';
+} from '@opize/calendar2notion-entity';
 import { AuthService } from 'src/submodules/user/submodules/auth/auth.service';
 
 import { AdminUserPlanController } from './plan.controller';

@@ -1,4 +1,4 @@
-import { UserEntity } from '@opize/calendar2notion-object';
+import { UserEntity } from '@opize/calendar2notion-entity';
 
 export class SearchUserResDto {
     user: UserEntity;

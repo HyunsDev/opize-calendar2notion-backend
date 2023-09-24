@@ -5,7 +5,7 @@ import {
     ArgumentsHost,
     HttpException,
 } from '@nestjs/common';
-import { UserEntity } from '@opize/calendar2notion-object';
+import { UserEntity } from '@opize/calendar2notion-entity';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

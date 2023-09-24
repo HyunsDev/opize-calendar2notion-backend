@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '@opize/calendar2notion-object';
+import { UserEntity } from '@opize/calendar2notion-entity';
 import { AuthService } from 'src/submodules/user/submodules/auth/auth.service';
 
 import { AdminGoogleCalendarToolsService } from './googleCalendarTools.service';

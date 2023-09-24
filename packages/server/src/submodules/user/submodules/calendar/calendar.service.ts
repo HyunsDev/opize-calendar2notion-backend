@@ -9,7 +9,7 @@ import {
     CalendarEntity,
     EventEntity,
     UserEntity,
-} from '@opize/calendar2notion-object';
+} from '@opize/calendar2notion-entity';
 import { calendar_v3 } from 'googleapis';
 import { GoogleCalendarClient } from 'src/common/api-client/googleCalendar.client';
 import { getGoogleCalendarTokensByUser } from 'src/common/api-client/googleCalendarToken';

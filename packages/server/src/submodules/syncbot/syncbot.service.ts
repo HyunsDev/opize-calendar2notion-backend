@@ -6,7 +6,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SyncBotEntity } from '@opize/calendar2notion-object';
+import { SyncBotEntity } from '@opize/calendar2notion-entity';
 import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 

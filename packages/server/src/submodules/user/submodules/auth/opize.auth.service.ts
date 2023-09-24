@@ -5,7 +5,7 @@ import {
     InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '@opize/calendar2notion-object';
+import { UserEntity } from '@opize/calendar2notion-entity';
 import { firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 

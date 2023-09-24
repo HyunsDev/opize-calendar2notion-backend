@@ -6,7 +6,7 @@ import {
     EventEntity,
     SyncBotEntity,
     UserEntity,
-} from '@opize/calendar2notion-object';
+} from '@opize/calendar2notion-entity';
 
 import { AuthService } from '../user/submodules/auth/auth.service';
 

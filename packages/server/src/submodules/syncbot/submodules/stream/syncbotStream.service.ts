@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SyncBotEntity } from '@opize/calendar2notion-object';
+import { SyncBotEntity } from '@opize/calendar2notion-entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

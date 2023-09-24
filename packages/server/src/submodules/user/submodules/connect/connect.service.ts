@@ -8,7 +8,7 @@ import {
     CalendarEntity,
     NotionWorkspaceEntity,
     UserEntity,
-} from '@opize/calendar2notion-object';
+} from '@opize/calendar2notion-entity';
 import { AxiosError } from 'axios';
 import * as dayjs from 'dayjs';
 import { google } from 'googleapis';

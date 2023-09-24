@@ -12,7 +12,7 @@ import {
     SyncBotEntity,
     UserEntity,
     PaymentLogEntity,
-} from '@opize/calendar2notion-object';
+} from '@opize/calendar2notion-entity';
 import * as dotenv from 'dotenv';
 
 import { AppController } from './app.controller';

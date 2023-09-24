@@ -4,7 +4,7 @@ import {
     CalendarEntity,
     PaymentLogEntity,
     UserEntity,
-} from '@opize/calendar2notion-object';
+} from '@opize/calendar2notion-entity';
 import { Repository } from 'typeorm';
 
 import { GetStatisticsResDto } from './dto/getStatisitics.res.dto';

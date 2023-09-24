@@ -1,8 +1,8 @@
+import { UserEntity } from '@opize/calendar2notion-entity';
 import {
     CalendarDto,
     PaymentLogDto,
     UserDto,
-    UserEntity,
 } from '@opize/calendar2notion-object';
 
 type GoogleCalendars = {

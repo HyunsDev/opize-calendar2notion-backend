@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Query } from '@nestjs/common';
-import { UserEntity } from '@opize/calendar2notion-object';
+import { UserEntity } from '@opize/calendar2notion-entity';
 
 import { Auth } from '../user/decorator/auth.decorator';
 import { User } from '../user/decorator/user.decorator';

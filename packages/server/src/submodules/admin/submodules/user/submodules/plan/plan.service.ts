@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaymentLogEntity, UserEntity } from '@opize/calendar2notion-object';
+import { PaymentLogEntity, UserEntity } from '@opize/calendar2notion-entity';
 import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
